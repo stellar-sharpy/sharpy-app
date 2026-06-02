@@ -7,14 +7,18 @@
 
 Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on Stellar.
 
+## Live App
+
+**https://sharpy-sigma.vercel.app**
+
 ## Features
 
-🎯 **Recurring Splits** — Automatically generate invoices on schedule
-🔒 **Escrow Protection** — Hold funds before release with configurable delays
-📦 **Batch Operations** — Create and pay multiple invoices efficiently
-💰 **Advanced Splits** — Fixed, Percentage, and Tiered payment rules
-📊 **Dashboard** — Track sent and received invoices
-✅ **Public Verification** — On-chain verification without login
+- 🎯 **Recurring Splits** — Automatically generate invoices on schedule
+- 🔒 **Escrow Protection** — Hold funds before release with configurable delays
+- 📦 **Batch Operations** — Create and pay multiple invoices efficiently
+- 💰 **Advanced Splits** — Fixed, Percentage, and Tiered payment rules
+- 📊 **Dashboard** — Track sent and received invoices
+- ✅ **Public Verification** — On-chain verification without login
 
 ## Tech Stack
 
@@ -23,110 +27,72 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 | Framework | Next.js 14 (App Router) |
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS 3 |
-| Wallet | Freighter (`@stellar/freighter-api`) |
-| Contract SDK | `@stellar-sharpy/sdk` |
+| Wallet | Freighter (`@stellar/freighter-api` v3) |
+| Contract SDK | `@stellar-sharpy/sdk` (local workspace) |
 | Deploy | Vercel |
 
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page |
+| `/dashboard` | Wallet-gated sent and received invoices |
+| `/invoice/new` | Create invoice (single, escrow, recurring) |
+| `/invoice/[id]` | Invoice detail, funding progress, pay button |
+| `/invoice/[id]/escrow` | Release escrow-held invoices |
+| `/invoice/[id]/recurring` | View recurring invoice chain |
+| `/verify/[id]` | Public on-chain verification (no login, SSR) |
+
 ## Local Setup
-
-### Prerequisites
-
-- Node.js 20+
-- [Freighter wallet](https://freighter.app) browser extension
-
-### Install & Run
 
 ```bash
 git clone https://github.com/stellar-sharpy/sharpy-app.git
 cd sharpy-app
 npm install
 cp .env.example .env.local
-# Edit .env.local with your testnet values
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Environment Variables
-
-Create `.env.local`:
+## Environment Variables
 
 ```bash
 NEXT_PUBLIC_STELLAR_NETWORK=testnet
-NEXT_PUBLIC_CONTRACT_ID=CABC...YOUR_CONTRACT_ID
+NEXT_PUBLIC_CONTRACT_ID=CAYTIFPD6RFWVHMK5SPPUUIWWAAANHKOJB6GOAJS5SR5MBKZMEY2UODZ
 NEXT_PUBLIC_RPC_URL=https://soroban-testnet.stellar.org
-NEXT_PUBLIC_USDC_CONTRACT_ID=CBBD...
-```
-
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_STELLAR_NETWORK` | `testnet` or `mainnet` |
-| `NEXT_PUBLIC_CONTRACT_ID` | Deployed Sharpy contract ID |
-| `NEXT_PUBLIC_RPC_URL` | Soroban RPC endpoint URL |
-| `NEXT_PUBLIC_USDC_CONTRACT_ID` | Native USDC contract ID on network |
-
-## Pages
-
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page with CTA |
-| `/dashboard` | User's sent and received invoices |
-| `/invoice/new` | Create a new invoice |
-| `/invoice/[id]` | Invoice detail, payment progress, Pay button |
-| `/invoice/[id]/escrow` | Manage escrow-held invoices |
-| `/invoice/[id]/recurring` | View recurring invoice chain |
-| `/verify/[id]` | Public on-chain verification (no login) |
-
-## Run Lint
-
-```bash
-npm run lint
+NEXT_PUBLIC_USDC_CONTRACT_ID=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA
 ```
 
 ## Build
 
 ```bash
-npm run build
+npm run build   # builds SDK workspace then Next.js
 npm run start
-```
-
-## E2E Tests
-
-```bash
-npm run test:e2e
-```
-
-## Development
-
-```bash
-npm run dev      # Watch mode on localhost:3000
-npm run lint     # Type check
-npm run build    # Production build
+npm run lint
 ```
 
 ## Project Structure
 
 ```
-src/
-├── app/              # Next.js app router pages
-├── components/       # Reusable React components
-├── lib/
-│   ├── client.ts    # Sharpy SDK client setup
-│   ├── utils.ts     # Helper functions
-│   └── types.ts     # TypeScript types
-├── styles/          # Global and component styles
-└── public/          # Static assets
+sharpy-app/
+├── packages/sdk/        # @stellar-sharpy/sdk (local workspace)
+├── src/
+│   ├── app/             # Next.js App Router pages
+│   ├── components/      # WalletProvider, Navbar
+│   └── lib/
+│       ├── client.ts    # SDK client setup from env vars
+│       └── utils.ts     # Formatting helpers
+├── .env.example
+└── next.config.js
 ```
 
-## Deployment
+## Related Repos
 
-Deploy to [Vercel](https://vercel.com):
-
-```bash
-vercel
-```
-
-Or connect your GitHub repo for automatic deployments.
+| Repo | Description |
+|------|-------------|
+| [sharpy-contracts](https://github.com/stellar-sharpy/sharpy-contracts) | Soroban smart contract (Rust) |
+| [sharpy-sdk](https://github.com/stellar-sharpy/sharpy-sdk) | TypeScript SDK |
 
 ## License
 

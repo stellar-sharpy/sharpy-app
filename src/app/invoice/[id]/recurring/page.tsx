@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { sharpyClient } from "../../../../lib/client";
-import { formatAmount, formatDeadline, statusColor } from "../../../../lib/utils";
+import { formatAmount, formatDeadline } from "../../../../lib/utils";
 import type { Invoice } from "../../../../lib/utils";
 
 export default function RecurringPage() {
@@ -12,46 +12,50 @@ export default function RecurringPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const buildChain = async () => {
+    const build = async () => {
       const results: { id: number; invoice: Invoice }[] = [];
-      let currentId: number | null = Number(id);
-      while (currentId) {
+      let current: number | null = Number(id);
+      while (current) {
         try {
-          const inv = await sharpyClient.getInvoice(currentId);
-          results.push({ id: currentId, invoice: inv });
-          currentId = await sharpyClient.getNextRecurring(currentId);
+          const inv = await sharpyClient.getInvoice(current);
+          results.push({ id: current, invoice: inv });
+          current = await sharpyClient.getNextRecurring(current);
         } catch { break; }
       }
       setChain(results);
       setLoading(false);
     };
-    buildChain();
+    build();
   }, [id]);
-
-  if (loading) return <p className="text-gray-500">Loading recurring chain...</p>;
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Recurring Chain — Invoice #{id}</h1>
-      {chain.length === 0 ? (
-        <p className="text-gray-500">No recurring chain found.</p>
+      <div className="mb-8">
+        <p className="mono text-xs mb-1">Invoice #{id}</p>
+        <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Recurring Chain</h1>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="card h-16 animate-pulse" />)}</div>
+      ) : chain.length === 0 ? (
+        <div className="card p-12 text-center text-[#4B5563] text-sm">No recurring chain found.</div>
       ) : (
         <div className="space-y-3">
           {chain.map(({ id: cid, invoice }, i) => {
             const total = invoice.amounts.reduce((a, b) => a + b, 0n);
             return (
               <Link key={cid} href={`/invoice/${cid}`}
-                className="flex items-center justify-between bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-300">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 font-mono w-6">{i + 1}</span>
+                className="card p-4 flex items-center justify-between hover:border-[#2E3040] transition-colors">
+                <div className="flex items-center gap-4">
+                  <span className="text-xs text-[#4B5563] font-mono w-5">{i + 1}</span>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Invoice #{cid}</p>
-                    <p className="text-xs text-gray-400">Due {formatDeadline(invoice.deadline)}</p>
+                    <p className="text-sm font-medium text-[#F1F2F6]">Invoice #{cid}</p>
+                    <p className="text-xs text-[#4B5563]">Due {formatDeadline(invoice.deadline)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-700">{formatAmount(total)} USDC</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor(invoice.status)}`}>{invoice.status}</span>
+                  <span className="text-sm text-[#9CA3AF]">{formatAmount(total)} USDC</span>
+                  <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
                 </div>
               </Link>
             );

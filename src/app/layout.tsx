@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { WalletProvider } from "../components/WalletProvider";
+import { Providers } from "../components/Providers";
 import Navbar from "../components/Navbar";
 
 export const metadata: Metadata = {
@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-bg min-h-screen text-text antialiased">
-        <WalletProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen antialiased" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
+        <Providers>
           <Navbar />
           <main className="max-w-5xl mx-auto px-4 py-10">{children}</main>
-        </WalletProvider>
+        </Providers>
       </body>
     </html>
   );

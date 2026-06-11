@@ -81,15 +81,17 @@ export default function NewInvoice() {
         <div className="card p-6 space-y-4">
           <h2 className="font-display font-semibold text-[#F1F2F6] text-sm">Recipients</h2>
           {recipients.map((r, i) => (
-            <div key={i} className="flex gap-2 items-center">
+            <div key={i} className="flex flex-col sm:flex-row gap-2">
               <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
                 placeholder="G... stellar address" className="input flex-1 font-mono text-xs" />
-              <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
-                placeholder="USDC" className="input w-28" />
-              {recipients.length > 1 && (
-                <button type="button" onClick={() => removeRecipient(i)}
-                  className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none">×</button>
-              )}
+              <div className="flex gap-2">
+                <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
+                  placeholder="USDC" className="input flex-1 sm:w-28" />
+                {recipients.length > 1 && (
+                  <button type="button" onClick={() => removeRecipient(i)}
+                    className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2">×</button>
+                )}
+              </div>
             </div>
           ))}
           <button type="button" onClick={addRecipient} className="text-sm text-[#6C63FF] hover:text-[#5A52E8] transition-colors">

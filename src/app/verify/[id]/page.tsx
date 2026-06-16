@@ -1,20 +1,17 @@
 import { sharpyClient } from "../../../lib/client";
-import { formatAmount, statusColor, formatDeadline, fundingPercent, truncateAddress } from "../../../lib/utils";
+import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../../lib/utils";
 
 export default async function VerifyPage({ params }: { params: { id: string } }) {
   const invoiceId = Number(params.id);
   let invoice;
   let error = "";
-  try {
-    invoice = await sharpyClient.getInvoice(invoiceId);
-  } catch (e: any) {
-    error = e.message;
-  }
+  try { invoice = await sharpyClient.getInvoice(invoiceId); }
+  catch (e: any) { error = e.message; }
 
   if (error || !invoice) {
     return (
-      <div className="max-w-lg mx-auto text-center py-20">
-        <p className="text-red-600">{error || "Invoice not found."}</p>
+      <div className="max-w-lg mx-auto text-center py-32">
+        <p className="text-red-400">{error || "Invoice not found."}</p>
       </div>
     );
   }
@@ -23,46 +20,47 @@ export default async function VerifyPage({ params }: { params: { id: string } })
   const pct = fundingPercent(invoice.funded, invoice.amounts);
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
+    <div className="max-w-lg mx-auto space-y-5">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Invoice Verification</h1>
-        <p className="text-sm text-gray-500 mt-1">On-chain verification — no login required</p>
+        <p className="text-xs text-[#4B5563] mb-2 uppercase tracking-widest">On-chain Verification</p>
+        <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Invoice #{invoiceId}</h1>
+        <p className="text-xs text-[#4B5563] mt-1">No login required — data read directly from Stellar</p>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+      <div className="card p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-gray-500 text-sm">#{invoiceId}</span>
-          <span className={`text-sm px-3 py-1 rounded-full font-medium ${statusColor(invoice.status)}`}>{invoice.status}</span>
+          <span className="text-sm font-semibold text-[#F1F2F6]">{formatAmount(total)} USDC</span>
+          <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><p className="text-gray-400">Creator</p><p className="font-mono">{truncateAddress(invoice.creator)}</p></div>
-          <div><p className="text-gray-400">Deadline</p><p>{formatDeadline(invoice.deadline)}</p></div>
-          <div><p className="text-gray-400">Total</p><p className="font-semibold">{formatAmount(total)} USDC</p></div>
-          <div><p className="text-gray-400">Funded</p><p className="font-semibold">{formatAmount(invoice.funded)} USDC</p></div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div><p className="text-xs text-[#4B5563] mb-1">Creator</p><p className="mono">{truncateAddress(invoice.creator)}</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Deadline</p><p className="text-[#F1F2F6]">{formatDeadline(invoice.deadline)}</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Funded</p><p className="text-[#00D4AA] font-semibold">{formatAmount(invoice.funded)} USDC</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p className="text-[#F1F2F6]">{formatAmount(total - invoice.funded)} USDC</p></div>
         </div>
 
         <div>
-          <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Funding progress</span><span>{pct}%</span></div>
-          <div className="h-2 bg-gray-100 rounded-full">
-            <div className="h-2 bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+          <div className="flex justify-between text-xs text-[#4B5563] mb-2"><span>Progress</span><span>{pct}%</span></div>
+          <div className="progress-bar"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
+        </div>
+
+        <div>
+          <p className="text-xs text-[#4B5563] mb-3">Recipients</p>
+          <div className="space-y-2">
+            {invoice.recipients.map((addr, i) => (
+              <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
+                <span className="mono">{truncateAddress(addr)}</span>
+                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} USDC</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div>
-          <p className="text-xs text-gray-400 mb-2">Recipients</p>
-          {invoice.recipients.map((addr, i) => (
-            <div key={i} className="flex justify-between text-sm py-1.5 border-b border-gray-50 last:border-0">
-              <span className="font-mono text-gray-600">{truncateAddress(addr)}</span>
-              <span className="text-gray-700">{formatAmount(invoice.amounts[i] ?? 0n)} USDC</span>
-            </div>
-          ))}
-        </div>
-
         {invoice.escrowEnabled && (
-          <p className="text-xs text-yellow-600 bg-yellow-50 px-3 py-2 rounded-lg">
-            🔒 Escrow — {invoice.escrowReleaseDelay / 3600}h release delay
-          </p>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+            <p className="text-xs text-amber-400">Escrow — {invoice.escrowReleaseDelay / 3600}h release delay</p>
+          </div>
         )}
       </div>
     </div>

@@ -14,8 +14,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!publicKey) return;
     setLoading(true);
-    // Fetch last 20 invoices by ID scan (simple approach for MVP)
-    const fetchInvoices = async () => {
+    const fetch = async () => {
       const results: (Invoice & { id: number })[] = [];
       for (let id = 1; id <= 20; id++) {
         try {
@@ -28,51 +27,58 @@ export default function Dashboard() {
       setInvoices(results);
       setLoading(false);
     };
-    fetchInvoices();
+    fetch();
   }, [publicKey]);
 
   if (!publicKey) {
     return (
-      <div className="text-center py-20">
-        <p className="text-gray-500 mb-4">Connect your wallet to view your invoices.</p>
-        <button onClick={connect} className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
-          Connect Wallet
-        </button>
+      <div className="flex flex-col items-center justify-center py-32 gap-4">
+        <p className="text-[#6B7280]">Connect your wallet to view your invoices.</p>
+        <button onClick={connect} className="btn-primary">Connect Wallet</button>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <Link href="/invoice/new" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">
-          + New Invoice
-        </Link>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Dashboard</h1>
+          <p className="text-sm text-[#6B7280] mt-1 mono">{truncateAddress(publicKey)}</p>
+        </div>
+        <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading invoices...</p>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="card p-5 animate-pulse h-20" />
+          ))}
+        </div>
       ) : invoices.length === 0 ? (
-        <p className="text-gray-500">No invoices found. <Link href="/invoice/new" className="text-indigo-600">Create one.</Link></p>
+        <div className="card p-16 text-center">
+          <p className="text-[#6B7280] mb-3">No invoices found.</p>
+          <Link href="/invoice/new" className="text-[#6C63FF] text-sm hover:underline">Create your first invoice</Link>
+        </div>
       ) : (
         <div className="space-y-3">
           {invoices.map((inv) => {
             const total = inv.amounts.reduce((a, b) => a + b, 0n);
             const pct = fundingPercent(inv.funded, inv.amounts);
+            const badgeClass = `badge badge-${inv.status.toLowerCase()}`;
             return (
               <Link key={inv.id} href={`/invoice/${inv.id}`}
-                className="block bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-300 transition">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-sm text-gray-500">#{inv.id}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColor(inv.status)}`}>{inv.status}</span>
+                className="card p-5 flex flex-col gap-3 hover:border-[#2E3040] transition-colors block">
+                <div className="flex items-center justify-between">
+                  <span className="mono text-xs">Invoice #{inv.id}</span>
+                  <span className={badgeClass}>{inv.status}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-gray-700">{formatAmount(total)} USDC</span>
-                  <span className="text-gray-400">Due {formatDeadline(inv.deadline)}</span>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-semibold text-[#F1F2F6]">{formatAmount(total)} USDC</span>
+                  <span className="text-[#4B5563]">Due {formatDeadline(inv.deadline)}</span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full">
-                  <div className="h-1.5 bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${pct}%` }} />
                 </div>
               </Link>
             );

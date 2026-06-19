@@ -43,9 +43,7 @@ export default function Navbar() {
       style={{ borderColor: "var(--border)", backgroundColor: "color-mix(in srgb, var(--bg) 80%, transparent)" }}>
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg overflow-hidden bg-white flex items-center justify-center">
-            <img src="/logo-icon.png" alt="Sharpy" className="h-full w-full object-contain" />
-          </div>
+          <img src="/logo-icon.png" alt="Sharpy" className="h-8 w-8 object-contain" />
           <span className="font-display font-semibold tracking-tight" style={{ color: "var(--text)" }}>Sharpy</span>
         </Link>
 

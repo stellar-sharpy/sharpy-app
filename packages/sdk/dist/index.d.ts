@@ -1,4 +1,4 @@
-export { C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-BrZvSudU.js';
+export { A as AuditEntry, B as BatchInvoiceParams, C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-09yMFyJ0.js';
 
 declare function connectWallet(): Promise<string>;
 declare function getWalletPublicKey(): Promise<string | null>;

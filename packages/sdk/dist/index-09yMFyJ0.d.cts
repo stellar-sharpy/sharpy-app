@@ -35,6 +35,16 @@ type SplitRule = {
     threshold: bigint;
     bps: number;
 };
+interface BatchInvoiceParams {
+    recipients: RecipientAmount[];
+    token: string;
+    deadline: number;
+}
+interface AuditEntry {
+    action: string;
+    actor: string;
+    timestamp: number;
+}
 interface Invoice {
     id?: number;
     version: number;
@@ -75,6 +85,11 @@ declare class SharpyClient {
         txHash: string;
     }>;
     getInvoice(invoiceId: number): Promise<Invoice>;
+    createBatch(creator: string, invoices: BatchInvoiceParams[]): Promise<{
+        invoiceIds: number[];
+        txHash: string;
+    }>;
+    getAuditLog(invoiceId: number): Promise<AuditEntry[]>;
     getNextRecurring(invoiceId: number): Promise<number | null>;
 }
 
@@ -86,4 +101,4 @@ declare function isValidAddress(address: string): boolean;
 declare function truncateAddress(address: string): string;
 declare function explorerUrl(network: "testnet" | "mainnet", contractId: string, type?: "contract" | "tx"): string;
 
-export { type CreateInvoiceParams as C, type Invoice as I, type RecipientAmount as R, SharpyClient as S, type CreateRecurringParams as a, type SharpyClientConfig as b, type SplitRule as c, deadlineFromDays as d, explorerUrl as e, formatAmount as f, isValidAddress as g, isExpired as i, parseAmount as p, truncateAddress as t };
+export { type AuditEntry as A, type BatchInvoiceParams as B, type CreateInvoiceParams as C, type Invoice as I, type RecipientAmount as R, SharpyClient as S, type CreateRecurringParams as a, type SharpyClientConfig as b, type SplitRule as c, deadlineFromDays as d, explorerUrl as e, formatAmount as f, isValidAddress as g, isExpired as i, parseAmount as p, truncateAddress as t };

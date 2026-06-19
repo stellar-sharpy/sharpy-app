@@ -1,23 +1,21 @@
-'use strict';
-
-var freighterApi = require('@stellar/freighter-api');
-var stellarSdk = require('@stellar/stellar-sdk');
-var rpc = require('@stellar/stellar-sdk/rpc');
+import { isConnected, requestAccess, getAddress, signTransaction as signTransaction$1 } from '@stellar/freighter-api';
+import { Contract, TransactionBuilder, BASE_FEE, xdr, Address, nativeToScVal, scValToNative } from '@stellar/stellar-sdk';
+import { Server } from '@stellar/stellar-sdk/rpc';
 
 // src/wallet.ts
 async function connectWallet() {
-  const connected = await freighterApi.isConnected();
+  const connected = await isConnected();
   if (!connected.isConnected) throw new Error("Freighter wallet not found. Please install the Freighter extension.");
-  await freighterApi.requestAccess();
-  const result = await freighterApi.getAddress();
+  await requestAccess();
+  const result = await getAddress();
   if ("error" in result) throw new Error(`Could not get address: ${result.error}`);
   return result.address;
 }
 async function getWalletPublicKey() {
   try {
-    const connected = await freighterApi.isConnected();
+    const connected = await isConnected();
     if (!connected.isConnected) return null;
-    const result = await freighterApi.getAddress();
+    const result = await getAddress();
     if ("error" in result) return null;
     return result.address;
   } catch {
@@ -25,20 +23,20 @@ async function getWalletPublicKey() {
   }
 }
 async function signTransaction(xdr2, networkPassphrase) {
-  const result = await freighterApi.signTransaction(xdr2, { networkPassphrase });
+  const result = await signTransaction$1(xdr2, { networkPassphrase });
   if ("error" in result) throw new Error(`Signing failed: ${result.error}`);
   return result.signedTxXdr;
 }
 var SharpyClient = class {
   constructor(config) {
     this.config = config;
-    this.server = new rpc.Server(config.rpcUrl);
+    this.server = new Server(config.rpcUrl);
   }
   async buildAndSubmit(sourcePublicKey, method, args) {
     const account = await this.server.getAccount(sourcePublicKey);
-    const contract = new stellarSdk.Contract(this.config.contractId);
-    const tx = new stellarSdk.TransactionBuilder(account, {
-      fee: stellarSdk.BASE_FEE,
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, {
+      fee: BASE_FEE,
       networkPassphrase: this.config.networkPassphrase
     }).addOperation(contract.call(method, ...args)).setTimeout(30).build();
     const simResult = await this.server.simulateTransaction(tx);
@@ -61,57 +59,57 @@ var SharpyClient = class {
     }
     return {
       txHash: sendResult.hash,
-      result: getResult.returnValue ?? stellarSdk.xdr.ScVal.scvVoid()
+      result: getResult.returnValue ?? xdr.ScVal.scvVoid()
     };
   }
   async createInvoice(params) {
     const args = [
-      new stellarSdk.Address(params.creator).toScVal(),
-      stellarSdk.nativeToScVal(params.recipients.map((r) => new stellarSdk.Address(r.address).toScVal()), { type: "vec" }),
-      stellarSdk.nativeToScVal(params.recipients.map((r) => r.amount), { type: "vec" }),
-      new stellarSdk.Address(params.token).toScVal(),
-      stellarSdk.nativeToScVal(params.deadline, { type: "u64" }),
+      new Address(params.creator).toScVal(),
+      nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal()), { type: "vec" }),
+      nativeToScVal(params.recipients.map((r) => r.amount), { type: "vec" }),
+      new Address(params.token).toScVal(),
+      nativeToScVal(params.deadline, { type: "u64" }),
       buildInvoiceOptions(params)
     ];
     const { txHash, result } = await this.buildAndSubmit(params.creator, "create_invoice", args);
-    return { invoiceId: Number(stellarSdk.scValToNative(result)), txHash };
+    return { invoiceId: Number(scValToNative(result)), txHash };
   }
   async createRecurring(params) {
     const args = [
-      new stellarSdk.Address(params.creator).toScVal(),
-      stellarSdk.nativeToScVal(params.recipients.map((r) => new stellarSdk.Address(r.address).toScVal()), { type: "vec" }),
-      stellarSdk.nativeToScVal(params.recipients.map((r) => r.amount), { type: "vec" }),
-      new stellarSdk.Address(params.token).toScVal(),
-      stellarSdk.nativeToScVal(params.deadline, { type: "u64" }),
-      stellarSdk.nativeToScVal(params.recurrenceInterval, { type: "u64" }),
-      stellarSdk.nativeToScVal(params.maxRecurrences, { type: "u32" })
+      new Address(params.creator).toScVal(),
+      nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal()), { type: "vec" }),
+      nativeToScVal(params.recipients.map((r) => r.amount), { type: "vec" }),
+      new Address(params.token).toScVal(),
+      nativeToScVal(params.deadline, { type: "u64" }),
+      nativeToScVal(params.recurrenceInterval, { type: "u64" }),
+      nativeToScVal(params.maxRecurrences, { type: "u32" })
     ];
     const { txHash, result } = await this.buildAndSubmit(params.creator, "create_recurring", args);
-    return { invoiceId: Number(stellarSdk.scValToNative(result)), txHash };
+    return { invoiceId: Number(scValToNative(result)), txHash };
   }
   async pay(payer, invoiceId, amount) {
     const args = [
-      new stellarSdk.Address(payer).toScVal(),
-      stellarSdk.nativeToScVal(invoiceId, { type: "u64" }),
-      stellarSdk.nativeToScVal(amount, { type: "i128" })
+      new Address(payer).toScVal(),
+      nativeToScVal(invoiceId, { type: "u64" }),
+      nativeToScVal(amount, { type: "i128" })
     ];
     const { txHash } = await this.buildAndSubmit(payer, "pay", args);
     return { txHash };
   }
   async releaseEscrow(caller, invoiceId) {
-    const args = [stellarSdk.nativeToScVal(invoiceId, { type: "u64" })];
+    const args = [nativeToScVal(invoiceId, { type: "u64" })];
     const { txHash } = await this.buildAndSubmit(caller, "release_escrow", args);
     return { txHash };
   }
   async refund(caller, invoiceId) {
-    const args = [stellarSdk.nativeToScVal(invoiceId, { type: "u64" })];
+    const args = [nativeToScVal(invoiceId, { type: "u64" })];
     const { txHash } = await this.buildAndSubmit(caller, "refund", args);
     return { txHash };
   }
   async cancelInvoice(caller, invoiceId) {
     const args = [
-      new stellarSdk.Address(caller).toScVal(),
-      stellarSdk.nativeToScVal(invoiceId, { type: "u64" })
+      new Address(caller).toScVal(),
+      nativeToScVal(invoiceId, { type: "u64" })
     ];
     const { txHash } = await this.buildAndSubmit(caller, "cancel_invoice", args);
     return { txHash };
@@ -121,48 +119,73 @@ var SharpyClient = class {
       "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN"
       // read-only placeholder
     );
-    const contract = new stellarSdk.Contract(this.config.contractId);
-    const tx = new stellarSdk.TransactionBuilder(account, {
-      fee: stellarSdk.BASE_FEE,
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, {
+      fee: BASE_FEE,
       networkPassphrase: this.config.networkPassphrase
-    }).addOperation(contract.call("get_invoice", stellarSdk.nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
+    }).addOperation(contract.call("get_invoice", nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
     if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
-    const raw = stellarSdk.scValToNative(sim.result.retval);
+    const raw = scValToNative(sim.result.retval);
     return mapInvoice(raw);
+  }
+  async createBatch(creator, invoices) {
+    const batchArg = xdr.ScVal.scvVec(
+      invoices.map(
+        (inv) => xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol("amounts"), val: nativeToScVal(inv.recipients.map((r) => r.amount), { type: "vec" }) }),
+          new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol("deadline"), val: nativeToScVal(inv.deadline, { type: "u64" }) }),
+          new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol("recipients"), val: nativeToScVal(inv.recipients.map((r) => new Address(r.address).toScVal()), { type: "vec" }) }),
+          new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol("token"), val: new Address(inv.token).toScVal() })
+        ])
+      )
+    );
+    const args = [new Address(creator).toScVal(), batchArg];
+    const { txHash, result } = await this.buildAndSubmit(creator, "create_batch", args);
+    const ids = scValToNative(result).map(Number);
+    return { invoiceIds: ids, txHash };
+  }
+  async getAuditLog(invoiceId) {
+    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_audit_log", nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    const raw = scValToNative(sim.result.retval);
+    return raw.map((e) => ({ action: e.action, actor: e.actor, timestamp: Number(e.timestamp) }));
   }
   async getNextRecurring(invoiceId) {
     const account = await this.server.getAccount(
       "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN"
     );
-    const contract = new stellarSdk.Contract(this.config.contractId);
-    const tx = new stellarSdk.TransactionBuilder(account, {
-      fee: stellarSdk.BASE_FEE,
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, {
+      fee: BASE_FEE,
       networkPassphrase: this.config.networkPassphrase
-    }).addOperation(contract.call("get_next_recurring", stellarSdk.nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
+    }).addOperation(contract.call("get_next_recurring", nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
     if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
-    const raw = stellarSdk.scValToNative(sim.result.retval);
+    const raw = scValToNative(sim.result.retval);
     return raw ?? null;
   }
 };
 function buildInvoiceOptions(params) {
-  return stellarSdk.xdr.ScVal.scvMap([
-    new stellarSdk.xdr.ScMapEntry({
-      key: stellarSdk.xdr.ScVal.scvSymbol("auto_resolve_rules"),
-      val: stellarSdk.xdr.ScVal.scvVec([])
+  return xdr.ScVal.scvMap([
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("auto_resolve_rules"),
+      val: xdr.ScVal.scvVec([])
     }),
-    new stellarSdk.xdr.ScMapEntry({
-      key: stellarSdk.xdr.ScVal.scvSymbol("escrow_enabled"),
-      val: stellarSdk.xdr.ScVal.scvBool(params.escrowEnabled ?? false)
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("escrow_enabled"),
+      val: xdr.ScVal.scvBool(params.escrowEnabled ?? false)
     }),
-    new stellarSdk.xdr.ScMapEntry({
-      key: stellarSdk.xdr.ScVal.scvSymbol("escrow_release_delay"),
-      val: params.escrowReleaseDelay ? stellarSdk.xdr.ScVal.scvVec([stellarSdk.nativeToScVal(params.escrowReleaseDelay, { type: "u64" })]) : stellarSdk.xdr.ScVal.scvVec([])
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("escrow_release_delay"),
+      val: params.escrowReleaseDelay ? xdr.ScVal.scvVec([nativeToScVal(params.escrowReleaseDelay, { type: "u64" })]) : xdr.ScVal.scvVec([])
     }),
-    new stellarSdk.xdr.ScMapEntry({
-      key: stellarSdk.xdr.ScVal.scvSymbol("split_rules"),
-      val: stellarSdk.xdr.ScVal.scvVec(
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("split_rules"),
+      val: xdr.ScVal.scvVec(
         (params.splitRules ?? []).map((r) => encodeSplitRule(r))
       )
     })
@@ -170,21 +193,21 @@ function buildInvoiceOptions(params) {
 }
 function encodeSplitRule(rule) {
   if (rule.type === "Fixed") {
-    return stellarSdk.xdr.ScVal.scvVec([
-      stellarSdk.xdr.ScVal.scvSymbol("Fixed"),
-      stellarSdk.nativeToScVal(rule.amount, { type: "i128" })
+    return xdr.ScVal.scvVec([
+      xdr.ScVal.scvSymbol("Fixed"),
+      nativeToScVal(rule.amount, { type: "i128" })
     ]);
   }
   if (rule.type === "Percentage") {
-    return stellarSdk.xdr.ScVal.scvVec([
-      stellarSdk.xdr.ScVal.scvSymbol("Percentage"),
-      stellarSdk.nativeToScVal(rule.bps, { type: "u32" })
+    return xdr.ScVal.scvVec([
+      xdr.ScVal.scvSymbol("Percentage"),
+      nativeToScVal(rule.bps, { type: "u32" })
     ]);
   }
-  return stellarSdk.xdr.ScVal.scvVec([
-    stellarSdk.xdr.ScVal.scvSymbol("Tiered"),
-    stellarSdk.nativeToScVal(rule.threshold, { type: "i128" }),
-    stellarSdk.nativeToScVal(rule.bps, { type: "u32" })
+  return xdr.ScVal.scvVec([
+    xdr.ScVal.scvSymbol("Tiered"),
+    nativeToScVal(rule.threshold, { type: "i128" }),
+    nativeToScVal(rule.bps, { type: "u32" })
   ]);
 }
 function mapInvoice(raw) {
@@ -234,16 +257,6 @@ function explorerUrl(network, contractId, type = "contract") {
   return `https://stellar.expert/explorer/${net}/${type}/${contractId}`;
 }
 
-exports.SharpyClient = SharpyClient;
-exports.connectWallet = connectWallet;
-exports.deadlineFromDays = deadlineFromDays;
-exports.explorerUrl = explorerUrl;
-exports.formatAmount = formatAmount;
-exports.getWalletPublicKey = getWalletPublicKey;
-exports.isExpired = isExpired;
-exports.isValidAddress = isValidAddress;
-exports.parseAmount = parseAmount;
-exports.signTransaction = signTransaction;
-exports.truncateAddress = truncateAddress;
-//# sourceMappingURL=chunk-I6JXS3GS.cjs.map
-//# sourceMappingURL=chunk-I6JXS3GS.cjs.map
+export { SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress };
+//# sourceMappingURL=chunk-PV42YZFS.js.map
+//# sourceMappingURL=chunk-PV42YZFS.js.map

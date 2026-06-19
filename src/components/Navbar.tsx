@@ -42,10 +42,11 @@ export default function Navbar() {
     <header className="border-b sticky top-0 z-50 backdrop-blur-md"
       style={{ borderColor: "var(--border)", backgroundColor: "color-mix(in srgb, var(--bg) 80%, transparent)" }}>
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <div className="h-8 rounded-lg overflow-hidden bg-white px-1">
-            <img src="/logo.png" alt="Sharpy" className="h-full w-auto object-contain" />
+        <Link href="/" className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg overflow-hidden bg-white flex items-center justify-center">
+            <img src="/logo-icon.png" alt="Sharpy" className="h-full w-full object-contain" />
           </div>
+          <span className="font-display font-semibold tracking-tight" style={{ color: "var(--text)" }}>Sharpy</span>
         </Link>
 
         <div className="flex items-center gap-2">

@@ -6,6 +6,7 @@ import { useWallet } from "../../../components/WalletProvider";
 import { sharpyClient, TOKEN, NETWORK } from "../../../lib/client";
 import { formatAmount, parseAmount, formatDeadline, fundingPercent, truncateAddress, explorerUrl } from "../../../lib/utils";
 import type { Invoice } from "../../../lib/utils";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function InvoicePage() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,7 @@ export default function InvoicePage() {
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState("");
   const [txHash, setTxHash] = useState("");
+  const invoiceUrl = typeof window !== "undefined" ? `${window.location.origin}/invoice/${invoiceId}` : "";
 
   const load = async () => {
     try { setInvoice(await sharpyClient.getInvoice(invoiceId)); }
@@ -112,6 +114,17 @@ export default function InvoicePage() {
             )}
           </div>
         )}
+      </div>
+
+        {/* QR code */}
+      <div className="card p-6 flex flex-col items-center gap-3">
+        <p className="text-xs text-[#4B5563]">Scan to open this invoice</p>
+        {invoiceUrl && (
+          <div className="bg-white p-3 rounded-xl">
+            <QRCodeSVG value={invoiceUrl} size={160} />
+          </div>
+        )}
+        <p className="mono text-xs text-[#4B5563] break-all text-center">{invoiceUrl}</p>
       </div>
 
       {/* Pay */}

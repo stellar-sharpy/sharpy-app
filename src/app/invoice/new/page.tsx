@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWallet } from "../../../components/WalletProvider";
-import { sharpyClient, TOKEN } from "../../../lib/client";
+import { sharpyClient, DEFAULT_TOKEN, NETWORK } from "../../../lib/client";
 import { parseAmount, deadlineFromDays, isValidAddress } from "../../../lib/utils";
+import TokenSelector from "../../../components/TokenSelector";
+import { Token, getTokenAddress, TOKENS } from "../../../lib/tokens";
 
 interface Recipient { address: string; amount: string; }
 
@@ -11,6 +13,8 @@ export default function NewInvoice() {
   const { publicKey, connect } = useWallet();
   const router = useRouter();
   const [recipients, setRecipients] = useState<Recipient[]>([{ address: "", amount: "" }]);
+  const [selectedToken, setSelectedToken] = useState<Token>(TOKENS[0]);
+  const [tokenAddress, setTokenAddress] = useState<string>(DEFAULT_TOKEN);
   const [deadlineDays, setDeadlineDays] = useState(7);
   const [escrow, setEscrow] = useState(false);
   const [escrowDelay, setEscrowDelay] = useState(24);
@@ -40,13 +44,13 @@ export default function NewInvoice() {
       let invoiceId: number;
       if (recurring) {
         const res = await sharpyClient.createRecurring({
-          creator: publicKey, recipients: recipientList, token: TOKEN, deadline,
+          creator: publicKey, recipients: recipientList, token: tokenAddress, deadline,
           recurrenceInterval: intervalDays * 86400, maxRecurrences: maxRec,
         });
         invoiceId = res.invoiceId;
       } else {
         const res = await sharpyClient.createInvoice({
-          creator: publicKey, recipients: recipientList, token: TOKEN, deadline,
+          creator: publicKey, recipients: recipientList, token: tokenAddress, deadline,
           escrowEnabled: escrow, escrowReleaseDelay: escrow ? escrowDelay * 3600 : undefined,
         });
         invoiceId = res.invoiceId;
@@ -79,14 +83,20 @@ export default function NewInvoice() {
 
         {/* Recipients */}
         <div className="card p-6 space-y-4">
-          <h2 className="font-display font-semibold text-[#F1F2F6] text-sm">Recipients</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-display font-semibold text-sm" style={{ color: "var(--text)" }}>Recipients</h2>
+            <TokenSelector
+              value={tokenAddress}
+              onChange={(addr, token) => { setTokenAddress(addr); setSelectedToken(token); }}
+            />
+          </div>
           {recipients.map((r, i) => (
             <div key={i} className="flex flex-col sm:flex-row gap-2">
               <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
                 placeholder="G... stellar address" className="input flex-1 font-mono text-xs" />
               <div className="flex gap-2">
                 <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
-                  placeholder="USDC" className="input flex-1 sm:w-28" />
+                  placeholder={selectedToken.symbol} className="input flex-1 sm:w-28" />
                 {recipients.length > 1 && (
                   <button type="button" onClick={() => removeRecipient(i)}
                     className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2">×</button>

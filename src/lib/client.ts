@@ -1,4 +1,5 @@
 import { SharpyClient, NETWORKS } from "@stellar-sharpy/sdk";
+import { TOKENS, getTokenAddress } from "./tokens";
 
 const network = (process.env.NEXT_PUBLIC_STELLAR_NETWORK ?? "testnet") as "testnet" | "mainnet";
 const net = NETWORKS[network];
@@ -10,5 +11,7 @@ export const sharpyClient = new SharpyClient({
 });
 
 export const NETWORK = network;
-export const TOKEN = process.env.NEXT_PUBLIC_USDC_CONTRACT_ID ?? "";
 export const NETWORK_PASSPHRASE = net.networkPassphrase;
+
+// Default token addresses per network (used as fallback)
+export const DEFAULT_TOKEN = getTokenAddress(TOKENS[0], network); // USDC

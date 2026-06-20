@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWallet } from "../../../components/WalletProvider";
-import { sharpyClient, TOKEN, NETWORK } from "../../../lib/client";
+import { sharpyClient, NETWORK } from "../../../lib/client";
+import { getTokenByAddress } from "../../../lib/tokens";
 import { formatAmount, parseAmount, formatDeadline, fundingPercent, truncateAddress, explorerUrl } from "../../../lib/utils";
 import type { Invoice } from "../../../lib/utils";
 
@@ -48,6 +49,7 @@ export default function InvoicePage() {
   const pct = fundingPercent(invoice.funded, invoice.amounts);
   const remaining = total - invoice.funded;
   const badgeClass = `badge badge-${invoice.status.toLowerCase()}`;
+  const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -55,7 +57,7 @@ export default function InvoicePage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="mono text-xs mb-1">Invoice #{invoiceId}</p>
-          <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">{formatAmount(total)} USDC</h1>
+          <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">{formatAmount(total)} {tokenSymbol}</h1>
         </div>
         <span className={badgeClass}>{invoice.status}</span>
       </div>
@@ -73,11 +75,11 @@ export default function InvoicePage() {
           </div>
           <div>
             <p className="text-xs text-[#4B5563] mb-1">Funded</p>
-            <p className="text-sm font-semibold text-[#00D4AA]">{formatAmount(invoice.funded)} USDC</p>
+            <p className="text-sm font-semibold text-[#00D4AA]">{formatAmount(invoice.funded)} {tokenSymbol}</p>
           </div>
           <div>
             <p className="text-xs text-[#4B5563] mb-1">Remaining</p>
-            <p className="text-sm text-[#F1F2F6]">{formatAmount(remaining)} USDC</p>
+            <p className="text-sm text-[#F1F2F6]">{formatAmount(remaining)} {tokenSymbol}</p>
           </div>
         </div>
 
@@ -98,7 +100,7 @@ export default function InvoicePage() {
             {invoice.recipients.map((addr, i) => (
               <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
                 <span className="mono">{truncateAddress(addr)}</span>
-                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} USDC</span>
+                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
               </div>
             ))}
           </div>
@@ -123,7 +125,7 @@ export default function InvoicePage() {
           ) : (
             <div className="flex gap-3">
               <input value={payAmount} onChange={(e) => setPayAmount(e.target.value)}
-                placeholder={`Up to ${formatAmount(remaining)} USDC`} className="input flex-1" />
+                placeholder={`Up to ${formatAmount(remaining)} ${tokenSymbol}`} className="input flex-1" />
               <button onClick={handlePay} disabled={paying} className="btn-primary px-6">
                 {paying ? "Paying..." : "Pay"}
               </button>

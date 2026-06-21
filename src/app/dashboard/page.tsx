@@ -116,7 +116,7 @@ export default function Dashboard() {
                   <span className={badgeClass}>{inv.status}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-[#F1F2F6]">{formatAmount(total)} USDC</span>
+                  <span className="font-semibold text-[#F1F2F6]">{formatAmount(total)} tokens</span>
                   <span className="text-[#4B5563]">Due {formatDeadline(inv.deadline)}</span>
                 </div>
                 <div className="progress-bar">

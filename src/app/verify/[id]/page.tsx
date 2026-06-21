@@ -1,5 +1,7 @@
-import { sharpyClient } from "../../../lib/client";
+import { headers } from "next/headers";
+import { sharpyClient, CONTRACT_ID } from "../../../lib/client";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../../lib/utils";
+import { getTokenByAddress } from "../../../lib/tokens";
 
 export default async function VerifyPage({ params }: { params: { id: string } }) {
   const invoiceId = Number(params.id);
@@ -16,8 +18,14 @@ export default async function VerifyPage({ params }: { params: { id: string } })
     );
   }
 
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const invoiceUrl = `${protocol}://${host}/invoice/${invoiceId}`;
+
   const total = invoice.amounts.reduce((a, b) => a + b, 0n);
   const pct = fundingPercent(invoice.funded, invoice.amounts);
+  const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
 
   return (
     <div className="max-w-lg mx-auto space-y-5">
@@ -27,17 +35,34 @@ export default async function VerifyPage({ params }: { params: { id: string } })
         <p className="text-xs text-[#4B5563] mt-1">No login required — data read directly from Stellar</p>
       </div>
 
+      <div className="card p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs text-[#4B5563] mb-1">Invoice URL</p>
+            <p className="mono text-xs text-[#9CA3AF] truncate">{invoiceUrl}</p>
+          </div>
+          <CopyButton value={invoiceUrl} label="invoice URL" />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs text-[#4B5563] mb-1">Contract Address</p>
+            <p className="mono text-xs text-[#9CA3AF] truncate">{CONTRACT_ID}</p>
+          </div>
+          <CopyButton value={CONTRACT_ID} label="contract address" />
+        </div>
+      </div>
+
       <div className="card p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-[#F1F2F6]">{formatAmount(total)} USDC</span>
+          <span className="text-sm font-semibold text-[#F1F2F6]">{formatAmount(total)} {tokenSymbol}</span>
           <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><p className="text-xs text-[#4B5563] mb-1">Creator</p><p className="mono">{truncateAddress(invoice.creator)}</p></div>
           <div><p className="text-xs text-[#4B5563] mb-1">Deadline</p><p className="text-[#F1F2F6]">{formatDeadline(invoice.deadline)}</p></div>
-          <div><p className="text-xs text-[#4B5563] mb-1">Funded</p><p className="text-[#00D4AA] font-semibold">{formatAmount(invoice.funded)} USDC</p></div>
-          <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p className="text-[#F1F2F6]">{formatAmount(total - invoice.funded)} USDC</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Funded</p><p className="text-[#00D4AA] font-semibold">{formatAmount(invoice.funded)} {tokenSymbol}</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p className="text-[#F1F2F6]">{formatAmount(total - invoice.funded)} {tokenSymbol}</p></div>
         </div>
 
         <div>
@@ -51,7 +76,7 @@ export default async function VerifyPage({ params }: { params: { id: string } })
             {invoice.recipients.map((addr, i) => (
               <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
                 <span className="mono">{truncateAddress(addr)}</span>
-                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} USDC</span>
+                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
               </div>
             ))}
           </div>

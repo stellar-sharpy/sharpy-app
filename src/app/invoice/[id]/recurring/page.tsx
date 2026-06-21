@@ -54,7 +54,7 @@ export default function RecurringPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-[#9CA3AF]">{formatAmount(total)} USDC</span>
+                  <span className="text-sm text-[#9CA3AF]">{formatAmount(total)} tokens</span>
                   <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
                 </div>
               </Link>

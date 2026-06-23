@@ -11,6 +11,8 @@ import { QRCodeSVG } from "qrcode.react";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
+const isCreator = publicKey && invoice?.creator === publicKey;
+
 const PAY_STEPS: { key: PayStep; label: string }[] = [
   { key: "signing", label: "Signing" },
   { key: "submitting", label: "Submitting" },

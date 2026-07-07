@@ -1,4 +1,17 @@
-export { A as AuditEntry, B as BatchInvoiceParams, C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-09yMFyJ0.js';
+export { A as AuditEntry, B as BatchInvoiceParams, C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-CpW7EChD.js';
+
+declare class InvoiceNotFoundError extends Error {
+    constructor(invoiceId: number);
+}
+declare class DeadlinePassedError extends Error {
+    constructor(invoiceId: number);
+}
+declare class InvoiceNotPendingError extends Error {
+    constructor(invoiceId: number);
+}
+declare class OverpaymentError extends Error {
+    constructor(invoiceId: number);
+}
 
 declare function connectWallet(): Promise<string>;
 declare function getWalletPublicKey(): Promise<string | null>;
@@ -17,4 +30,4 @@ declare const NETWORKS: {
     };
 };
 
-export { NETWORKS, connectWallet, getWalletPublicKey, signTransaction };
+export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, NETWORKS, OverpaymentError, connectWallet, getWalletPublicKey, signTransaction };

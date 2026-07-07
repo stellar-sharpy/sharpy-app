@@ -12,7 +12,31 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **https://sharpy-sigma.vercel.app**
 
-## Features
+![Sharpy App Screenshot](https://sharpy-sigma.vercel.app/sharpy.png)
+
+## Architecture
+
+```mermaid
+graph TD
+    User["User / Browser"]
+    Freighter["Freighter Wallet"]
+    App["sharpy-app\nNext.js 14 · Vercel"]
+    SDK["@stellar-sharpy/sdk\nTypeScript SDK"]
+    RPC["Soroban RPC\nstellar-sdk 16.0.1"]
+    Contract["Sharpy Contract\nSoroban · Protocol 27"]
+    Stellar["Stellar Network\nTestnet / Mainnet"]
+    Horizon["Horizon API\nEvent Indexing"]
+
+    User -->|"connects wallet"| Freighter
+    User -->|"interacts with UI"| App
+    App -->|"calls methods"| SDK
+    Freighter -->|"signs transactions"| SDK
+    SDK -->|"submits & simulates tx"| RPC
+    RPC -->|"executes"| Contract
+    Contract -->|"state + events"| Stellar
+    Stellar -->|"event polling"| Horizon
+    Horizon -->|"invoice history"| App
+```
 
 - Recurring splits — automatically generate invoices on schedule
 - Escrow protection — hold funds before release with configurable delays

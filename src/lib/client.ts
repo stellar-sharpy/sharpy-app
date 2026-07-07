@@ -11,6 +11,7 @@ export const sharpyClient = new SharpyClient({
 });
 
 export const NETWORK = network;
+export const CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID ?? net.contractId;
 export const NETWORK_PASSPHRASE = net.networkPassphrase;
 
 // Default token addresses per network (used as fallback)

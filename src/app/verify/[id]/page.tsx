@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { sharpyClient, CONTRACT_ID } from "../../../lib/client";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../../lib/utils";
 import { getTokenByAddress } from "../../../lib/tokens";
+import { CopyButton } from "../../../components/CopyButton";
 
 export default async function VerifyPage({ params }: { params: { id: string } }) {
   const invoiceId = Number(params.id);

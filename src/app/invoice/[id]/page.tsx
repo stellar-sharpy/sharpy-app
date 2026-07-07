@@ -8,10 +8,9 @@ import { getTokenByAddress } from "../../../lib/tokens";
 import { formatAmount, parseAmount, formatDeadline, fundingPercent, truncateAddress, explorerUrl } from "../../../lib/utils";
 import type { Invoice } from "../../../lib/utils";
 import { QRCodeSVG } from "qrcode.react";
+import { CopyButton } from "../../../components/CopyButton";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
-
-const isCreator = publicKey && invoice?.creator === publicKey;
 
 const PAY_STEPS: { key: PayStep; label: string }[] = [
   { key: "signing", label: "Signing" },
@@ -77,6 +76,8 @@ export default function InvoicePage() {
   const remaining = total - invoice.funded;
   const badgeClass = `badge badge-${invoice.status.toLowerCase()}`;
   const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
+  const isCreator = publicKey && invoice.creator === publicKey;
+  const currentStepIndex = PAY_STEPS.findIndex((s) => s.key === payStep);
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -203,7 +204,60 @@ export default function InvoicePage() {
         <Link href={`/verify/${invoiceId}`} className="hover:text-[#9CA3AF] transition-colors">Public Verification</Link>
         {invoice.escrowEnabled && <Link href={`/invoice/${invoiceId}/escrow`} className="hover:text-[#9CA3AF] transition-colors">Escrow</Link>}
         <Link href={`/invoice/${invoiceId}/recurring`} className="hover:text-[#9CA3AF] transition-colors">Recurring Chain</Link>
+        <Link href={`/pay/${invoiceId}`} className="hover:text-[#9CA3AF] transition-colors">Share Payment Link</Link>
       </div>
+
+      {/* Audit Log */}
+      <AuditLog invoiceId={invoiceId} />
+    </div>
+  );
+}
+
+function AuditLog({ invoiceId }: { invoiceId: number }) {
+  const [open, setOpen] = useState(false);
+  const [log, setLog] = useState<{ action: string; actor: string; timestamp: number }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    if (log.length > 0) { setOpen(!open); return; }
+    setLoading(true);
+    setOpen(true);
+    try {
+      const entries = await sharpyClient.getAuditLog(invoiceId);
+      setLog(entries);
+    } catch {}
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div className="card overflow-hidden">
+      <button onClick={load}
+        className="w-full flex items-center justify-between px-5 py-4 text-sm font-medium transition-colors hover:bg-[var(--surface-2)]"
+        style={{ color: "var(--text)" }}>
+        <span>Audit Log</span>
+        <span className="text-xs" style={{ color: "var(--muted)" }}>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div className="border-t px-5 pb-4 space-y-2 pt-3" style={{ borderColor: "var(--border)" }}>
+          {loading ? (
+            <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-7 rounded animate-pulse" style={{ background: "var(--border)" }} />)}</div>
+          ) : log.length === 0 ? (
+            <p className="text-xs" style={{ color: "var(--muted)" }}>No audit entries found.</p>
+          ) : (
+            log.map((entry, i) => (
+              <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0" style={{ borderColor: "var(--border)" }}>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-full font-medium bg-[#6C63FF]/10 text-[#6C63FF]">{entry.action}</span>
+                  <span className="mono">{truncateAddress(entry.actor)}</span>
+                </div>
+                <span style={{ color: "var(--muted)" }}>
+                  {new Date(entry.timestamp * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-export { SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress } from './chunk-PV42YZFS.js';
+export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress } from './chunk-2JVLQ3DI.js';
 
 // src/index.ts
 var NETWORKS = {

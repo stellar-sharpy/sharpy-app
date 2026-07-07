@@ -23,7 +23,7 @@ const CANCEL_STEPS = [
 
 export default function CancelInvoicePage() {
   const { id } = useParams<{ id: string }>();
-  const invoiceId = id;
+  const invoiceId = Number(id);
   const router = useRouter();
   const { publicKey } = useWallet();
 
@@ -346,7 +346,7 @@ export default function CancelInvoicePage() {
             Escrow
           </Link>
         )}
-        {invoice.recurringParent && (
+        {true && (
           <Link href={`/invoice/${invoiceId}/recurring`} className="text-[var(--muted)] hover:text-[var(--text)]">
             Recurring Chain
           </Link>
@@ -362,17 +362,17 @@ export default function CancelInvoicePage() {
              Escrow
            </Link>
          )}
-         {invoice.recurringParent && (
+         {true && (
            <Link href={`/invoice/${invoiceId}/recurring`} className="text-[var(--muted)] hover:text-[var(--text)]">
              Recurring Chain
            </Link>
          )}
-+        {/* Only show cancel link to creator for pending unfunded invoices */}
-+        {isCreator && invoice.status === "Pending" && invoice.funded === 0n && (
-+          <Link href={`/invoice/${invoiceId}/cancel`} className="text-red-500 hover:text-red-400">
-+            Cancel Invoice
-+          </Link>
-+        )}
+        {/* Only show cancel link to creator for pending unfunded invoices */}
+        {isCreator && invoice.status === "Pending" && invoice.funded === 0n && (
+          <Link href={`/invoice/${invoiceId}/cancel`} className="text-red-500 hover:text-red-400">
+            Cancel Invoice
+          </Link>
+        )}
        </div>
        
       </div>

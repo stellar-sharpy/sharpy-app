@@ -12,9 +12,7 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **https://sharpy-sigma.vercel.app**
 
-![Sharpy App Screenshot](https://sharpy-sigma.vercel.app/sharpy.png)
-
-## Architecture
+<img width="767" height="354" alt="sharpy" src="https://github.com/user-attachments/assets/8ac67307-2b20-47a8-a405-2771e6c6dc07" />
 
 ```mermaid
 graph TD

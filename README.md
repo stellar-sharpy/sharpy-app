@@ -3,7 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwindcss)
-![Protocol 27](https://img.shields.io/badge/Stellar-Protocol%2027-6C63FF?logo=stellar)
+![stellar-sdk](https://img.shields.io/badge/stellar--sdk-16.0.1-6C63FF)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on Stellar.
@@ -12,112 +12,21 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **https://sharpy-sigma.vercel.app**
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         sharpy-app                                   │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │                     Next.js 14 App Router                    │  │
-│  │                                                              │  │
-│  │  /              /dashboard      /invoice/new                 │  │
-│  │  Landing        Invoice list    Create form                  │  │
-│  │  page           (wallet-gated)  (single/escrow/recurring)    │  │
-│  │                                                              │  │
-│  │  /invoice/[id]  /invoice/[id]/escrow  /invoice/[id]/cancel   │  │
-│  │  Detail + pay   Escrow release        Creator cancel         │  │
-│  │                                                              │  │
-│  │  /invoice/[id]/recurring   /pay/[id]   /verify/[id]          │  │
-│  │  Recurring chain           Public pay  SSR verification      │  │
-│  │                            (x402 ready) (no login)           │  │
-│  └───────────────────────────────┬──────────────────────────────┘  │
-│                                  │                                  │
-│  ┌───────────────────────────────▼──────────────────────────────┐  │
-│  │                      src/lib/                                 │  │
-│  │                                                              │  │
-│  │  client.ts          utils.ts           tokens.ts            │  │
-│  │  SharpyClient       formatAmount()     Token registry       │  │
-│  │  setup from         formatDeadline()   USDC/XLM/AQUA/yXLM   │  │
-│  │  env vars           fundingPercent()                        │  │
-│  └───────────────────────────────┬──────────────────────────────┘  │
-│                                  │                                  │
-│  ┌───────────────────────────────▼──────────────────────────────┐  │
-│  │                   src/components/                             │  │
-│  │                                                              │  │
-│  │  WalletProvider   Navbar         TokenSelector              │  │
-│  │  Freighter v3     Theme toggle   CopyButton                 │  │
-│  │  connect/sign     Dark/light     QR Code                    │  │
-│  └───────────────────────────────┬──────────────────────────────┘  │
-│                                  │                                  │
-│  ┌───────────────────────────────▼──────────────────────────────┐  │
-│  │               packages/sdk (vendored)                         │  │
-│  │               @stellar-sharpy/sdk 0.1.0                      │  │
-│  │               @stellar/stellar-sdk 16.0.1 (Protocol 27)      │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
-                                  │
-                    ┌─────────────┴─────────────┐
-                    │                           │
-          ┌─────────▼──────────┐    ┌──────────▼──────────┐
-          │  Stellar Soroban   │    │   Freighter Wallet   │
-          │  Testnet RPC       │    │   (auth-entry sign)  │
-          │  Protocol 27       │    │   Albedo / Hana      │
-          └────────────────────┘    └─────────────────────┘
-```
-
-## User Flow
-
-```
-User visits /invoice/new
-        │
-        ▼
- Connect Freighter wallet
-        │
-        ▼
- Fill recipients + amounts
- Set deadline
- Toggle escrow / recurring
-        │
-        ▼
- Sign transaction (Freighter)
-        │
-        ▼
- Invoice created on-chain
-        │
-   ┌────┴────┐
-   │         │
-   ▼         ▼
-Share     /dashboard
-/pay/[id] shows invoice
-link      in list
-   │
-   ▼
-Payer visits /pay/[id]
-   │
-   ├── Browser: Connect wallet → Pay button
-   │
-   └── AI Agent: x402 HTTP payment flow (coming soon)
-        │
-        ▼
-  Invoice funded → auto-release or escrow lock
-        │
-        ▼
-  Recipients receive funds on Stellar
-```
-
 ## Features
 
-- Recurring Splits — Automatically generate invoices on schedule
-- Escrow Protection — Hold funds before release with configurable delays
-- Batch Operations — Create and pay multiple invoices efficiently
-- Advanced Splits — Fixed, Percentage, and Tiered payment rules
-- Dashboard — Track sent and received invoices with search/filter
-- Public Verification — On-chain verification without login (SSR)
-- Multi-token — USDC, XLM, AQUA, yXLM support
-- Dark/Light mode — System preference detection
-- QR Codes — Shareable invoice payment links
-- Protocol 27 ready — @stellar/stellar-sdk 16.0.1
+- Recurring splits — automatically generate invoices on schedule
+- Escrow protection — hold funds before release with configurable delays
+- Batch operations — create and pay multiple invoices efficiently
+- Advanced splits — Fixed, Percentage, and Tiered payment rules
+- Multi-token support — USDC, XLM, AQUA, yXLM
+- Dashboard with search and filter
+- QR code for invoice payment links
+- Copy-to-clipboard for invoice URL and contract address
+- Transaction confirmation step indicators
+- Cancel invoice page for creators
+- Public verification — on-chain verification without login
+- Dark/light mode with system preference detection
+- Protocol 27 compatible — stellar-sdk 16.0.1
 
 ## Tech Stack
 
@@ -128,7 +37,6 @@ Payer visits /pay/[id]
 | Styling | Tailwind CSS 3 |
 | Wallet | Freighter (`@stellar/freighter-api` v3) |
 | Contract SDK | `@stellar-sharpy/sdk` (local workspace) |
-| Stellar SDK | `@stellar/stellar-sdk` 16.0.1 |
 | Deploy | Vercel |
 
 ## Pages
@@ -136,14 +44,13 @@ Payer visits /pay/[id]
 | Route | Description |
 |-------|-------------|
 | `/` | Landing page |
-| `/dashboard` | Wallet-gated invoice list with search and filter |
-| `/invoice/new` | Create invoice — single, escrow, or recurring |
+| `/dashboard` | Wallet-gated sent and received invoices with search/filter |
+| `/invoice/new` | Create invoice — single, escrow, recurring |
 | `/invoice/[id]` | Invoice detail, funding progress, pay button, QR code |
-| `/invoice/[id]/escrow` | Release escrow-held invoices |
-| `/invoice/[id]/recurring` | View recurring invoice chain |
-| `/invoice/[id]/cancel` | Creator cancel page |
-| `/pay/[id]` | Public shareable payment page (x402 ready) |
-| `/verify/[id]` | Public on-chain verification — SSR, no login |
+| `/invoice/[id]/escrow` | Escrow release management |
+| `/invoice/[id]/recurring` | Recurring invoice chain view |
+| `/invoice/[id]/cancel` | Creator cancel and refund |
+| `/verify/[id]` | Public on-chain verification (SSR, no login) |
 
 ## Local Setup
 
@@ -155,7 +62,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). Requires [Freighter](https://freighter.app) browser extension.
 
 ## Environment Variables
 
@@ -170,26 +77,38 @@ NEXT_PUBLIC_USDC_CONTRACT_ID=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMX
 
 ```bash
 npm run build   # builds SDK workspace then Next.js
-npm run start
 npm run lint
+npm run start
 ```
 
 ## Project Structure
 
 ```
 sharpy-app/
-├── packages/sdk/        # @stellar-sharpy/sdk (local workspace)
+├── packages/sdk/           # @stellar-sharpy/sdk (local workspace)
 ├── src/
-│   ├── app/             # Next.js App Router pages
-│   ├── components/      # WalletProvider, Navbar, TokenSelector, CopyButton
+│   ├── app/                # Next.js App Router pages
+│   │   ├── dashboard/
+│   │   ├── invoice/
+│   │   │   ├── new/
+│   │   │   └── [id]/
+│   │   │       ├── escrow/
+│   │   │       ├── recurring/
+│   │   │       └── cancel/
+│   │   └── verify/[id]/
+│   ├── components/         # WalletProvider, Navbar, TokenSelector
 │   └── lib/
-│       ├── client.ts    # SDK client setup from env vars
-│       ├── utils.ts     # Formatting helpers
-│       └── tokens.ts    # Token registry (USDC, XLM, AQUA, yXLM)
-├── public/              # Logo, favicon
+│       ├── client.ts       # SDK client setup from env vars
+│       ├── tokens.ts       # Token registry (USDC, XLM, AQUA, yXLM)
+│       └── utils.ts        # Formatting helpers
+├── public/                 # Logo, favicon
 ├── .env.example
 └── next.config.js
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Always test with Freighter connected to testnet before opening a PR.
 
 ## Related Repos
 

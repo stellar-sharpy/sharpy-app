@@ -46,6 +46,7 @@ graph TD
 - Copy-to-clipboard for invoice URL and contract address
 - Transaction confirmation step indicators
 - Cancel invoice page for creators
+- x402 agentic payments — AI agents and HTTP clients can pay invoices programmatically
 - Public verification — on-chain verification without login
 - Dark/light mode with system preference detection
 - Protocol 27 compatible — stellar-sdk 16.0.1
@@ -73,6 +74,9 @@ graph TD
 | `/invoice/[id]/recurring` | Recurring invoice chain view |
 | `/invoice/[id]/cancel` | Creator cancel and refund |
 | `/verify/[id]` | Public on-chain verification (SSR, no login) |
+| `/pay/[id]` | Public shareable payment page — wallet + x402 agentic payments |
+| `/api/x402/[id]` | x402 HTTP endpoint — GET: 402 requirements, POST: settle |
+| `/api/x402/[id]` | x402 HTTP payment endpoint (GET: 402 requirements, POST: settle) |
 
 ## Local Setup
 

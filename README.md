@@ -50,6 +50,7 @@ graph TD
 - Public verification — on-chain verification without login
 - Dark/light mode with system preference detection
 - Protocol 27 compatible — stellar-sdk 16.0.1
+- Protocol 25/26 features: invoice fingerprint (CAP-75/82), TTL extension (CAP-78)
 
 ## Tech Stack
 
@@ -73,7 +74,7 @@ graph TD
 | `/invoice/[id]/escrow` | Escrow release management |
 | `/invoice/[id]/recurring` | Recurring invoice chain view |
 | `/invoice/[id]/cancel` | Creator cancel and refund |
-| `/verify/[id]` | Public on-chain verification (SSR, no login) |
+| `/verify/[id]` | Public on-chain verification with SHA-256 invoice fingerprint (Protocol 25/26) |
 | `/pay/[id]` | Public shareable payment page — wallet + x402 agentic payments |
 | `/api/x402/[id]` | x402 HTTP endpoint — GET: 402 requirements, POST: settle |
 | `/api/x402/[id]` | x402 HTTP payment endpoint (GET: 402 requirements, POST: settle) |

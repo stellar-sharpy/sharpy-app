@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkSCQVLDEG_cjs = require('./chunk-SCQVLDEG.cjs');
+var chunk2LUA2LPY_cjs = require('./chunk-2LUA2LPY.cjs');
 
 // src/index.ts
 var NETWORKS = {
@@ -18,63 +18,63 @@ var NETWORKS = {
 
 Object.defineProperty(exports, "DeadlinePassedError", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.DeadlinePassedError; }
+  get: function () { return chunk2LUA2LPY_cjs.DeadlinePassedError; }
 });
 Object.defineProperty(exports, "InvoiceNotFoundError", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.InvoiceNotFoundError; }
+  get: function () { return chunk2LUA2LPY_cjs.InvoiceNotFoundError; }
 });
 Object.defineProperty(exports, "InvoiceNotPendingError", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.InvoiceNotPendingError; }
+  get: function () { return chunk2LUA2LPY_cjs.InvoiceNotPendingError; }
 });
 Object.defineProperty(exports, "OverpaymentError", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.OverpaymentError; }
+  get: function () { return chunk2LUA2LPY_cjs.OverpaymentError; }
 });
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.SharpyClient; }
+  get: function () { return chunk2LUA2LPY_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "connectWallet", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.connectWallet; }
+  get: function () { return chunk2LUA2LPY_cjs.connectWallet; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.deadlineFromDays; }
+  get: function () { return chunk2LUA2LPY_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "explorerUrl", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.explorerUrl; }
+  get: function () { return chunk2LUA2LPY_cjs.explorerUrl; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.formatAmount; }
+  get: function () { return chunk2LUA2LPY_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "getWalletPublicKey", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.getWalletPublicKey; }
+  get: function () { return chunk2LUA2LPY_cjs.getWalletPublicKey; }
 });
 Object.defineProperty(exports, "isExpired", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.isExpired; }
+  get: function () { return chunk2LUA2LPY_cjs.isExpired; }
 });
 Object.defineProperty(exports, "isValidAddress", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.isValidAddress; }
+  get: function () { return chunk2LUA2LPY_cjs.isValidAddress; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.parseAmount; }
+  get: function () { return chunk2LUA2LPY_cjs.parseAmount; }
 });
 Object.defineProperty(exports, "signTransaction", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.signTransaction; }
+  get: function () { return chunk2LUA2LPY_cjs.signTransaction; }
 });
 Object.defineProperty(exports, "truncateAddress", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.truncateAddress; }
+  get: function () { return chunk2LUA2LPY_cjs.truncateAddress; }
 });
 exports.NETWORKS = NETWORKS;
 //# sourceMappingURL=index.cjs.map

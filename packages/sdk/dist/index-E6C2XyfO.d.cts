@@ -164,6 +164,25 @@ declare class SharpyClient {
         uniquePayers: number;
         completionBps: number;
     }>;
+    /**
+     * Extend the TTL of an invoice entry to prevent archival.
+     * Protocol 26 CAP-78: anyone can call this to keep long-lived or recurring
+     * invoices accessible without a full state restore operation.
+     * @param caller - The address submitting the transaction (pays fees)
+     * @param invoiceId - The invoice to bump
+     */
+    bumpInvoiceTtl(caller: string, invoiceId: number): Promise<{
+        txHash: string;
+    }>;
+    /**
+     * Get a deterministic SHA-256 fingerprint of an invoice's immutable fields.
+     * Protocol 25 (X-Ray) / Protocol 26 crypto host functions: tamper-evident
+     * content hash committing to invoice_id, deadline, recipient count, and total.
+     * Use for off-chain verification, receipt generation, and audit trails.
+     * @param invoiceId - The invoice to fingerprint
+     * @returns 32-byte hex string (SHA-256 hash)
+     */
+    getInvoiceFingerprint(invoiceId: number): Promise<string>;
 }
 
 declare function parseAmount(value: string): bigint;

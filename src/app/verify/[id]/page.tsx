@@ -1,3 +1,4 @@
+import FundingBreakdown from "../../../components/FundingBreakdown";
 import { headers } from "next/headers";
 import { sharpyClient, CONTRACT_ID } from "../../../lib/client";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../../lib/utils";
@@ -12,7 +13,6 @@ export default async function VerifyPage({ params }: { params: { id: string } })
 
   try {
     invoice = await sharpyClient.getInvoice(invoiceId);
-    // Protocol 25/26 crypto — fetch tamper-evident SHA-256 fingerprint
     try { fingerprint = await sharpyClient.getInvoiceFingerprint(invoiceId); } catch {}
   } catch (e: any) {
     error = e.message;
@@ -32,7 +32,6 @@ export default async function VerifyPage({ params }: { params: { id: string } })
   const invoiceUrl = `${protocol}://${host}/invoice/${invoiceId}`;
 
   const total = invoice.amounts.reduce((a, b) => a + b, 0n);
-  const pct = fundingPercent(invoice.funded, invoice.amounts);
   const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
 
   return (
@@ -40,10 +39,9 @@ export default async function VerifyPage({ params }: { params: { id: string } })
       <div className="text-center">
         <p className="text-xs text-[#4B5563] mb-2 uppercase tracking-widest">On-chain Verification</p>
         <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Invoice #{invoiceId}</h1>
-        <p className="text-xs text-[#4B5563] mt-1">No login required — data read directly from Stellar</p>
+        <p className="text-xs text-[#4B5563] mt-1">No login required - data read directly from Stellar</p>
       </div>
 
-      {/* Links & copy */}
       <div className="card p-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -61,7 +59,6 @@ export default async function VerifyPage({ params }: { params: { id: string } })
         </div>
       </div>
 
-      {/* Invoice details */}
       <div className="card p-6 space-y-5">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol}</span>
@@ -75,10 +72,8 @@ export default async function VerifyPage({ params }: { params: { id: string } })
           <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p style={{ color: "var(--text)" }}>{formatAmount(total - invoice.funded)} {tokenSymbol}</p></div>
         </div>
 
-        <div>
-          <div className="flex justify-between text-xs text-[#4B5563] mb-2"><span>Progress</span><span>{pct}%</span></div>
-          <div className="progress-bar"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
-        </div>
+        {/* Funding Breakdown - Issue #29 */}
+        <FundingBreakdown invoice={invoice} tokenSymbol={tokenSymbol} />
 
         <div>
           <p className="text-xs text-[#4B5563] mb-3">Recipients</p>
@@ -94,12 +89,11 @@ export default async function VerifyPage({ params }: { params: { id: string } })
 
         {invoice.escrowEnabled && (
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-            <p className="text-xs text-amber-400">Escrow — {invoice.escrowReleaseDelay / 3600}h release delay</p>
+            <p className="text-xs text-amber-400">Escrow - {invoice.escrowReleaseDelay / 3600}h release delay</p>
           </div>
         )}
       </div>
 
-      {/* Protocol 25/26 fingerprint — tamper-evident content hash */}
       {fingerprint && (
         <div className="card p-4 space-y-2">
           <div className="flex items-center justify-between">

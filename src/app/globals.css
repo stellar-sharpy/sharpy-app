@@ -59,6 +59,26 @@
     @apply rounded-2xl;
   }
 
+  /* Animated background orbs */
+  .bg-orb {
+    @apply absolute rounded-full blur-3xl opacity-20 pointer-events-none;
+    animation: orb-drift 8s ease-in-out infinite;
+  }
+  .bg-orb-2 {
+    animation-delay: -4s;
+    animation-duration: 11s;
+  }
+  .bg-orb-3 {
+    animation-delay: -2s;
+    animation-duration: 14s;
+  }
+
+  @keyframes orb-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 15px) scale(0.97); }
+  }
+
   .btn-primary {
     @apply bg-[#6C63FF] hover:bg-[#5A52E8] text-white font-medium rounded-xl px-5 py-2.5 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
   }

@@ -7,9 +7,16 @@ import { CopyButton } from "../../../components/CopyButton";
 export default async function VerifyPage({ params }: { params: { id: string } }) {
   const invoiceId = Number(params.id);
   let invoice;
+  let fingerprint: string | null = null;
   let error = "";
-  try { invoice = await sharpyClient.getInvoice(invoiceId); }
-  catch (e: any) { error = e.message; }
+
+  try {
+    invoice = await sharpyClient.getInvoice(invoiceId);
+    // Protocol 25/26 crypto — fetch tamper-evident SHA-256 fingerprint
+    try { fingerprint = await sharpyClient.getInvoiceFingerprint(invoiceId); } catch {}
+  } catch (e: any) {
+    error = e.message;
+  }
 
   if (error || !invoice) {
     return (
@@ -32,38 +39,40 @@ export default async function VerifyPage({ params }: { params: { id: string } })
     <div className="max-w-lg mx-auto space-y-5">
       <div className="text-center">
         <p className="text-xs text-[#4B5563] mb-2 uppercase tracking-widest">On-chain Verification</p>
-        <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Invoice #{invoiceId}</h1>
+        <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Invoice #{invoiceId}</h1>
         <p className="text-xs text-[#4B5563] mt-1">No login required — data read directly from Stellar</p>
       </div>
 
+      {/* Links & copy */}
       <div className="card p-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs text-[#4B5563] mb-1">Invoice URL</p>
-            <p className="mono text-xs text-[#9CA3AF] truncate">{invoiceUrl}</p>
+            <p className="mono text-xs truncate">{invoiceUrl}</p>
           </div>
           <CopyButton value={invoiceUrl} label="invoice URL" />
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs text-[#4B5563] mb-1">Contract Address</p>
-            <p className="mono text-xs text-[#9CA3AF] truncate">{CONTRACT_ID}</p>
+            <p className="mono text-xs truncate">{CONTRACT_ID}</p>
           </div>
           <CopyButton value={CONTRACT_ID} label="contract address" />
         </div>
       </div>
 
+      {/* Invoice details */}
       <div className="card p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-[#F1F2F6]">{formatAmount(total)} {tokenSymbol}</span>
+          <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol}</span>
           <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><p className="text-xs text-[#4B5563] mb-1">Creator</p><p className="mono">{truncateAddress(invoice.creator)}</p></div>
-          <div><p className="text-xs text-[#4B5563] mb-1">Deadline</p><p className="text-[#F1F2F6]">{formatDeadline(invoice.deadline)}</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Deadline</p><p style={{ color: "var(--text)" }}>{formatDeadline(invoice.deadline)}</p></div>
           <div><p className="text-xs text-[#4B5563] mb-1">Funded</p><p className="text-[#00D4AA] font-semibold">{formatAmount(invoice.funded)} {tokenSymbol}</p></div>
-          <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p className="text-[#F1F2F6]">{formatAmount(total - invoice.funded)} {tokenSymbol}</p></div>
+          <div><p className="text-xs text-[#4B5563] mb-1">Remaining</p><p style={{ color: "var(--text)" }}>{formatAmount(total - invoice.funded)} {tokenSymbol}</p></div>
         </div>
 
         <div>
@@ -77,7 +86,7 @@ export default async function VerifyPage({ params }: { params: { id: string } })
             {invoice.recipients.map((addr, i) => (
               <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
                 <span className="mono">{truncateAddress(addr)}</span>
-                <span className="text-sm text-[#F1F2F6]">{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
+                <span className="text-sm" style={{ color: "var(--text)" }}>{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
               </div>
             ))}
           </div>
@@ -89,6 +98,25 @@ export default async function VerifyPage({ params }: { params: { id: string } })
           </div>
         )}
       </div>
+
+      {/* Protocol 25/26 fingerprint — tamper-evident content hash */}
+      {fingerprint && (
+        <div className="card p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Content Fingerprint</p>
+            <span className="text-xs bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/20 px-2 py-0.5 rounded-full">
+              Protocol 25/26
+            </span>
+          </div>
+          <p className="text-xs text-[#4B5563]">
+            SHA-256 hash of immutable invoice fields. Any change to terms produces a different hash.
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="mono text-xs flex-1 truncate">{fingerprint}</code>
+            <CopyButton value={fingerprint} label="fingerprint" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

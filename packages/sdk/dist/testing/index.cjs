@@ -1,24 +1,24 @@
 'use strict';
 
-var chunkSCQVLDEG_cjs = require('../chunk-SCQVLDEG.cjs');
+var chunk2LUA2LPY_cjs = require('../chunk-2LUA2LPY.cjs');
 
 
 
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.SharpyClient; }
+  get: function () { return chunk2LUA2LPY_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.deadlineFromDays; }
+  get: function () { return chunk2LUA2LPY_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.formatAmount; }
+  get: function () { return chunk2LUA2LPY_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkSCQVLDEG_cjs.parseAmount; }
+  get: function () { return chunk2LUA2LPY_cjs.parseAmount; }
 });
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

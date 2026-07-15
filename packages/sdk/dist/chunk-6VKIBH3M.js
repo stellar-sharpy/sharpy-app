@@ -302,6 +302,38 @@ var SharpyClient = class {
       completionBps: Number(raw.completion_bps ?? 0)
     };
   }
+  /**
+   * Extend the TTL of an invoice entry to prevent archival.
+   * Protocol 26 CAP-78: anyone can call this to keep long-lived or recurring
+   * invoices accessible without a full state restore operation.
+   * @param caller - The address submitting the transaction (pays fees)
+   * @param invoiceId - The invoice to bump
+   */
+  async bumpInvoiceTtl(caller, invoiceId) {
+    const args = [nativeToScVal(invoiceId, { type: "u64" })];
+    const { txHash } = await this.buildAndSubmit(caller, "bump_invoice_ttl", args);
+    return { txHash };
+  }
+  /**
+   * Get a deterministic SHA-256 fingerprint of an invoice's immutable fields.
+   * Protocol 25 (X-Ray) / Protocol 26 crypto host functions: tamper-evident
+   * content hash committing to invoice_id, deadline, recipient count, and total.
+   * Use for off-chain verification, receipt generation, and audit trails.
+   * @param invoiceId - The invoice to fingerprint
+   * @returns 32-byte hex string (SHA-256 hash)
+   */
+  async getInvoiceFingerprint(invoiceId) {
+    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_invoice_fingerprint", nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    const raw = scValToNative(sim.result.retval);
+    if (raw instanceof Uint8Array || Buffer.isBuffer(raw)) {
+      return Buffer.from(raw).toString("hex");
+    }
+    return String(raw);
+  }
 };
 function buildInvoiceOptions(params) {
   return xdr.ScVal.scvMap([
@@ -392,5 +424,5 @@ function explorerUrl(network, contractId, type = "contract") {
 }
 
 export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress };
-//# sourceMappingURL=chunk-2JVLQ3DI.js.map
-//# sourceMappingURL=chunk-2JVLQ3DI.js.map
+//# sourceMappingURL=chunk-6VKIBH3M.js.map
+//# sourceMappingURL=chunk-6VKIBH3M.js.map

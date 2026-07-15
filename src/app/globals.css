@@ -6,20 +6,21 @@
 
 @layer base {
   :root {
-    --bg: #F8F9FC;
+    --bg: #F0F2F8;
     --surface: #FFFFFF;
-    --surface-2: #F3F4F8;
-    --border: #E5E7EB;
-    --border-hover: #D1D5DB;
-    --primary: #6C63FF;
-    --primary-hover: #5A52E8;
-    --accent: #00B894;
-    --text: #111318;
-    --muted: #6B7280;
-    --muted-2: #9CA3AF;
-    --success: #00B894;
-    --warning: #F59E0B;
-    --danger: #EF4444;
+    --surface-2: #E8EBF4;
+    --border: #D1D5E0;
+    --border-hover: #B0B7C8;
+    --primary: #5A52E8;
+    --primary-hover: #4840D4;
+    --accent: #009E7A;
+    --text: #0D0E14;
+    --text-secondary: #2D3148;
+    --muted: #4A5068;
+    --muted-2: #6B7494;
+    --success: #009E7A;
+    --warning: #C27800;
+    --danger: #CC2929;
   }
 
   .dark {
@@ -32,6 +33,7 @@
     --primary-hover: #5A52E8;
     --accent: #00D4AA;
     --text: #F1F2F6;
+    --text-secondary: #C8CAD8;
     --muted: #6B7280;
     --muted-2: #9CA3AF;
     --success: #00D4AA;
@@ -80,12 +82,14 @@
   }
 
   .btn-primary {
-    @apply bg-[#6C63FF] hover:bg-[#5A52E8] text-white font-medium rounded-xl px-5 py-2.5 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
+    background-color: var(--primary);
+    @apply text-white font-medium rounded-xl px-5 py-2.5 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
   }
+  .btn-primary:hover { background-color: var(--primary-hover); }
 
   .btn-ghost {
     border: 1px solid var(--border);
-    color: var(--muted-2);
+    color: var(--muted);
     @apply font-medium rounded-xl px-5 py-2.5 transition-all duration-150;
   }
   .btn-ghost:hover {
@@ -102,10 +106,15 @@
   .input::placeholder { color: var(--muted); }
 
   .badge { @apply text-xs font-medium px-2.5 py-1 rounded-full; }
-  .badge-pending   { @apply bg-amber-500/10 text-amber-500; }
-  .badge-released  { @apply bg-emerald-500/10 text-emerald-500; }
-  .badge-refunded  { @apply bg-blue-500/10 text-blue-500; }
-  .badge-cancelled { @apply bg-red-500/10 text-red-500; }
+  .badge-pending   { background: rgba(245,158,11,0.12); color: #B45309; }
+  .badge-released  { background: rgba(16,185,129,0.12); color: #047857; }
+  .badge-refunded  { background: rgba(59,130,246,0.12); color: #1D4ED8; }
+  .badge-cancelled { background: rgba(239,68,68,0.12);  color: #B91C1C; }
+
+  .dark .badge-pending   { background: rgba(245,158,11,0.10); color: #F59E0B; }
+  .dark .badge-released  { background: rgba(16,185,129,0.10); color: #10B981; }
+  .dark .badge-refunded  { background: rgba(59,130,246,0.10); color: #60A5FA; }
+  .dark .badge-cancelled { background: rgba(239,68,68,0.10);  color: #F87171; }
 
   .mono { @apply font-mono text-sm; color: var(--muted-2); }
 
@@ -120,4 +129,8 @@
   .gradient-text {
     @apply bg-gradient-to-r from-[#6C63FF] to-[#00D4AA] bg-clip-text text-transparent;
   }
+
+  /* Reduce orb opacity in light mode */
+  :root .bg-orb { opacity: 0.07; }
+  .dark .bg-orb { opacity: 0.20; }
 }

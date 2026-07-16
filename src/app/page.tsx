@@ -14,9 +14,9 @@ const features = [
     title: "Escrow Protection",
     desc: "Hold funds with a configurable dispute delay before distribution to recipients.",
     icon: "⬡",
-    // Padlock on digital surface — security and protection
-    image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80&auto=format&fit=crop",
-    alt: "Secure escrow lock protection",
+    // Bank vault / safe — funds held securely until conditions are met
+    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600&q=80&auto=format&fit=crop",
+    alt: "Secure vault escrow protection",
   },
   {
     title: "Batch Operations",

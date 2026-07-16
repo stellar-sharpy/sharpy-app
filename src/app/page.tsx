@@ -6,29 +6,33 @@ const features = [
     title: "Recurring Splits",
     desc: "Auto-generate the next invoice on release. Perfect for subscriptions and retainers.",
     icon: "↺",
-    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80&auto=format&fit=crop",
-    alt: "Recurring payments cycle",
+    // Calendar/subscription cycle — recurring billing
+    image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80&auto=format&fit=crop",
+    alt: "Recurring subscription calendar",
   },
   {
     title: "Escrow Protection",
     desc: "Hold funds with a configurable dispute delay before distribution to recipients.",
     icon: "⬡",
-    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&q=80&auto=format&fit=crop",
-    alt: "Secure blockchain escrow",
+    // Padlock on digital surface — security and protection
+    image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80&auto=format&fit=crop",
+    alt: "Secure escrow lock protection",
   },
   {
     title: "Batch Operations",
     desc: "Create or pay up to 10 invoices in a single transaction. Gas efficient.",
     icon: "⊞",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80&auto=format&fit=crop",
-    alt: "Batch transaction operations",
+    // Stacked documents/layers — multiple items in one action
+    image: "https://images.unsplash.com/photo-1568219656418-15c329312bf1?w=600&q=80&auto=format&fit=crop",
+    alt: "Batch processing multiple invoices",
   },
   {
     title: "Flexible Split Rules",
     desc: "Fixed amounts, percentage-based, or tiered threshold splits — configured per recipient.",
     icon: "◈",
-    image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&q=80&auto=format&fit=crop",
-    alt: "Flexible payment splitting",
+    // Pie chart / data split visualization
+    image: "https://images.unsplash.com/photo-1543286386-713bdd548da4?w=600&q=80&auto=format&fit=crop",
+    alt: "Flexible payment split rules chart",
   },
 ];
 

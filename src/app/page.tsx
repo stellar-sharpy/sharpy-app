@@ -22,9 +22,9 @@ const features = [
     title: "Batch Operations",
     desc: "Create or pay up to 10 invoices in a single transaction. Gas efficient.",
     icon: "⊞",
-    // Stacked documents/layers — multiple items in one action
-    image: "https://images.unsplash.com/photo-1568219656418-15c329312bf1?w=600&q=80&auto=format&fit=crop",
-    alt: "Batch processing multiple invoices",
+    // Network nodes / connected transactions — multiple operations at once
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80&auto=format&fit=crop",
+    alt: "Batch processing multiple transactions network",
   },
   {
     title: "Flexible Split Rules",

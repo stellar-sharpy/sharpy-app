@@ -13,7 +13,7 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **https://sharpy-sigma.vercel.app**
 
-**[Pitch Deck](https://gamma.app/docs/Split-Payments-on-Stellar-s0et8z1agtva59n)** · **[Demo Script](https://app.notion.com/p/39ea94bd556e800d8cbff3aa4cfc9ea6)**
+**[Pitch Deck](https://gamma.app/docs/Split-Payments-on-Stellar-s0et8z1agtva59n)** · 
 
 <img width="767" height="354" alt="sharpy" src="https://github.com/user-attachments/assets/8ac67307-2b20-47a8-a405-2771e6c6dc07" />
 

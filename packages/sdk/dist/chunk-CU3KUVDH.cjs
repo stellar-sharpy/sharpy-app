@@ -80,7 +80,8 @@ var SharpyClient = class {
     if ("error" in simResult) throw mapContractError(`Simulation failed: ${simResult.error}`, invoiceId);
     const { assembleTransaction } = await import('@stellar/stellar-sdk/rpc');
     const assembled = assembleTransaction(tx, simResult);
-    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signerFn = this.config.signTransaction ?? signTransaction;
+    const signed = await signerFn(assembled.toXDR(), this.config.networkPassphrase);
     const { TransactionBuilder: TB } = await import('@stellar/stellar-sdk');
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
     const sendResult = await this.server.sendTransaction(signedTx);
@@ -440,5 +441,5 @@ exports.isValidAddress = isValidAddress;
 exports.parseAmount = parseAmount;
 exports.signTransaction = signTransaction;
 exports.truncateAddress = truncateAddress;
-//# sourceMappingURL=chunk-4PQHSXH2.cjs.map
-//# sourceMappingURL=chunk-4PQHSXH2.cjs.map
+//# sourceMappingURL=chunk-CU3KUVDH.cjs.map
+//# sourceMappingURL=chunk-CU3KUVDH.cjs.map

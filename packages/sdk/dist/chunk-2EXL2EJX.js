@@ -78,7 +78,8 @@ var SharpyClient = class {
     if ("error" in simResult) throw mapContractError(`Simulation failed: ${simResult.error}`, invoiceId);
     const { assembleTransaction } = await import('@stellar/stellar-sdk/rpc');
     const assembled = assembleTransaction(tx, simResult);
-    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signerFn = this.config.signTransaction ?? signTransaction;
+    const signed = await signerFn(assembled.toXDR(), this.config.networkPassphrase);
     const { TransactionBuilder: TB } = await import('@stellar/stellar-sdk');
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
     const sendResult = await this.server.sendTransaction(signedTx);
@@ -424,5 +425,5 @@ function explorerUrl(network, contractId, type = "contract") {
 }
 
 export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress };
-//# sourceMappingURL=chunk-WEQU3XND.js.map
-//# sourceMappingURL=chunk-WEQU3XND.js.map
+//# sourceMappingURL=chunk-2EXL2EJX.js.map
+//# sourceMappingURL=chunk-2EXL2EJX.js.map

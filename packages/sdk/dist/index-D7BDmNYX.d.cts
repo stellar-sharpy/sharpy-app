@@ -2,6 +2,8 @@ interface SharpyClientConfig {
     rpcUrl: string;
     networkPassphrase: string;
     contractId: string;
+    /** Optional signing override — defaults to Freighter if not provided */
+    signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 interface RecipientAmount {
     address: string;

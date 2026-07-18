@@ -16,6 +16,8 @@ export interface SharpyClientConfig {
   rpcUrl: string;
   networkPassphrase: string;
   contractId: string;
+  /** Optional signing override — defaults to Freighter if not provided */
+  signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 
 export interface RecipientAmount {
@@ -115,7 +117,8 @@ export class SharpyClient {
 
     const { assembleTransaction } = await import("@stellar/stellar-sdk/rpc");
     const assembled = assembleTransaction(tx, simResult) as any;
-    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signerFn = this.config.signTransaction ?? signTransaction;
+    const signed = await signerFn(assembled.toXDR(), this.config.networkPassphrase);
 
     const { TransactionBuilder: TB } = await import("@stellar/stellar-sdk");
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);

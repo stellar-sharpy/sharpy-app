@@ -2,7 +2,6 @@ interface SharpyClientConfig {
     rpcUrl: string;
     networkPassphrase: string;
     contractId: string;
-    /** Optional signing override — defaults to Freighter if not provided */
     signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 interface RecipientAmount {
@@ -185,6 +184,42 @@ declare class SharpyClient {
      * @returns 32-byte hex string (SHA-256 hash)
      */
     getInvoiceFingerprint(invoiceId: number): Promise<string>;
+    /**
+     * Preview exact per-recipient payout distribution for a given payment amount.
+     * Pure read operation that simulates the split logic with dust-correct rounding.
+     * Handles proportional splits, fixed amounts, percentage rules, and tiered rules.
+     * @param invoiceId - Invoice ID to preview
+     * @param amount - Hypothetical payment amount in stroops
+     * @returns Array of bigint amounts per recipient (same order as invoice.recipients)
+     */
+    previewPayout(invoiceId: number, amount: bigint): Promise<bigint[]>;
+    /**
+     * Fetch all invoice IDs created by a specific address using the on-chain creator index.
+     * Enables efficient dashboard pagination without scanning all invoice IDs.
+     * @param creator - Creator address to query
+     * @returns Array of invoice IDs created by this address
+     */
+    getInvoicesByCreator(creator: string): Promise<number[]>;
+    /**
+     * Withdraw credited balance after a failed recipient transfer during invoice release.
+     * Fallback recovery mechanism: if a recipient's transfer fails during `_release`,
+     * funds are credited to their internal balance and can be claimed with this method.
+     * @param account - Account address to claim from (must sign)
+     * @param token - Token contract address
+     * @returns Claimed amount and transaction hash
+     */
+    claim(account: string, token: string): Promise<{
+        amount: bigint;
+        txHash: string;
+    }>;
+    /**
+     * Query claimable balance for an account/token pair.
+     * Returns the internal credited balance available for withdrawal via `claim()`.
+     * @param account - Account address
+     * @param token - Token contract address
+     * @returns Claimable balance in stroops
+     */
+    getClaimableBalance(account: string, token: string): Promise<bigint>;
 }
 
 declare function parseAmount(value: string): bigint;

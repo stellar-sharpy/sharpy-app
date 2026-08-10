@@ -14,7 +14,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [roleFilter, setRoleFilter] = useState<"All" | "Sent" | "Received">("All");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
@@ -22,17 +21,39 @@ export default function Dashboard() {
     if (!publicKey) return;
     setLoading(true);
     const fetch = async () => {
-      const results: (Invoice & { id: number })[] = [];
-      for (let id = 1; id <= 20; id++) {
-        try {
-          const inv = await sharpyClient.getInvoice(id);
-          if (inv.creator === publicKey || inv.recipients.includes(publicKey)) {
-            results.push({ ...inv, id });
-          }
-        } catch {}
+      try {
+        // Fetch invoices created by this wallet using on-chain creator index
+        const createdIds = await sharpyClient.getInvoicesByCreator(publicKey);
+        
+        // Fetch full invoice state for each ID
+        const allInvoices = await Promise.all(
+          createdIds.map(async (id) => {
+            try {
+              const inv = await sharpyClient.getInvoice(id);
+              return { ...inv, id };
+            } catch {
+              return null;
+            }
+          })
+        );
+        
+        // Filter out failed fetches
+        // Note: This only shows invoices where user is creator.
+        // To also show invoices where user is a recipient, we'd need either:
+        // 1. A recipient index (future enhancement)
+        // 2. Continue scanning a range of recent IDs
+        // For now, dashboard shows "sent" invoices only via creator index
+        const results = allInvoices
+          .filter((inv): inv is Invoice & { id: number } => inv !== null)
+          .sort((a, b) => b.deadline - a.deadline);
+        
+        setInvoices(results);
+      } catch (error) {
+        console.error("Failed to load invoices:", error);
+        setInvoices([]);
+      } finally {
+        setLoading(false);
       }
-      setInvoices(results);
-      setLoading(false);
     };
     fetch();
   }, [publicKey]);
@@ -43,8 +64,6 @@ export default function Dashboard() {
   const filtered = invoices.filter((inv) => {
     if (search && !String(inv.id).includes(search)) return false;
     if (statusFilter !== "All" && inv.status !== statusFilter) return false;
-    if (roleFilter === "Sent" && inv.creator !== publicKey) return false;
-    if (roleFilter === "Received" && inv.creator === publicKey) return false;
     if (fromTs && inv.deadline < fromTs) return false;
     if (toTs && inv.deadline > toTs) return false;
     return true;
@@ -64,7 +83,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Dashboard</h1>
-          <p className="text-sm text-[#6B7280] mt-1 mono">{truncateAddress(publicKey)}</p>
+          <p className="text-sm text-[#6B7280] mt-1 mono">{truncateAddress(publicKey)} · Invoices you created</p>
         </div>
         <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
       </div>
@@ -81,11 +100,6 @@ export default function Dashboard() {
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input text-sm">
           <option value="All">All statuses</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as typeof roleFilter)} className="input text-sm">
-          <option value="All">Sent & Received</option>
-          <option value="Sent">Sent</option>
-          <option value="Received">Received</option>
         </select>
         <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="input text-sm" title="From date" />
         <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="input text-sm" title="To date" />

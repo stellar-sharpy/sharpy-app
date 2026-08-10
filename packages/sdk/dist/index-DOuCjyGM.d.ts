@@ -2,7 +2,6 @@ interface SharpyClientConfig {
     rpcUrl: string;
     networkPassphrase: string;
     contractId: string;
-    signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 interface RecipientAmount {
     address: string;

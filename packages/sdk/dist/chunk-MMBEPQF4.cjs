@@ -80,7 +80,7 @@ var SharpyClient = class {
     if ("error" in simResult) throw mapContractError(`Simulation failed: ${simResult.error}`, invoiceId);
     const { assembleTransaction } = await import('@stellar/stellar-sdk/rpc');
     const assembled = assembleTransaction(tx, simResult);
-    const signed = this.config.signTransaction ? await this.config.signTransaction(assembled.toXDR(), this.config.networkPassphrase) : await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
     const { TransactionBuilder: TB } = await import('@stellar/stellar-sdk');
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
     const sendResult = await this.server.sendTransaction(signedTx);
@@ -108,7 +108,7 @@ var SharpyClient = class {
       new stellarSdk.Address(params.creator).toScVal(),
       stellarSdk.nativeToScVal(params.recipients.map((r) => new stellarSdk.Address(r.address).toScVal())),
       stellarSdk.nativeToScVal(params.recipients.map((r) => r.amount)),
-      new stellarSdk.Address(params.token).toScVal(),
+      stellarSdk.nativeToScVal(params.recipients.map(() => new stellarSdk.Address(params.token).toScVal())),
       stellarSdk.nativeToScVal(params.deadline, { type: "u64" }),
       buildInvoiceOptions(params)
     ];
@@ -124,7 +124,7 @@ var SharpyClient = class {
       new stellarSdk.Address(params.creator).toScVal(),
       stellarSdk.nativeToScVal(params.recipients.map((r) => new stellarSdk.Address(r.address).toScVal())),
       stellarSdk.nativeToScVal(params.recipients.map((r) => r.amount)),
-      new stellarSdk.Address(params.token).toScVal(),
+      stellarSdk.nativeToScVal(params.recipients.map(() => new stellarSdk.Address(params.token).toScVal())),
       stellarSdk.nativeToScVal(params.deadline, { type: "u64" }),
       stellarSdk.nativeToScVal(params.recurrenceInterval, { type: "u64" }),
       stellarSdk.nativeToScVal(params.maxRecurrences, { type: "u32" })
@@ -508,5 +508,5 @@ exports.isValidAddress = isValidAddress;
 exports.parseAmount = parseAmount;
 exports.signTransaction = signTransaction;
 exports.truncateAddress = truncateAddress;
-//# sourceMappingURL=chunk-NR4K3RZM.cjs.map
-//# sourceMappingURL=chunk-NR4K3RZM.cjs.map
+//# sourceMappingURL=chunk-MMBEPQF4.cjs.map
+//# sourceMappingURL=chunk-MMBEPQF4.cjs.map

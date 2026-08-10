@@ -78,7 +78,7 @@ var SharpyClient = class {
     if ("error" in simResult) throw mapContractError(`Simulation failed: ${simResult.error}`, invoiceId);
     const { assembleTransaction } = await import('@stellar/stellar-sdk/rpc');
     const assembled = assembleTransaction(tx, simResult);
-    const signed = this.config.signTransaction ? await this.config.signTransaction(assembled.toXDR(), this.config.networkPassphrase) : await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
     const { TransactionBuilder: TB } = await import('@stellar/stellar-sdk');
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
     const sendResult = await this.server.sendTransaction(signedTx);
@@ -106,7 +106,7 @@ var SharpyClient = class {
       new Address(params.creator).toScVal(),
       nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal())),
       nativeToScVal(params.recipients.map((r) => r.amount)),
-      new Address(params.token).toScVal(),
+      nativeToScVal(params.recipients.map(() => new Address(params.token).toScVal())),
       nativeToScVal(params.deadline, { type: "u64" }),
       buildInvoiceOptions(params)
     ];
@@ -122,7 +122,7 @@ var SharpyClient = class {
       new Address(params.creator).toScVal(),
       nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal())),
       nativeToScVal(params.recipients.map((r) => r.amount)),
-      new Address(params.token).toScVal(),
+      nativeToScVal(params.recipients.map(() => new Address(params.token).toScVal())),
       nativeToScVal(params.deadline, { type: "u64" }),
       nativeToScVal(params.recurrenceInterval, { type: "u64" }),
       nativeToScVal(params.maxRecurrences, { type: "u32" })
@@ -492,5 +492,5 @@ function explorerUrl(network, contractId, type = "contract") {
 }
 
 export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress };
-//# sourceMappingURL=chunk-3JP4B2DH.js.map
-//# sourceMappingURL=chunk-3JP4B2DH.js.map
+//# sourceMappingURL=chunk-SIS3BGX3.js.map
+//# sourceMappingURL=chunk-SIS3BGX3.js.map

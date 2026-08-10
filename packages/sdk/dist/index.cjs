@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkNR4K3RZM_cjs = require('./chunk-NR4K3RZM.cjs');
+var chunkMMBEPQF4_cjs = require('./chunk-MMBEPQF4.cjs');
 
 // src/index.ts
 var NETWORKS = {
@@ -18,63 +18,63 @@ var NETWORKS = {
 
 Object.defineProperty(exports, "DeadlinePassedError", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.DeadlinePassedError; }
+  get: function () { return chunkMMBEPQF4_cjs.DeadlinePassedError; }
 });
 Object.defineProperty(exports, "InvoiceNotFoundError", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.InvoiceNotFoundError; }
+  get: function () { return chunkMMBEPQF4_cjs.InvoiceNotFoundError; }
 });
 Object.defineProperty(exports, "InvoiceNotPendingError", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.InvoiceNotPendingError; }
+  get: function () { return chunkMMBEPQF4_cjs.InvoiceNotPendingError; }
 });
 Object.defineProperty(exports, "OverpaymentError", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.OverpaymentError; }
+  get: function () { return chunkMMBEPQF4_cjs.OverpaymentError; }
 });
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.SharpyClient; }
+  get: function () { return chunkMMBEPQF4_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "connectWallet", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.connectWallet; }
+  get: function () { return chunkMMBEPQF4_cjs.connectWallet; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.deadlineFromDays; }
+  get: function () { return chunkMMBEPQF4_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "explorerUrl", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.explorerUrl; }
+  get: function () { return chunkMMBEPQF4_cjs.explorerUrl; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.formatAmount; }
+  get: function () { return chunkMMBEPQF4_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "getWalletPublicKey", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.getWalletPublicKey; }
+  get: function () { return chunkMMBEPQF4_cjs.getWalletPublicKey; }
 });
 Object.defineProperty(exports, "isExpired", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.isExpired; }
+  get: function () { return chunkMMBEPQF4_cjs.isExpired; }
 });
 Object.defineProperty(exports, "isValidAddress", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.isValidAddress; }
+  get: function () { return chunkMMBEPQF4_cjs.isValidAddress; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.parseAmount; }
+  get: function () { return chunkMMBEPQF4_cjs.parseAmount; }
 });
 Object.defineProperty(exports, "signTransaction", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.signTransaction; }
+  get: function () { return chunkMMBEPQF4_cjs.signTransaction; }
 });
 Object.defineProperty(exports, "truncateAddress", {
   enumerable: true,
-  get: function () { return chunkNR4K3RZM_cjs.truncateAddress; }
+  get: function () { return chunkMMBEPQF4_cjs.truncateAddress; }
 });
 exports.NETWORKS = NETWORKS;
 //# sourceMappingURL=index.cjs.map

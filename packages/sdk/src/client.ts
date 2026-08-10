@@ -16,7 +16,6 @@ export interface SharpyClientConfig {
   rpcUrl: string;
   networkPassphrase: string;
   contractId: string;
-  signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 
 export interface RecipientAmount {
@@ -116,11 +115,7 @@ export class SharpyClient {
 
     const { assembleTransaction } = await import("@stellar/stellar-sdk/rpc");
     const assembled = assembleTransaction(tx, simResult) as any;
-    
-    // Use config signTransaction if provided, otherwise fall back to wallet module
-    const signed = this.config.signTransaction
-      ? await this.config.signTransaction(assembled.toXDR(), this.config.networkPassphrase)
-      : await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
+    const signed = await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
 
     const { TransactionBuilder: TB } = await import("@stellar/stellar-sdk");
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
@@ -155,7 +150,7 @@ export class SharpyClient {
       new Address(params.creator).toScVal(),
       nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal())),
       nativeToScVal(params.recipients.map((r) => r.amount)),
-      new Address(params.token).toScVal(),
+      nativeToScVal(params.recipients.map(() => new Address(params.token).toScVal())),
       nativeToScVal(params.deadline, { type: "u64" }),
       buildInvoiceOptions(params),
     ];
@@ -172,7 +167,7 @@ export class SharpyClient {
       new Address(params.creator).toScVal(),
       nativeToScVal(params.recipients.map((r) => new Address(r.address).toScVal())),
       nativeToScVal(params.recipients.map((r) => r.amount)),
-      new Address(params.token).toScVal(),
+      nativeToScVal(params.recipients.map(() => new Address(params.token).toScVal())),
       nativeToScVal(params.deadline, { type: "u64" }),
       nativeToScVal(params.recurrenceInterval, { type: "u64" }),
       nativeToScVal(params.maxRecurrences, { type: "u32" }),

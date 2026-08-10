@@ -16,6 +16,7 @@ export interface SharpyClientConfig {
   rpcUrl: string;
   networkPassphrase: string;
   contractId: string;
+  signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 
 export interface RecipientAmount {

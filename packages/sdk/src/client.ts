@@ -16,7 +16,6 @@ export interface SharpyClientConfig {
   rpcUrl: string;
   networkPassphrase: string;
   contractId: string;
-  /** Optional signing override — defaults to Freighter if not provided */
   signTransaction?: (xdr: string, networkPassphrase: string) => Promise<string>;
 }
 
@@ -117,8 +116,11 @@ export class SharpyClient {
 
     const { assembleTransaction } = await import("@stellar/stellar-sdk/rpc");
     const assembled = assembleTransaction(tx, simResult) as any;
-    const signerFn = this.config.signTransaction ?? signTransaction;
-    const signed = await signerFn(assembled.toXDR(), this.config.networkPassphrase);
+    
+    // Use config signTransaction if provided, otherwise fall back to wallet module
+    const signed = this.config.signTransaction
+      ? await this.config.signTransaction(assembled.toXDR(), this.config.networkPassphrase)
+      : await signTransaction(assembled.toXDR(), this.config.networkPassphrase);
 
     const { TransactionBuilder: TB } = await import("@stellar/stellar-sdk");
     const signedTx = TB.fromXDR(signed, this.config.networkPassphrase);
@@ -414,6 +416,87 @@ export class SharpyClient {
       return Buffer.from(raw).toString("hex");
     }
     return String(raw);
+  }
+
+  /**
+   * Preview exact per-recipient payout distribution for a given payment amount.
+   * Pure read operation that simulates the split logic with dust-correct rounding.
+   * Handles proportional splits, fixed amounts, percentage rules, and tiered rules.
+   * @param invoiceId - Invoice ID to preview
+   * @param amount - Hypothetical payment amount in stroops
+   * @returns Array of bigint amounts per recipient (same order as invoice.recipients)
+   */
+  async previewPayout(invoiceId: number, amount: bigint): Promise<bigint[]> {
+    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call(
+        "preview_payout",
+        nativeToScVal(invoiceId, { type: "u64" }),
+        nativeToScVal(amount, { type: "i128" })
+      ))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw mapContractError(`Simulation failed: ${sim.error}`, invoiceId);
+    const raw = scValToNative((sim as any).result.retval) as any[];
+    return raw.map((v) => BigInt(v));
+  }
+
+  /**
+   * Fetch all invoice IDs created by a specific address using the on-chain creator index.
+   * Enables efficient dashboard pagination without scanning all invoice IDs.
+   * @param creator - Creator address to query
+   * @returns Array of invoice IDs created by this address
+   */
+  async getInvoicesByCreator(creator: string): Promise<number[]> {
+    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call("get_invoices_by_creator", new Address(creator).toScVal()))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    const raw = scValToNative((sim as any).result.retval) as any[];
+    return raw.map(Number);
+  }
+
+  /**
+   * Withdraw credited balance after a failed recipient transfer during invoice release.
+   * Fallback recovery mechanism: if a recipient's transfer fails during `_release`,
+   * funds are credited to their internal balance and can be claimed with this method.
+   * @param account - Account address to claim from (must sign)
+   * @param token - Token contract address
+   * @returns Claimed amount and transaction hash
+   */
+  async claim(account: string, token: string): Promise<{ amount: bigint; txHash: string }> {
+    const args = [new Address(account).toScVal(), new Address(token).toScVal()];
+    const { txHash, result } = await this.buildAndSubmit(account, "claim", args);
+    return { amount: BigInt(scValToNative(result)), txHash };
+  }
+
+  /**
+   * Query claimable balance for an account/token pair.
+   * Returns the internal credited balance available for withdrawal via `claim()`.
+   * @param account - Account address
+   * @param token - Token contract address
+   * @returns Claimable balance in stroops
+   */
+  async getClaimableBalance(account: string, token: string): Promise<bigint> {
+    const acc = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(acc, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call(
+        "get_claimable_balance",
+        new Address(account).toScVal(),
+        new Address(token).toScVal()
+      ))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    return BigInt(scValToNative((sim as any).result.retval) ?? 0);
   }
 }
 

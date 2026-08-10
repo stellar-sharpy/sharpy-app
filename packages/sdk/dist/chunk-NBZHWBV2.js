@@ -465,18 +465,18 @@ function mapInvoice(raw) {
 }
 
 // src/utils.ts
-var STROOPS_PER_UNIT = 10000000n;
+var STROOPS_PER_UNIT = 1000000n;
 function parseAmount(value) {
   const parts = value.split(".");
   const whole = parts[0] ?? "0";
-  const frac = (parts[1] ?? "").slice(0, 7).padEnd(7, "0");
+  const frac = (parts[1] ?? "").slice(0, 6).padEnd(6, "0");
   return BigInt(whole) * STROOPS_PER_UNIT + BigInt(frac);
 }
 function formatAmount(stroops) {
   const whole = stroops / STROOPS_PER_UNIT;
   const frac = stroops % STROOPS_PER_UNIT;
   if (frac === 0n) return whole.toString();
-  return `${whole}.${frac.toString().padStart(7, "0").replace(/0+$/, "")}`;
+  return `${whole}.${frac.toString().padStart(6, "0").replace(/0+$/, "")}`;
 }
 function deadlineFromDays(days) {
   return Math.floor(Date.now() / 1e3) + days * 86400;
@@ -496,5 +496,5 @@ function explorerUrl(network, contractId, type = "contract") {
 }
 
 export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress };
-//# sourceMappingURL=chunk-ZWFG6W7J.js.map
-//# sourceMappingURL=chunk-ZWFG6W7J.js.map
+//# sourceMappingURL=chunk-NBZHWBV2.js.map
+//# sourceMappingURL=chunk-NBZHWBV2.js.map

@@ -187,7 +187,7 @@ var SharpyClient = class {
    */
   async getInvoice(invoiceId) {
     const account = await this.server.getAccount(
-      "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN"
+      "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
       // read-only placeholder
     );
     const contract = new stellarSdk.Contract(this.config.contractId);
@@ -226,7 +226,7 @@ var SharpyClient = class {
    * @returns Array of audit entries with action, actor, and timestamp
    */
   async getAuditLog(invoiceId) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_audit_log", stellarSdk.nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
@@ -239,7 +239,7 @@ var SharpyClient = class {
    */
   async getNextRecurring(invoiceId) {
     const account = await this.server.getAccount(
-      "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN"
+      "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
     );
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, {
@@ -275,7 +275,7 @@ var SharpyClient = class {
    * @returns Total paid in stroops
    */
   async getPayerTotal(invoiceId, payer) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call(
       "get_payer_total",
@@ -290,7 +290,7 @@ var SharpyClient = class {
    * @param invoiceId Invoice ID
    */
   async getInvoiceStats(invoiceId) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_invoice_stats", stellarSdk.nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
@@ -325,7 +325,7 @@ var SharpyClient = class {
    * @returns 32-byte hex string (SHA-256 hash)
    */
   async getInvoiceFingerprint(invoiceId) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_invoice_fingerprint", stellarSdk.nativeToScVal(invoiceId, { type: "u64" }))).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
@@ -345,7 +345,7 @@ var SharpyClient = class {
    * @returns Array of bigint amounts per recipient (same order as invoice.recipients)
    */
   async previewPayout(invoiceId, amount) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call(
       "preview_payout",
@@ -364,7 +364,7 @@ var SharpyClient = class {
    * @returns Array of invoice IDs created by this address
    */
   async getInvoicesByCreator(creator) {
-    const account = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(account, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call("get_invoices_by_creator", new stellarSdk.Address(creator).toScVal())).setTimeout(30).build();
     const sim = await this.server.simulateTransaction(tx);
@@ -393,7 +393,7 @@ var SharpyClient = class {
    * @returns Claimable balance in stroops
    */
   async getClaimableBalance(account, token) {
-    const acc = await this.server.getAccount("GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN");
+    const acc = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
     const contract = new stellarSdk.Contract(this.config.contractId);
     const tx = new stellarSdk.TransactionBuilder(acc, { fee: stellarSdk.BASE_FEE, networkPassphrase: this.config.networkPassphrase }).addOperation(contract.call(
       "get_claimable_balance",
@@ -508,5 +508,5 @@ exports.isValidAddress = isValidAddress;
 exports.parseAmount = parseAmount;
 exports.signTransaction = signTransaction;
 exports.truncateAddress = truncateAddress;
-//# sourceMappingURL=chunk-MMBEPQF4.cjs.map
-//# sourceMappingURL=chunk-MMBEPQF4.cjs.map
+//# sourceMappingURL=chunk-RRX4BEOA.cjs.map
+//# sourceMappingURL=chunk-RRX4BEOA.cjs.map

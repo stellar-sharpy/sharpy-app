@@ -1,24 +1,24 @@
 'use strict';
 
-var chunkMMBEPQF4_cjs = require('../chunk-MMBEPQF4.cjs');
+var chunkRRX4BEOA_cjs = require('../chunk-RRX4BEOA.cjs');
 
 
 
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkMMBEPQF4_cjs.SharpyClient; }
+  get: function () { return chunkRRX4BEOA_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkMMBEPQF4_cjs.deadlineFromDays; }
+  get: function () { return chunkRRX4BEOA_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkMMBEPQF4_cjs.formatAmount; }
+  get: function () { return chunkRRX4BEOA_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkMMBEPQF4_cjs.parseAmount; }
+  get: function () { return chunkRRX4BEOA_cjs.parseAmount; }
 });
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkRRX4BEOA_cjs = require('./chunk-RRX4BEOA.cjs');
+var chunkX6ZVJKIW_cjs = require('./chunk-X6ZVJKIW.cjs');
 
 // src/index.ts
 var NETWORKS = {
@@ -18,63 +18,63 @@ var NETWORKS = {
 
 Object.defineProperty(exports, "DeadlinePassedError", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.DeadlinePassedError; }
+  get: function () { return chunkX6ZVJKIW_cjs.DeadlinePassedError; }
 });
 Object.defineProperty(exports, "InvoiceNotFoundError", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.InvoiceNotFoundError; }
+  get: function () { return chunkX6ZVJKIW_cjs.InvoiceNotFoundError; }
 });
 Object.defineProperty(exports, "InvoiceNotPendingError", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.InvoiceNotPendingError; }
+  get: function () { return chunkX6ZVJKIW_cjs.InvoiceNotPendingError; }
 });
 Object.defineProperty(exports, "OverpaymentError", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.OverpaymentError; }
+  get: function () { return chunkX6ZVJKIW_cjs.OverpaymentError; }
 });
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.SharpyClient; }
+  get: function () { return chunkX6ZVJKIW_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "connectWallet", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.connectWallet; }
+  get: function () { return chunkX6ZVJKIW_cjs.connectWallet; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.deadlineFromDays; }
+  get: function () { return chunkX6ZVJKIW_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "explorerUrl", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.explorerUrl; }
+  get: function () { return chunkX6ZVJKIW_cjs.explorerUrl; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.formatAmount; }
+  get: function () { return chunkX6ZVJKIW_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "getWalletPublicKey", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.getWalletPublicKey; }
+  get: function () { return chunkX6ZVJKIW_cjs.getWalletPublicKey; }
 });
 Object.defineProperty(exports, "isExpired", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.isExpired; }
+  get: function () { return chunkX6ZVJKIW_cjs.isExpired; }
 });
 Object.defineProperty(exports, "isValidAddress", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.isValidAddress; }
+  get: function () { return chunkX6ZVJKIW_cjs.isValidAddress; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.parseAmount; }
+  get: function () { return chunkX6ZVJKIW_cjs.parseAmount; }
 });
 Object.defineProperty(exports, "signTransaction", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.signTransaction; }
+  get: function () { return chunkX6ZVJKIW_cjs.signTransaction; }
 });
 Object.defineProperty(exports, "truncateAddress", {
   enumerable: true,
-  get: function () { return chunkRRX4BEOA_cjs.truncateAddress; }
+  get: function () { return chunkX6ZVJKIW_cjs.truncateAddress; }
 });
 exports.NETWORKS = NETWORKS;
 //# sourceMappingURL=index.cjs.map

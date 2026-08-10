@@ -499,6 +499,10 @@ export class SharpyClient {
 function buildInvoiceOptions(params: CreateInvoiceParams): xdr.ScVal {
   return xdr.ScVal.scvMap([
     new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("arbitrator"),
+      val: xdr.ScVal.scvVec([]),
+    }),
+    new xdr.ScMapEntry({
       key: xdr.ScVal.scvSymbol("auto_resolve_rules"),
       val: xdr.ScVal.scvVec([]),
     }),

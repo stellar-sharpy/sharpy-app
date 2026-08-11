@@ -26,7 +26,7 @@ type PayMode = "wallet" | "x402";
 export default function PayPage() {
   const { id } = useParams<{ id: string }>();
   const invoiceId = Number(id);
-  const { publicKey, connect } = useWallet();
+  const { publicKey, signerReady, connect } = useWallet();
   const router = useRouter();
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -54,7 +54,7 @@ export default function PayPage() {
 
   // Standard wallet pay
   const handleWalletPay = async () => {
-    if (!publicKey || !payAmount) return;
+    if (!publicKey || !signerReady || !payAmount) return;
     setError(""); setPaying(true);
     try {
       setStep("signing");
@@ -76,7 +76,7 @@ export default function PayPage() {
 
   // x402 agent/HTTP pay
   const handleX402Pay = async () => {
-    if (!publicKey || !payAmount) return;
+    if (!publicKey || !signerReady || !payAmount) return;
     setError(""); setPaying(true);
     try {
       setStep("signing");
@@ -303,8 +303,13 @@ export default function PayPage() {
 
               {!publicKey ? (
                 <div className="text-center space-y-3">
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>Connect your Freighter wallet to pay.</p>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>Connect your wallet to pay.</p>
                   <button onClick={connect} className="btn-primary w-full py-3">Connect Wallet</button>
+                </div>
+              ) : !signerReady ? (
+                <div className="text-center space-y-3">
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>Wallet session expired. Please reconnect.</p>
+                  <button onClick={connect} className="btn-primary w-full py-3">Reconnect Wallet</button>
                 </div>
               ) : (
                 <div className="space-y-3">

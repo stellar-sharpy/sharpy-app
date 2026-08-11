@@ -59,6 +59,12 @@ interface Invoice {
     escrowEnabled: boolean;
     escrowReleaseDelay: number;
     completionTime?: number;
+    payments?: any[];
+    claimed?: bigint[];
+    frozen?: boolean;
+    splitRules?: any[];
+    autoResolveRules?: any[];
+    arbitrator?: string | null;
 }
 declare class SharpyClient {
     private server;

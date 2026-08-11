@@ -1,4 +1,30 @@
-export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, connectWallet, deadlineFromDays, explorerUrl, formatAmount, getWalletPublicKey, isExpired, isValidAddress, parseAmount, signTransaction, truncateAddress } from './chunk-NBZHWBV2.js';
+export { DeadlinePassedError, InvoiceNotFoundError, InvoiceNotPendingError, OverpaymentError, SharpyClient, deadlineFromDays, explorerUrl, formatAmount, isExpired, isValidAddress, parseAmount, truncateAddress } from './chunk-WTBZQR5Q.js';
+import { isConnected, requestAccess, getAddress, signTransaction as signTransaction$1 } from '@stellar/freighter-api';
+
+async function connectWallet() {
+  const connected = await isConnected();
+  if (!connected.isConnected) throw new Error("Freighter wallet not found. Please install the Freighter extension.");
+  await requestAccess();
+  const result = await getAddress();
+  if ("error" in result) throw new Error(`Could not get address: ${result.error}`);
+  return result.address;
+}
+async function getWalletPublicKey() {
+  try {
+    const connected = await isConnected();
+    if (!connected.isConnected) return null;
+    const result = await getAddress();
+    if ("error" in result) return null;
+    return result.address;
+  } catch {
+    return null;
+  }
+}
+async function signTransaction(xdr, networkPassphrase) {
+  const result = await signTransaction$1(xdr, { networkPassphrase });
+  if ("error" in result) throw new Error(`Signing failed: ${result.error}`);
+  return result.signedTxXdr;
+}
 
 // src/index.ts
 var NETWORKS = {
@@ -14,6 +40,6 @@ var NETWORKS = {
   }
 };
 
-export { NETWORKS };
+export { NETWORKS, connectWallet, getWalletPublicKey, signTransaction };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

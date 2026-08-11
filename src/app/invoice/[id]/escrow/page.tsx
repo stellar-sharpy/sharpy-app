@@ -9,7 +9,7 @@ import type { Invoice } from "../../../../lib/utils";
 export default function EscrowPage() {
   const { id } = useParams<{ id: string }>();
   const invoiceId = Number(id);
-  const { publicKey, connect } = useWallet();
+  const { publicKey, signerReady, connect } = useWallet();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [releasing, setReleasing] = useState(false);
   const [txHash, setTxHash] = useState("");
@@ -20,7 +20,7 @@ export default function EscrowPage() {
   }, [invoiceId]);
 
   const handleRelease = async () => {
-    if (!publicKey) return;
+    if (!publicKey || !signerReady) return;
     setReleasing(true); setError("");
     try {
       const { txHash } = await sharpyClient.releaseEscrow(publicKey, invoiceId);
@@ -60,6 +60,8 @@ export default function EscrowPage() {
           </div>
         ) : !publicKey ? (
           <button onClick={connect} className="btn-primary w-full py-3">Connect Wallet to Release</button>
+        ) : !signerReady ? (
+          <button onClick={connect} className="btn-primary w-full py-3">Reconnect Wallet</button>
         ) : (
           <button onClick={handleRelease} disabled={releasing} className="btn-primary w-full py-3">
             {releasing ? "Releasing..." : "Release Escrow"}

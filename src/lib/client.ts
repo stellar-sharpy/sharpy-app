@@ -18,14 +18,11 @@ export const sharpyClient = new SharpyClient({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL ?? net.rpcUrl,
   networkPassphrase: net.networkPassphrase,
   contractId: CONTRACT_ID,
-  // Always delegates to signerRegistry.fn at call time
+  // Always delegates to signerRegistry.fn at call time.
+  // Throws if no wallet is connected — never silently falls back to another wallet.
   signTransaction: async (xdr: string, passphrase: string) => {
-    if (signerRegistry.fn) return signerRegistry.fn(xdr, passphrase);
-    // Fallback to Freighter if no kit signer registered
-    const { signTransaction } = await import("@stellar/freighter-api");
-    const result = await (signTransaction as any)(xdr, { networkPassphrase: passphrase });
-    if (result && "error" in result) throw new Error(`Signing failed: ${result.error}`);
-    return result.signedTxXdr ?? result;
+    if (!signerRegistry.fn) throw new Error("No wallet connected. Please connect your wallet and try again.");
+    return signerRegistry.fn(xdr, passphrase);
   },
 });
 

@@ -10,7 +10,7 @@ import { Token, getTokenAddress, TOKENS } from "../../../lib/tokens";
 interface Recipient { address: string; amount: string; }
 
 export default function NewInvoice() {
-  const { publicKey, connect } = useWallet();
+  const { publicKey, signerReady, connect } = useWallet();
   const router = useRouter();
   const [recipients, setRecipients] = useState<Recipient[]>([{ address: "", amount: "" }]);
   const [selectedToken, setSelectedToken] = useState<Token>(TOKENS[0]);
@@ -68,6 +68,16 @@ export default function NewInvoice() {
       <div className="flex flex-col items-center justify-center py-32 gap-4">
         <p className="text-[#6B7280]">Connect your wallet to create an invoice.</p>
         <button onClick={connect} className="btn-primary">Connect Wallet</button>
+      </div>
+    );
+  }
+
+  // Address is known (session restore) but signer isn't active — must reconnect
+  if (!signerReady) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-4">
+        <p className="text-[#6B7280]">Wallet session expired. Please reconnect to continue.</p>
+        <button onClick={connect} className="btn-primary">Reconnect Wallet</button>
       </div>
     );
   }

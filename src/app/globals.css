@@ -152,13 +152,13 @@
   .animate-stagger > *:nth-child(5) { animation-delay: 240ms; }
   .animate-stagger > *:nth-child(6) { animation-delay: 300ms; }
 
-  /* ── Toast slide-in ── */
+  /* ── Toast drop-in from top ── */
   .animate-toast-in {
     animation: toast-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
   @keyframes toast-in {
-    from { opacity: 0; transform: translateX(24px) scale(0.96); }
-    to   { opacity: 1; transform: translateX(0) scale(1); }
+    from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   /* ── Spinner ── */

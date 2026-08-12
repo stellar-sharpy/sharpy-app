@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWallet } from "../../../components/WalletProvider";
 import { useToast } from "../../../components/Toast";
-import { sharpyClient, NETWORK } from "../../../lib/client";
+import { sharpyClient, NETWORK, CONTRACT_ID } from "../../../lib/client";
 import { getTokenByAddress } from "../../../lib/tokens";
 import { formatAmount, parseAmount, formatDeadline, fundingPercent, truncateAddress, explorerUrl } from "../../../lib/utils";
 import type { Invoice } from "../../../lib/utils";
@@ -31,7 +31,7 @@ export default function InvoicePage() {
   const { id } = useParams<{ id: string }>();
   const invoiceId = Number(id);
   const { publicKey, connect } = useWallet();
-  const { toast } = useToast();
+  const { toast, dismissAll } = useToast();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [payAmount, setPayAmount] = useState("");
@@ -63,9 +63,11 @@ export default function InvoicePage() {
       const { txHash: hash } = await sharpyClient.pay(publicKey, invoiceId, parseAmount(payAmount));
       setPayStep("done");
       setTxHash(hash);
+      dismissAll();
       toast("Payment confirmed", "success");
       await load();
     } catch (e: any) {
+      dismissAll();
       setError(e.message);
       toast(e.message ?? "Payment failed", "error");
       setPayStep("idle");
@@ -196,11 +198,59 @@ export default function InvoicePage() {
         <div className="card p-6"><AuditLogTab invoiceId={invoiceId} /></div>
       )}
 
-      <div className="flex gap-4 text-xs text-[#4B5563]">
-        <Link href={`/verify/${invoiceId}`} className="hover:text-[#9CA3AF] transition-colors">Public Verification</Link>
-        {invoice.escrowEnabled && <Link href={`/invoice/${invoiceId}/escrow`} className="hover:text-[#9CA3AF] transition-colors">Escrow</Link>}
-        <Link href={`/invoice/${invoiceId}/recurring`} className="hover:text-[#9CA3AF] transition-colors">Recurring Chain</Link>
-        <Link href={`/pay/${invoiceId}`} className="hover:text-[#9CA3AF] transition-colors">Share Payment Link</Link>
+      {/* Action buttons */}
+      <div className="card p-4">
+        <p className="text-xs font-medium mb-3" style={{ color: "var(--muted)" }}>Actions</p>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href={`/pay/${invoiceId}`}
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border"
+            style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            Share Payment Link
+          </Link>
+
+          <Link
+            href={`/verify/${invoiceId}`}
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border"
+            style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5l3 3 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Public Verification
+          </Link>
+
+          {invoice.escrowEnabled && (
+            <Link
+              href={`/invoice/${invoiceId}/escrow`}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border"
+              style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              Escrow
+            </Link>
+          )}
+
+          <Link
+            href={`/invoice/${invoiceId}/recurring`}
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border"
+            style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7a6 6 0 1110.5-4M11.5 1v2.5H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Recurring Chain
+          </Link>
+
+          <a
+            href={`https://stellar.expert/explorer/${NETWORK}/contract/${CONTRACT_ID}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border col-span-2"
+            style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8 1h5v5M5.5 8.5l7-7M2 4a1 1 0 011-1h1M2 4v8a1 1 0 001 1h8a1 1 0 001-1V9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            View on Stellar Explorer
+          </a>
+        </div>
       </div>
     </div>
   );

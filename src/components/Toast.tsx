@@ -7,12 +7,13 @@ interface Toast {
   id: string;
   type: ToastType;
   message: string;
-  duration?: number; // ms — 0 = sticky until dismissed
+  duration?: number;
 }
 
 interface ToastCtx {
   toast: (message: string, type?: ToastType, duration?: number) => string;
   dismiss: (id: string) => void;
+  dismissAll: () => void;
   promise: <T>(
     fn: Promise<T>,
     messages: { loading: string; success: string; error?: string }
@@ -22,71 +23,61 @@ interface ToastCtx {
 const ToastContext = createContext<ToastCtx>({
   toast: () => "",
   dismiss: () => {},
+  dismissAll: () => {},
   promise: async (fn) => fn,
 });
 
 let idCounter = 0;
 
+const iconColors: Record<ToastType, string> = {
+  success: "#00D4AA",
+  error:   "#EF4444",
+  info:    "#6C63FF",
+  loading: "#6C63FF",
+};
+
+function ToastIcon({ type }: { type: ToastType }): JSX.Element {
+  if (type === "success") return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+  if (type === "error") return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M10 6L6 10M6 6l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+  if (type === "loading") return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="animate-spin-slow">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.25"/>
+      <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M8 7v4M8 5.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 function ToastItem({ t, onDismiss }: { t: Toast; onDismiss: (id: string) => void }) {
-  const icons: Record<ToastType, JSX.Element> = {
-    success: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    error: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-        <path d="M10 6L6 10M6 6l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    info: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-        <path d="M8 7v4M8 5.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    loading: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-spin-slow">
-        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3"/>
-        <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  };
-
-  const colors: Record<ToastType, string> = {
-    success: "border-[var(--border)] text-[var(--text)]",
-    error:   "border-[var(--border)] text-[var(--text)]",
-    info:    "border-[var(--border)] text-[var(--text)]",
-    loading: "border-[var(--border)] text-[var(--text)]",
-  };
-
-  const iconColors: Record<ToastType, string> = {
-    success: "#00D4AA",
-    error:   "#EF4444",
-    info:    "#6C63FF",
-    loading: "#6C63FF",
-  };
-
   return (
     <div
-      className={`
-        flex items-start gap-3 px-4 py-3 rounded-xl border text-sm
-        shadow-xl min-w-[280px] max-w-[380px]
-        animate-toast-in
-        ${colors[t.type]}
-      `}
-      style={{ backgroundColor: "var(--surface)" }}
+      className="flex items-center gap-3 px-4 py-3 rounded-xl border text-sm shadow-xl animate-toast-in min-w-[300px] max-w-[420px]"
+      style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
     >
-      <span style={{ color: iconColors[t.type] }} className="shrink-0 mt-0.5">{icons[t.type]}</span>
-      <span className="flex-1 leading-snug" style={{ color: "var(--text)" }}>
-        {t.message}
+      <span style={{ color: iconColors[t.type] }} className="shrink-0">
+        <ToastIcon type={t.type} />
       </span>
+      <span className="flex-1 leading-snug">{t.message}</span>
       {t.type !== "loading" && (
         <button
           onClick={() => onDismiss(t.id)}
-          className="text-[var(--muted)] hover:text-[var(--text)] transition-colors leading-none mt-0.5 shrink-0"
+          className="shrink-0 text-lg leading-none transition-colors"
+          style={{ color: "var(--muted)" }}
         >
           ×
         </button>
@@ -102,10 +93,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const dismissAll = useCallback(() => {
+    setToasts([]);
+  }, []);
+
   const toast = useCallback(
     (message: string, type: ToastType = "info", duration = 4000): string => {
       const id = String(++idCounter);
-      setToasts((prev) => [...prev, { id, type, message, duration }]);
+      // Replace any existing loading toast when a new one comes in
+      setToasts((prev) => {
+        const withoutLoading = type === "loading" ? prev.filter((t) => t.type !== "loading") : prev;
+        return [...withoutLoading, { id, type, message, duration }];
+      });
       if (duration > 0) {
         setTimeout(() => dismiss(id), duration);
       }
@@ -135,10 +134,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <ToastContext.Provider value={{ toast, dismiss, promise }}>
+    <ToastContext.Provider value={{ toast, dismiss, dismissAll, promise }}>
       {children}
-      {/* Toast portal */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end pointer-events-none">
+      {/* Top-center portal */}
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 items-center pointer-events-none">
         {toasts.map((t) => (
           <div key={t.id} className="pointer-events-auto">
             <ToastItem t={t} onDismiss={dismiss} />

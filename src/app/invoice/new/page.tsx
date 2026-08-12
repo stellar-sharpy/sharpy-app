@@ -57,7 +57,7 @@ export default function NewInvoice() {
         });
         invoiceId = res.invoiceId;
       }
-      toast("Invoice created! 🚀", "success");
+      toast("Invoice created", "success");
       router.push(`/invoice/${invoiceId}`);
     } catch (err: any) {
       setError(err.message ?? "Transaction failed.");

@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, JSX } from "react";
 
 export type ToastType = "success" | "error" | "info" | "loading";
 
@@ -28,35 +28,58 @@ const ToastContext = createContext<ToastCtx>({
 let idCounter = 0;
 
 function ToastItem({ t, onDismiss }: { t: Toast; onDismiss: (id: string) => void }) {
-  const icons: Record<ToastType, string> = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
-    loading: "⟳",
+  const icons: Record<ToastType, JSX.Element> = {
+    success: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    error: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M10 6L6 10M6 6l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    info: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M8 7v4M8 5.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    loading: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-spin-slow">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3"/>
+        <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
   };
 
   const colors: Record<ToastType, string> = {
-    success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-    error: "border-red-500/30 bg-red-500/10 text-red-400",
-    info: "border-[#6C63FF]/30 bg-[#6C63FF]/10 text-[#6C63FF]",
-    loading: "border-[#6C63FF]/20 bg-[#6C63FF]/8 text-[#6C63FF]",
+    success: "border-[var(--border)] text-[var(--text)]",
+    error:   "border-[var(--border)] text-[var(--text)]",
+    info:    "border-[var(--border)] text-[var(--text)]",
+    loading: "border-[var(--border)] text-[var(--text)]",
+  };
+
+  const iconColors: Record<ToastType, string> = {
+    success: "#00D4AA",
+    error:   "#EF4444",
+    info:    "#6C63FF",
+    loading: "#6C63FF",
   };
 
   return (
     <div
       className={`
         flex items-start gap-3 px-4 py-3 rounded-xl border text-sm
-        shadow-lg backdrop-blur-sm min-w-[260px] max-w-[380px]
+        shadow-xl min-w-[280px] max-w-[380px]
         animate-toast-in
         ${colors[t.type]}
       `}
       style={{ backgroundColor: "var(--surface)" }}
     >
-      <span
-        className={`text-base leading-none mt-0.5 shrink-0 ${t.type === "loading" ? "animate-spin-slow" : ""}`}
-      >
-        {icons[t.type]}
-      </span>
+      <span style={{ color: iconColors[t.type] }} className="shrink-0 mt-0.5">{icons[t.type]}</span>
       <span className="flex-1 leading-snug" style={{ color: "var(--text)" }}>
         {t.message}
       </span>

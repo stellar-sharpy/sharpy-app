@@ -54,16 +54,16 @@ export default function InvoicePage() {
     if (!publicKey || !payAmount) return;
     setPaying(true); setError(""); setTxHash(""); setPayStep("signing");
     try {
-      toast("Waiting for wallet signature…", "loading", 0);
+      toast("Waiting for wallet signature", "loading", 0);
       await new Promise((r) => setTimeout(r, 1200));
       setPayStep("submitting");
-      toast("Submitting to Stellar…", "loading", 0);
+      toast("Submitting to Stellar", "loading", 0);
       await new Promise((r) => setTimeout(r, 800));
       setPayStep("confirming");
       const { txHash: hash } = await sharpyClient.pay(publicKey, invoiceId, parseAmount(payAmount));
       setPayStep("done");
       setTxHash(hash);
-      toast("Payment confirmed! 🎉", "success");
+      toast("Payment confirmed", "success");
       await load();
     } catch (e: any) {
       setError(e.message);

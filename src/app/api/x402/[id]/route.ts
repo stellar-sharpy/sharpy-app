@@ -21,7 +21,7 @@ const NETWORK_PASSPHRASE =
 
 // Stable read-only placeholder account — exists on both testnet and mainnet,
 // never needs a real keypair, used purely to build simulate-only transactions.
-const READ_ONLY_SOURCE = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN";
+const READ_ONLY_SOURCE = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7";
 
 /**
  * Server-side read: simulate get_invoice without any wallet/signing dependency.

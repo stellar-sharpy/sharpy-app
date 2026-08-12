@@ -61,8 +61,21 @@ async function fetchInvoiceServerSide(invoiceId: number) {
 
   const raw = scValToNative(retval) as any;
 
-  // Handle status enum - can be string "Pending" or object {tag: "Pending"}
-  const status = typeof raw.status === 'string' ? raw.status : raw.status?.tag ?? 'Unknown';
+  // Handle status enum - match SDK's mapInvoice logic
+  let status: string;
+  if (typeof raw.status === "string") {
+    status = raw.status;
+  } else if (raw.status?.tag) {
+    status = raw.status.tag;
+  } else {
+    status = "Pending"; // fallback
+  }
+  
+  console.log('[x402] Invoice status debug:', {
+    rawStatus: JSON.stringify(raw.status),
+    statusType: typeof raw.status,
+    parsedStatus: status,
+  });
 
   return {
     status,

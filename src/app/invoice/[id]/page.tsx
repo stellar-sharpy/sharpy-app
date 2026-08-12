@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useWallet } from "../../../components/WalletProvider";
+import { useToast } from "../../../components/Toast";
 import { sharpyClient, NETWORK } from "../../../lib/client";
 import { getTokenByAddress } from "../../../lib/tokens";
 import { formatAmount, parseAmount, formatDeadline, fundingPercent, truncateAddress, explorerUrl } from "../../../lib/utils";
@@ -30,6 +31,7 @@ export default function InvoicePage() {
   const { id } = useParams<{ id: string }>();
   const invoiceId = Number(id);
   const { publicKey, connect } = useWallet();
+  const { toast } = useToast();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [payAmount, setPayAmount] = useState("");
@@ -50,18 +52,22 @@ export default function InvoicePage() {
 
   const handlePay = async () => {
     if (!publicKey || !payAmount) return;
-    setPaying(true); setError(""); setPayStep("signing");
+    setPaying(true); setError(""); setTxHash(""); setPayStep("signing");
     try {
-      await new Promise((r) => setTimeout(r, 1500));
+      toast("Waiting for wallet signature…", "loading", 0);
+      await new Promise((r) => setTimeout(r, 1200));
       setPayStep("submitting");
+      toast("Submitting to Stellar…", "loading", 0);
       await new Promise((r) => setTimeout(r, 800));
       setPayStep("confirming");
-      const { txHash } = await sharpyClient.pay(publicKey, invoiceId, parseAmount(payAmount));
+      const { txHash: hash } = await sharpyClient.pay(publicKey, invoiceId, parseAmount(payAmount));
       setPayStep("done");
-      setTxHash(txHash);
+      setTxHash(hash);
+      toast("Payment confirmed! 🎉", "success");
       await load();
     } catch (e: any) {
       setError(e.message);
+      toast(e.message ?? "Payment failed", "error");
       setPayStep("idle");
     } finally {
       setPaying(false);
@@ -69,7 +75,7 @@ export default function InvoicePage() {
   };
 
   if (loading) return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-2xl mx-auto space-y-4 animate-stagger">
       {[...Array(4)].map((_, i) => <div key={i} className="card h-20 animate-pulse" />)}
     </div>
   );
@@ -83,7 +89,7 @@ export default function InvoicePage() {
   const currentStepIndex = PAY_STEPS.findIndex((s) => s.key === payStep);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-2xl mx-auto space-y-5 animate-stagger">
       <div className="flex items-center justify-between">
         <div>
           <p className="mono text-xs mb-1">Invoice #{invoiceId}</p>
@@ -150,27 +156,36 @@ export default function InvoicePage() {
               {!publicKey ? (
                 <button onClick={connect} className="text-sm text-[#6C63FF] hover:underline">Connect wallet to pay</button>
               ) : paying ? (
-                <div className="flex items-center gap-2 flex-wrap">
-                  {PAY_STEPS.map((s, i) => (
-                    <div key={s.key} className="flex items-center gap-2">
-                      <span className={`text-xs font-medium ${i < currentStepIndex ? "text-[#00D4AA]" : i === currentStepIndex ? "text-[#6C63FF]" : "text-[#4B5563]"}`}>
-                        {i === currentStepIndex && i < PAY_STEPS.length - 1 ? `${s.label}...` : s.label}
-                      </span>
-                      {i < PAY_STEPS.length - 1 && <span className="text-[#4B5563]">—</span>}
-                    </div>
-                  ))}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="btn-spinner" />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {PAY_STEPS.map((s, i) => (
+                      <div key={s.key} className="flex items-center gap-2">
+                        <span className={`text-xs font-medium transition-colors ${
+                          i < currentStepIndex ? "text-[#00D4AA]" :
+                          i === currentStepIndex ? "text-[#6C63FF]" :
+                          "text-[#4B5563]"
+                        }`}>
+                          {i === currentStepIndex && i < PAY_STEPS.length - 1 ? `${s.label}…` : s.label}
+                        </span>
+                        {i < PAY_STEPS.length - 1 && <span className="text-[#4B5563]">—</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="flex gap-3">
                   <input value={payAmount} onChange={(e) => setPayAmount(e.target.value)}
                     placeholder={`Up to ${formatAmount(remaining)} ${tokenSymbol}`} className="input flex-1" />
-                  <button onClick={handlePay} disabled={paying} className="btn-primary px-6">Pay</button>
+                  <button onClick={handlePay} disabled={paying} className="btn-primary px-6 flex items-center gap-2">
+                    Pay
+                  </button>
                 </div>
               )}
               {error && <p className="text-sm text-red-400">{error}</p>}
-              {txHash && (
-                <p className="text-sm text-[#00D4AA]">
-                  Payment confirmed.{" "}
+              {txHash && payStep === "done" && (
+                <p className="text-sm text-[#00D4AA] animate-success-pulse">
+                  ✓ Payment confirmed.{" "}
                   <a href={explorerUrl(NETWORK, txHash, "tx")} target="_blank" rel="noreferrer" className="underline">View transaction</a>
                 </p>
               )}

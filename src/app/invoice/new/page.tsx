@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWallet } from "../../../components/WalletProvider";
+import { useToast } from "../../../components/Toast";
 import { sharpyClient, DEFAULT_TOKEN, NETWORK } from "../../../lib/client";
 import { parseAmount, deadlineFromDays, isValidAddress } from "../../../lib/utils";
 import TokenSelector from "../../../components/TokenSelector";
@@ -11,6 +12,7 @@ interface Recipient { address: string; amount: string; }
 
 export default function NewInvoice() {
   const { publicKey, signerReady, connect } = useWallet();
+  const { toast } = useToast();
   const router = useRouter();
   const [recipients, setRecipients] = useState<Recipient[]>([{ address: "", amount: "" }]);
   const [selectedToken, setSelectedToken] = useState<Token>(TOKENS[0]);
@@ -55,9 +57,11 @@ export default function NewInvoice() {
         });
         invoiceId = res.invoiceId;
       }
+      toast("Invoice created! 🚀", "success");
       router.push(`/invoice/${invoiceId}`);
     } catch (err: any) {
       setError(err.message ?? "Transaction failed.");
+      toast(err.message ?? "Transaction failed.", "error");
     } finally {
       setLoading(false);
     }
@@ -83,7 +87,7 @@ export default function NewInvoice() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto animate-fade-up">
       <div className="mb-8">
         <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">New Invoice</h1>
         <p className="text-sm text-[#6B7280] mt-1">Configure recipients, split rules, and payment terms.</p>
@@ -180,8 +184,15 @@ export default function NewInvoice() {
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">{error}</div>
         )}
 
-        <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-          {loading ? "Creating invoice..." : "Create Invoice"}
+        <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+          {loading ? (
+            <>
+              <span className="btn-spinner" />
+              Creating invoice…
+            </>
+          ) : (
+            "Create Invoice"
+          )}
         </button>
       </form>
     </div>

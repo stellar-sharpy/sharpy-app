@@ -61,8 +61,11 @@ async function fetchInvoiceServerSide(invoiceId: number) {
 
   const raw = scValToNative(retval) as any;
 
+  // Handle status enum - can be string "Pending" or object {tag: "Pending"}
+  const status = typeof raw.status === 'string' ? raw.status : raw.status?.tag ?? 'Unknown';
+
   return {
-    status: raw.status as string,
+    status,
     amounts: (raw.amounts as bigint[]) ?? [],
     funded: BigInt(raw.funded ?? 0n),
     escrowEnabled: Boolean(raw.escrow_enabled),

@@ -15,9 +15,9 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **[Pitch Deck](https://gamma.app/docs/Split-Payments-on-Stellar-s0et8z1agtva59n)**
 
-### 🔐 Recommended Wallet for Testing
-**Freighter** — Browser-based, instant signing, no phone required.  
-📘 [Freighter Setup Guide](./FREIGHTER_SETUP.md) | 🧪 [Testing Guide](./TESTING.md)
+###  Recommended Wallet for Testing
+**Freighter** — Browser-based, instant signing.
+ [Freighter Setup Guide](./FREIGHTER_SETUP.md) |  [Testing Guide](./TESTING.md)
 
 <img width="1047" height="649" alt="image" src="https://github.com/user-attachments/assets/fa30c2c8-3f8c-4ebb-b0f1-373d6dab27eb" />
 

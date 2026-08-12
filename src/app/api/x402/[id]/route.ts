@@ -80,6 +80,7 @@ async function fetchInvoiceServerSide(invoiceId: number) {
   return {
     status,
     amounts: (raw.amounts as bigint[]) ?? [],
+    tokens: (raw.tokens as string[]) ?? [],
     funded: BigInt(raw.funded ?? 0n),
     escrowEnabled: Boolean(raw.escrow_enabled),
     escrowReleaseDelay: Number(raw.escrow_release_delay ?? 0),
@@ -136,7 +137,8 @@ export async function GET(
           mimeType: "application/json",
           payTo: CONTRACT_ID,
           maxTimeoutSeconds: 300,
-          asset: USDC_CONTRACT,
+          asset: invoice.tokens[0], // Use invoice's token instead of hardcoded USDC
+          areFeesSponsored: true, // OpenZeppelin facilitator sponsors fees
           extra: {
             invoiceId,
             name: "Sharpy Invoice Payment",

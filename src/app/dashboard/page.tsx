@@ -79,7 +79,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-up">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Dashboard</h1>

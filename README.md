@@ -6,6 +6,7 @@
 ![stellar-sdk](https://img.shields.io/badge/stellar--sdk-16.0.1-6C63FF)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Version](https://img.shields.io/badge/version-0.2.0-6C63FF)
+[![Demo](https://img.shields.io/badge/Demo-Watch%20on%20Loom-00D4AA?logo=loom)](https://www.loom.com/share/09aa4a78e0c944dcab866a7036fde24d)
 
 Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on Stellar. Supports recurring invoices, escrow-protected payments, batch operations, agentic x402 payments, and public on-chain verification.
 

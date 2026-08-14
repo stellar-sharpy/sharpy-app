@@ -542,6 +542,67 @@ export class SharpyClient {
     const raw = scValToNative((sim as any).result.retval) as any[];
     return raw.map(Number);
   }
+
+  buildCctpHookData(forwardRecipientStrkey: string): string {
+    const recipientBytes = Buffer.from(forwardRecipientStrkey, "utf8");
+    const hookData = Buffer.alloc(32 + recipientBytes.length);
+    hookData.writeUInt32BE(0, 24);
+    hookData.writeUInt32BE(recipientBytes.length, 28);
+    recipientBytes.copy(hookData, 32);
+    return hookData.toString("hex");
+  }
+
+  async pollCctpAttestation(
+    sourceTxHash: string,
+    sourceDomain: number,
+    opts?: { intervalMs?: number; maxAttempts?: number }
+  ): Promise<{ message: string; attestation: string }> {
+    const intervalMs = opts?.intervalMs ?? 5_000;
+    const maxAttempts = opts?.maxAttempts ?? 60;
+    const isTestnet = this.config.networkPassphrase.includes("Test SDF");
+    const apiBase = isTestnet
+      ? "https://iris-api-sandbox.circle.com"
+      : "https://iris-api.circle.com";
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const res = await fetch(
+        `${apiBase}/v2/messages/${sourceDomain}?transactionHash=${sourceTxHash}`
+      );
+      if (res.ok) {
+        const data = await res.json() as any;
+        const messages: any[] = data?.messages ?? [];
+        const complete = messages.find((m: any) => m.status === "complete");
+        if (complete) return { message: complete.message, attestation: complete.attestation };
+      }
+      if (attempt < maxAttempts - 1) await new Promise((r) => setTimeout(r, intervalMs));
+    }
+    throw new Error(`CCTP attestation not complete after ${maxAttempts} attempts.`);
+  }
+
+  async completeCctpInbound(
+    caller: string,
+    message: string,
+    attestation: string
+  ): Promise<{ txHash: string }> {
+    const isTestnet = this.config.networkPassphrase.includes("Test SDF");
+    const forwarderAddress = isTestnet
+      ? "CA66Q2WFBND6V4UEB7RD4SAXSVIWMD6RA4X3U32ELVFGXV5PJK4T4VSZ"
+      : "CBZL2IH7F6BIDAA3WBNXYKIXSATJGMSW7K5P5MJ6STX5RXN47TZJDF5T";
+    const messageBytes = Buffer.from(message.replace(/^0x/, ""), "hex");
+    const attestationBytes = Buffer.from(attestation.replace(/^0x/, ""), "hex");
+    const args = [
+      nativeToScVal(messageBytes, { type: "bytes" }),
+      nativeToScVal(attestationBytes, { type: "bytes" }),
+    ];
+    // Temporarily override contractId to target CctpForwarder
+    const savedContractId = this.config.contractId;
+    (this.config as any).contractId = forwarderAddress;
+    try {
+      const { txHash } = await this.buildAndSubmit(caller, "mint_and_forward", args);
+      return { txHash };
+    } finally {
+      (this.config as any).contractId = savedContractId;
+    }
+  }
 }
 
 function buildInvoiceOptions(params: CreateInvoiceParams): xdr.ScVal {

@@ -8,7 +8,7 @@
 ![Version](https://img.shields.io/badge/version-0.2.0-6C63FF)
 [![Demo](https://img.shields.io/badge/Demo-Watch%20on%20Loom-00D4AA?logo=loom)](https://www.loom.com/share/09aa4a78e0c944dcab866a7036fde24d)
 
-Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on Stellar. Supports recurring invoices, escrow-protected payments, batch operations, agentic x402 payments, and public on-chain verification.
+Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on Stellar. Supports recurring invoices, escrow-protected payments, batch operations, agentic x402 payments, CCTP cross-chain USDC bridging, and public on-chain verification.
 
 ## Live App
 
@@ -92,9 +92,10 @@ graph TD
 - Dispute mechanism with optional arbitrator
 
 ### x402 Agentic Payments
-- Public `/pay/[id]` page with wallet and x402 payment modes
+- Public `/pay/[id]` page with three payment modes: Wallet, x402 / Agent, Cross-chain (CCTP)
 - `/api/x402/[id]` endpoint — AI agents pay invoices via HTTP 402 protocol
 - `GET` returns structured payment requirements, `POST` verifies and settles
+- CCTP cross-chain tab — bridge USDC from Arbitrum, Ethereum, or Base to Stellar via Circle CCTP; generates hookData from connected wallet, polls Circle attestation API, completes inbound transfer via Freighter
 
 ### Verification & Transparency
 - Public `/verify/[id]` — on-chain verification with no login required (SSR)
@@ -136,7 +137,7 @@ graph TD
 | `/invoice/[id]/recurring` | Dynamic | Recurring invoice chain viewer |
 | `/invoice/[id]/cancel` | Dynamic | Creator cancel and refund |
 | `/verify/[id]` | SSR | Public on-chain verification with fingerprint |
-| `/pay/[id]` | Client | Public shareable payment page — wallet + x402 |
+| `/pay/[id]` | Client | Public shareable payment page — wallet, x402, and CCTP cross-chain |
 | `/api/x402/[id]` | API | x402 HTTP endpoint (GET: requirements, POST: settle) |
 
 ---

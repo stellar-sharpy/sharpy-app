@@ -1,5 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { sharpyClient } from "../lib/client";
 
 const features = [
   {
@@ -36,14 +38,32 @@ const features = [
   },
 ];
 
-const stats = [
+const STATIC_STATS = [
   { label: "Network", value: "Stellar" },
   { label: "Contract", value: "Soroban" },
-  { label: "Status", value: "Live on Testnet" },
+  { label: "Protocol", value: "27" },
   { label: "License", value: "MIT" },
 ];
 
 export default function Home() {
+  const [invoiceCount, setInvoiceCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    sharpyClient.getInvoiceCount()
+      .then((count) => setInvoiceCount(count))
+      .catch(() => setInvoiceCount(null));
+  }, []);
+
+  // Replace "Protocol" slot with live invoice count
+  const stats = STATIC_STATS.map((s) =>
+    s.label === "Protocol"
+      ? {
+          label: "Invoices Created",
+          value: invoiceCount === null ? "—" : invoiceCount.toLocaleString(),
+        }
+      : s
+  );
+
   return (
     <div className="flex flex-col items-center gap-20">
 

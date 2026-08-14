@@ -8,8 +8,8 @@ import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from ".
 import type { Invoice } from "../../lib/utils";
 
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
+type DashboardTab = "Created" | "Paid";
 
-// External link icon
 function ExternalIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -29,13 +29,13 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
 
   return (
     <div className="card p-5 flex flex-col gap-4 hover:border-[var(--border-hover)] transition-colors">
-
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="mono text-xs mb-0.5">Invoice #{inv.id}</p>
           <p className="font-display font-bold text-xl leading-tight" style={{ color: "var(--text)" }}>
-            {formatAmount(total)} <span style={{ color: "var(--muted-2)" }} className="font-normal text-base">{tokenSymbol}</span>
+            {formatAmount(total)}{" "}
+            <span style={{ color: "var(--muted-2)" }} className="font-normal text-base">{tokenSymbol}</span>
           </p>
         </div>
         <span className={badgeClass}>{inv.status}</span>
@@ -52,7 +52,7 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
         </div>
       </div>
 
-      {/* Meta row */}
+      {/* Meta */}
       <div className="flex items-center justify-between text-xs" style={{ color: "var(--muted)" }}>
         <span>{inv.recipients.length} recipient{inv.recipients.length !== 1 ? "s" : ""}</span>
         <span>Due {formatDeadline(inv.deadline)}</span>
@@ -60,7 +60,10 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
 
       {inv.escrowEnabled && (
         <div className="flex items-center gap-1.5 text-xs text-amber-400 -mt-1">
-          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1.5" y="5" width="8" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2"/><path d="M3.5 5V3.5a2 2 0 014 0V5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+            <rect x="1.5" y="5" width="8" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+            <path d="M3.5 5V3.5a2 2 0 014 0V5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
           Escrow · {(inv.escrowReleaseDelay ?? 0) / 3600}h delay
         </div>
       )}
@@ -74,16 +77,11 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
         >
           View
         </Link>
-
         {isPending && remaining > 0n && (
-          <Link
-            href={`/pay/${inv.id}`}
-            className="flex-1 text-center text-xs font-medium py-2 rounded-lg btn-primary"
-          >
+          <Link href={`/pay/${inv.id}`} className="flex-1 text-center text-xs font-medium py-2 rounded-lg btn-primary">
             Pay
           </Link>
         )}
-
         <a
           href={`https://stellar.expert/explorer/${NETWORK}/contract/${CONTRACT_ID}`}
           target="_blank"
@@ -99,44 +97,59 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
   );
 }
 
+async function fetchInvoiceList(ids: number[]): Promise<(Invoice & { id: number })[]> {
+  const results = await Promise.all(
+    ids.map(async (id) => {
+      try {
+        const inv = await sharpyClient.getInvoice(id);
+        return { ...inv, id };
+      } catch {
+        return null;
+      }
+    })
+  );
+  return results
+    .filter((inv): inv is Invoice & { id: number } => inv !== null)
+    .sort((a, b) => b.deadline - a.deadline);
+}
+
 export default function Dashboard() {
   const { publicKey, connect } = useWallet();
-  const [invoices, setInvoices] = useState<(Invoice & { id: number })[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<DashboardTab>("Created");
+  const [createdInvoices, setCreatedInvoices] = useState<(Invoice & { id: number })[]>([]);
+  const [paidInvoices, setPaidInvoices] = useState<(Invoice & { id: number })[]>([]);
+  const [loadingCreated, setLoadingCreated] = useState(false);
+  const [loadingPaid, setLoadingPaid] = useState(false);
+  const [paidLoaded, setPaidLoaded] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
+  // Load "Created" invoices on wallet connect
   useEffect(() => {
     if (!publicKey) return;
-    setLoading(true);
-    const fetch = async () => {
-      try {
-        const createdIds = await sharpyClient.getInvoicesByCreator(publicKey);
-        const allInvoices = await Promise.all(
-          createdIds.map(async (id) => {
-            try {
-              const inv = await sharpyClient.getInvoice(id);
-              return { ...inv, id };
-            } catch {
-              return null;
-            }
-          })
-        );
-        const results = allInvoices
-          .filter((inv): inv is Invoice & { id: number } => inv !== null)
-          .sort((a, b) => b.deadline - a.deadline);
-        setInvoices(results);
-      } catch (error) {
-        console.error("Failed to load invoices:", error);
-        setInvoices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
+    setLoadingCreated(true);
+    sharpyClient.getInvoicesByCreator(publicKey)
+      .then(fetchInvoiceList)
+      .then(setCreatedInvoices)
+      .catch(() => setCreatedInvoices([]))
+      .finally(() => setLoadingCreated(false));
   }, [publicKey]);
 
-  const filtered = invoices.filter((inv) => {
+  // Lazy-load "Paid" invoices when tab is first opened
+  useEffect(() => {
+    if (!publicKey || tab !== "Paid" || paidLoaded || loadingPaid) return;
+    setLoadingPaid(true);
+    sharpyClient.getInvoicesByPayer(publicKey)
+      .then(fetchInvoiceList)
+      .then((invs) => { setPaidInvoices(invs); setPaidLoaded(true); })
+      .catch(() => { setPaidInvoices([]); setPaidLoaded(true); })
+      .finally(() => setLoadingPaid(false));
+  }, [publicKey, tab, paidLoaded, loadingPaid]);
+
+  const activeInvoices = tab === "Created" ? createdInvoices : paidInvoices;
+  const isLoading = tab === "Created" ? loadingCreated : loadingPaid;
+
+  const filtered = activeInvoices.filter((inv) => {
     if (search && !String(inv.id).includes(search)) return false;
     if (statusFilter !== "All" && inv.status !== statusFilter) return false;
     return true;
@@ -154,12 +167,41 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-up">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
           <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)}</p>
         </div>
         <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
+      </div>
+
+      {/* Tabs: Created / Paid */}
+      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }}>
+        {(["Created", "Paid"] as DashboardTab[]).map((t) => {
+          const count = t === "Created" ? createdInvoices.length : paidInvoices.length;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                background: tab === t ? "var(--surface)" : "transparent",
+                color: tab === t ? "var(--text)" : "var(--muted)",
+                boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
+              }}
+            >
+              {t}
+              {count > 0 && (
+                <span
+                  className="ml-2 text-xs px-1.5 py-0.5 rounded-full"
+                  style={{ background: "var(--primary-dim, rgba(108,99,255,0.15))", color: "var(--primary)" }}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters */}
@@ -182,7 +224,7 @@ export default function Dashboard() {
       </div>
 
       {/* Grid */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="card p-5 h-52 animate-pulse" />
@@ -191,9 +233,13 @@ export default function Dashboard() {
       ) : filtered.length === 0 ? (
         <div className="card p-16 text-center">
           <p className="mb-3" style={{ color: "var(--muted)" }}>
-            {invoices.length === 0 ? "No invoices yet." : "No invoices match your filters."}
+            {activeInvoices.length === 0
+              ? tab === "Created"
+                ? "No invoices created yet."
+                : "No invoices paid yet."
+              : "No invoices match your filters."}
           </p>
-          {invoices.length === 0 && (
+          {activeInvoices.length === 0 && tab === "Created" && (
             <Link href="/invoice/new" className="text-sm" style={{ color: "var(--primary)" }}>
               Create your first invoice
             </Link>

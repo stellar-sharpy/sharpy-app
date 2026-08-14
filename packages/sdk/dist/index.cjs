@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkPWXQMNQ3_cjs = require('./chunk-PWXQMNQ3.cjs');
+var chunkEM3TOUYE_cjs = require('./chunk-EM3TOUYE.cjs');
 var freighterApi = require('@stellar/freighter-api');
 
 async function connectWallet() {
@@ -33,7 +33,7 @@ var NETWORKS = {
   testnet: {
     rpcUrl: "https://soroban-testnet.stellar.org",
     networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CD4USMFARRFLM47FZTPH5QUXRY7MEXDBKLPA2Z5J23ZR7Y3AQEIMEMEL"
+    contractId: "CCMN5OYWBWVVRIB3IDE2CCODM3CMGSMYQ7EV2UVBJ23DVIH2CL6FJRXP"
   },
   mainnet: {
     rpcUrl: "https://mainnet.sorobanrpc.com",
@@ -44,51 +44,51 @@ var NETWORKS = {
 
 Object.defineProperty(exports, "DeadlinePassedError", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.DeadlinePassedError; }
+  get: function () { return chunkEM3TOUYE_cjs.DeadlinePassedError; }
 });
 Object.defineProperty(exports, "InvoiceNotFoundError", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.InvoiceNotFoundError; }
+  get: function () { return chunkEM3TOUYE_cjs.InvoiceNotFoundError; }
 });
 Object.defineProperty(exports, "InvoiceNotPendingError", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.InvoiceNotPendingError; }
+  get: function () { return chunkEM3TOUYE_cjs.InvoiceNotPendingError; }
 });
 Object.defineProperty(exports, "OverpaymentError", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.OverpaymentError; }
+  get: function () { return chunkEM3TOUYE_cjs.OverpaymentError; }
 });
 Object.defineProperty(exports, "SharpyClient", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.SharpyClient; }
+  get: function () { return chunkEM3TOUYE_cjs.SharpyClient; }
 });
 Object.defineProperty(exports, "deadlineFromDays", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.deadlineFromDays; }
+  get: function () { return chunkEM3TOUYE_cjs.deadlineFromDays; }
 });
 Object.defineProperty(exports, "explorerUrl", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.explorerUrl; }
+  get: function () { return chunkEM3TOUYE_cjs.explorerUrl; }
 });
 Object.defineProperty(exports, "formatAmount", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.formatAmount; }
+  get: function () { return chunkEM3TOUYE_cjs.formatAmount; }
 });
 Object.defineProperty(exports, "isExpired", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.isExpired; }
+  get: function () { return chunkEM3TOUYE_cjs.isExpired; }
 });
 Object.defineProperty(exports, "isValidAddress", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.isValidAddress; }
+  get: function () { return chunkEM3TOUYE_cjs.isValidAddress; }
 });
 Object.defineProperty(exports, "parseAmount", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.parseAmount; }
+  get: function () { return chunkEM3TOUYE_cjs.parseAmount; }
 });
 Object.defineProperty(exports, "truncateAddress", {
   enumerable: true,
-  get: function () { return chunkPWXQMNQ3_cjs.truncateAddress; }
+  get: function () { return chunkEM3TOUYE_cjs.truncateAddress; }
 });
 exports.NETWORKS = NETWORKS;
 exports.connectWallet = connectWallet;

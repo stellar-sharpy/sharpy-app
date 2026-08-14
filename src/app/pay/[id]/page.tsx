@@ -21,7 +21,19 @@ const FACILITATOR_URL = "https://channels.openzeppelin.com/x402/testnet";
 const NETWORK_CAIP2 = `stellar:${NETWORK === "testnet" ? "testnet" : "pubnet"}`;
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
-type PayMode = "wallet" | "x402";
+type PayMode = "wallet" | "x402" | "cctp";
+
+// CCTP source chain configs
+const CCTP_CHAINS = [
+  { name: "Arbitrum", domain: 3, usdcAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831" },
+  { name: "Ethereum", domain: 0, usdcAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" },
+  { name: "Base",     domain: 6, usdcAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
+] as const;
+
+const CCTP_FORWARDER_TESTNET = "CA66Q2WFBND6V4UEB7RD4SAXSVIWMD6RA4X3U32ELVFGXV5PJK4T4VSZ";
+const CCTP_FORWARDER_MAINNET = "CBZL2IH7F6BIDAA3WBNXYKIXSATJGMSW7K5P5MJ6STX5RXN47TZJDF5T";
+
+type CctpStatus = "idle" | "polling" | "attested" | "completing" | "done";
 
 export default function PayPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +52,16 @@ export default function PayPage() {
   const [x402Receipt, setX402Receipt] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
+  // CCTP state
+  const [cctpChainIdx, setCctpChainIdx] = useState(0);
+  const [cctpEvmTxHash, setCctpEvmTxHash] = useState("");
+  const [cctpStatus, setCctpStatus] = useState<CctpStatus>("idle");
+  const [cctpCompleteTxHash, setCctpCompleteTxHash] = useState("");
+  const [cctpError, setCctpError] = useState("");
+  const [cctpHookData, setCctpHookData] = useState("");
+  const [hookDataCopied, setHookDataCopied] = useState(false);
+  const [forwarderCopied, setForwarderCopied] = useState(false);
+
   const load = async () => {
     try {
       setInvoice(await sharpyClient.getInvoice(invoiceId));
@@ -51,6 +73,20 @@ export default function PayPage() {
   };
 
   useEffect(() => { load(); }, [invoiceId]);
+
+  // Build hook data whenever payer address is available
+  useEffect(() => {
+    if (publicKey) {
+      try {
+        const hd = sharpyClient.buildCctpHookData(publicKey);
+        setCctpHookData(hd);
+      } catch {
+        setCctpHookData("");
+      }
+    }
+  }, [publicKey]);
+
+  const cctpForwarder = NETWORK === "testnet" ? CCTP_FORWARDER_TESTNET : CCTP_FORWARDER_MAINNET;
 
   // Standard wallet pay
   const handleWalletPay = async () => {
@@ -94,10 +130,8 @@ export default function PayPage() {
         signAuthEntry: async (entryXdr: string) => {
           const result = await signAuthEntry(entryXdr, { networkPassphrase: accept.network });
           if ("error" in result && result.error) throw new Error(String(result.error));
-          // Freighter returns { signedAuthEntry: Buffer | null, signerAddress: string }
           const signed = result.signedAuthEntry;
           if (!signed) throw new Error("Auth entry signing returned null");
-          // Convert Buffer to base64 string as expected by ExactStellarScheme
           const base64 = Buffer.isBuffer(signed)
             ? signed.toString("base64")
             : Buffer.from(signed as unknown as Uint8Array).toString("base64");
@@ -151,10 +185,50 @@ export default function PayPage() {
     }
   };
 
+  // CCTP: poll attestation then complete inbound
+  const handleCctpComplete = async () => {
+    if (!publicKey || !signerReady || !cctpEvmTxHash.trim()) return;
+    setCctpError("");
+    const chain = CCTP_CHAINS[cctpChainIdx];
+
+    try {
+      // Step 1: poll for Circle attestation
+      setCctpStatus("polling");
+      const { message, attestation } = await sharpyClient.pollCctpAttestation(
+        cctpEvmTxHash.trim(),
+        chain.domain,
+        { intervalMs: 5_000, maxAttempts: 60 }
+      );
+
+      // Step 2: submit completeCctpInbound via Freighter
+      setCctpStatus("completing");
+      const { txHash } = await sharpyClient.completeCctpInbound(publicKey, message, attestation);
+
+      setCctpCompleteTxHash(txHash);
+      setCctpStatus("done");
+      await load();
+    } catch (e: any) {
+      setCctpError(e.message ?? "CCTP completion failed.");
+      setCctpStatus("idle");
+    }
+  };
+
   const copyApiUrl = () => {
     navigator.clipboard.writeText(`${window.location.origin}/api/x402/${invoiceId}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyHookData = () => {
+    navigator.clipboard.writeText(cctpHookData);
+    setHookDataCopied(true);
+    setTimeout(() => setHookDataCopied(false), 2000);
+  };
+
+  const copyForwarder = () => {
+    navigator.clipboard.writeText(cctpForwarder);
+    setForwarderCopied(true);
+    setTimeout(() => setForwarderCopied(false), 2000);
   };
 
   if (loading) {
@@ -184,6 +258,8 @@ export default function PayPage() {
   const stepLabels: Record<PayStep, string> = {
     idle: "", signing: "Signing...", submitting: "Submitting...", confirming: "Confirming...", done: "Done!"
   };
+
+  const selectedChain = CCTP_CHAINS[cctpChainIdx];
 
   return (
     <div className="max-w-lg mx-auto space-y-5 pt-4">
@@ -258,7 +334,22 @@ export default function PayPage() {
       {/* Pay section */}
       {canPay && (
         <div className="card p-6 space-y-4">
-          {step === "done" ? (
+          {/* CCTP done state */}
+          {mode === "cctp" && cctpStatus === "done" ? (
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto text-xl text-[#00D4AA]">✓</div>
+              <p className="font-display font-semibold text-[#00D4AA]">Cross-chain payment complete!</p>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>USDC bridged via Circle CCTP and forwarded to Stellar.</p>
+              {cctpCompleteTxHash && (
+                <a href={explorerUrl(NETWORK, cctpCompleteTxHash, "tx")} target="_blank" rel="noreferrer"
+                  className="text-xs text-[#6C63FF] underline block">View on Stellar Explorer</a>
+              )}
+              <button onClick={() => router.push(`/invoice/${invoiceId}`)} className="btn-ghost text-sm w-full">
+                View Invoice
+              </button>
+            </div>
+          ) : step === "done" && mode !== "cctp" ? (
+            /* Wallet / x402 done state */
             <div className="text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto text-xl text-[#00D4AA]">✓</div>
               <p className="font-display font-semibold text-[#00D4AA]">Payment confirmed!</p>
@@ -275,20 +366,21 @@ export default function PayPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Mode toggle */}
+              {/* Mode toggle — 3 tabs */}
               <div className="flex rounded-xl overflow-hidden border" style={{ borderColor: "var(--border)" }}>
-                <button onClick={() => setMode("wallet")}
-                  className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === "wallet" ? "bg-[#6C63FF] text-white" : ""}`}
-                  style={mode !== "wallet" ? { color: "var(--muted)" } : {}}>
-                  Wallet
-                </button>
-                <button onClick={() => setMode("x402")}
-                  className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === "x402" ? "bg-[#6C63FF] text-white" : ""}`}
-                  style={mode !== "x402" ? { color: "var(--muted)" } : {}}>
-                  x402 / Agent
-                </button>
+                {(["wallet", "x402", "cctp"] as PayMode[]).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === m ? "bg-[#6C63FF] text-white" : ""}`}
+                    style={mode !== m ? { color: "var(--muted)" } : {}}
+                  >
+                    {m === "wallet" ? "Wallet" : m === "x402" ? "x402 / Agent" : "Cross-chain"}
+                  </button>
+                ))}
               </div>
 
+              {/* x402 info banner */}
               {mode === "x402" && (
                 <div className="bg-[#6C63FF]/5 border border-[#6C63FF]/20 rounded-xl px-4 py-3 space-y-2">
                   <p className="text-xs font-medium" style={{ color: "var(--text)" }}>x402 Payment Endpoint</p>
@@ -306,58 +398,213 @@ export default function PayPage() {
                 </div>
               )}
 
-              {!publicKey ? (
-                <div className="text-center space-y-3">
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>Connect your wallet to pay.</p>
-                  <button onClick={connect} className="btn-primary w-full py-3">Connect Wallet</button>
-                </div>
-              ) : !signerReady ? (
-                <div className="text-center space-y-3">
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>Wallet session expired. Please reconnect.</p>
-                  <button onClick={connect} className="btn-primary w-full py-3">Reconnect Wallet</button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <label className="text-sm font-medium" style={{ color: "var(--text)" }}>Amount (USDC)</label>
-                  <input
-                    value={payAmount}
-                    onChange={(e) => setPayAmount(e.target.value)}
-                    placeholder={`Up to ${formatAmount(remaining)}`}
-                    className="input"
-                    disabled={paying}
-                  />
+              {/* CCTP cross-chain UI */}
+              {mode === "cctp" && (
+                <div className="space-y-4">
+                  <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl px-4 py-3 space-y-1">
+                    <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Pay with USDC from any EVM chain</p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>
+                      Bridge via Circle CCTP — burn USDC on EVM, receive USDC on Stellar automatically.
+                    </p>
+                  </div>
 
-                  {error && <p className="text-xs text-red-400">{error}</p>}
-
-                  {paying && (
-                    <div className="flex items-center justify-between text-xs" style={{ color: "var(--muted)" }}>
-                      {(["signing", "submitting", "confirming"] as const).map((s, i) => (
-                        <div key={s} className="flex items-center gap-1">
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            step === s ? "bg-[#6C63FF] animate-pulse" :
-                            ["signing","submitting","confirming"].indexOf(step) > i ? "bg-[#00D4AA]" :
-                            "bg-[var(--border)]"
-                          }`} />
-                          <span className={step === s ? "text-[#6C63FF]" : ""}>{s}</span>
-                          {i < 2 && <span className="mx-1">→</span>}
-                        </div>
+                  {/* Chain selector */}
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>Source chain</p>
+                    <div className="flex gap-2">
+                      {CCTP_CHAINS.map((chain, i) => (
+                        <button
+                          key={chain.name}
+                          onClick={() => setCctpChainIdx(i)}
+                          className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                            cctpChainIdx === i
+                              ? "border-[#6C63FF] bg-[#6C63FF]/10 text-[#6C63FF]"
+                              : "border-[var(--border)]"
+                          }`}
+                          style={cctpChainIdx !== i ? { color: "var(--muted)" } : {}}
+                        >
+                          {chain.name}
+                        </button>
                       ))}
                     </div>
-                  )}
+                  </div>
 
-                  <button
-                    onClick={mode === "wallet" ? handleWalletPay : handleX402Pay}
-                    disabled={paying || !payAmount}
-                    className="btn-primary w-full py-3"
-                  >
-                    {paying
-                      ? (stepLabels[step] || "Processing...")
-                      : mode === "x402"
-                        ? `Pay via x402 ${payAmount ? `(${payAmount} USDC)` : ""}`
-                        : `Pay ${payAmount ? `${payAmount} USDC` : ""}`
-                    }
-                  </button>
+                  {/* Step 1: burn instructions */}
+                  <div className="space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--border)" }}>
+                    <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                      Step 1 — Burn USDC on {selectedChain.name}
+                    </p>
+
+                    <div className="space-y-1">
+                      <p className="text-xs" style={{ color: "var(--muted)" }}>USDC contract ({selectedChain.name})</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs mono flex-1 truncate bg-[#111318] px-2 py-1 rounded" style={{ color: "var(--muted-2)" }}>
+                          {selectedChain.usdcAddress}
+                        </code>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-xs" style={{ color: "var(--muted)" }}>
+                        CctpForwarder address — set as both <code className="font-mono">mintRecipient</code> and <code className="font-mono">destinationCaller</code>
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs mono flex-1 truncate bg-[#111318] px-2 py-1 rounded" style={{ color: "var(--muted-2)" }}>
+                          {cctpForwarder}
+                        </code>
+                        <button onClick={copyForwarder} className="text-xs text-[#6C63FF] hover:underline shrink-0">
+                          {forwarderCopied ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {publicKey && cctpHookData ? (
+                      <div className="space-y-1">
+                        <p className="text-xs" style={{ color: "var(--muted)" }}>
+                          Hook data — pass as <code className="font-mono">hookData</code> in the burn call (forwards USDC to your Stellar address)
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <code className="text-xs mono flex-1 truncate bg-[#111318] px-2 py-1 rounded" style={{ color: "var(--muted-2)" }}>
+                            0x{cctpHookData}
+                          </code>
+                          <button onClick={copyHookData} className="text-xs text-[#6C63FF] hover:underline shrink-0">
+                            {hookDataCopied ? "Copied!" : "Copy"}
+                          </button>
+                        </div>
+                        <p className="text-xs" style={{ color: "var(--muted)" }}>
+                          Forwards to: <span className="mono">{truncateAddress(publicKey)}</span>
+                        </p>
+                      </div>
+                    ) : !publicKey ? (
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                        <p className="text-xs text-amber-400">Connect your Stellar wallet to generate hook data.</p>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Step 2: paste EVM tx hash + complete */}
+                  <div className="space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--border)" }}>
+                    <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                      Step 2 — Complete on Stellar
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>
+                      After your EVM burn transaction is confirmed, paste the hash below. Sharpy will poll Circle&apos;s attestation service and complete the transfer via Freighter.
+                    </p>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium" style={{ color: "var(--muted)" }}>EVM transaction hash</label>
+                      <input
+                        value={cctpEvmTxHash}
+                        onChange={(e) => { setCctpEvmTxHash(e.target.value); setCctpError(""); }}
+                        placeholder="0x..."
+                        className="input font-mono text-sm"
+                        disabled={cctpStatus === "polling" || cctpStatus === "completing"}
+                      />
+                    </div>
+
+                    {/* Status indicator */}
+                    {cctpStatus !== "idle" && cctpStatus !== "done" && (
+                      <div className="flex items-center gap-3 text-xs" style={{ color: "var(--muted)" }}>
+                        {(["polling", "completing"] as const).map((s, i) => (
+                          <div key={s} className="flex items-center gap-1">
+                            <div className={`w-1.5 h-1.5 rounded-full ${
+                              cctpStatus === s ? "bg-[#6C63FF] animate-pulse" :
+                              (s === "completing" && (cctpStatus === "attested" || cctpStatus === "completing")) ? "bg-[#00D4AA]" :
+                              "bg-[var(--border)]"
+                            }`} />
+                            <span className={cctpStatus === s ? "text-[#6C63FF]" : ""}>
+                              {s === "polling" ? "Awaiting attestation" : "Completing on Stellar"}
+                            </span>
+                            {i < 1 && <span className="mx-1">→</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {cctpError && <p className="text-xs text-red-400">{cctpError}</p>}
+
+                    {!publicKey ? (
+                      <button onClick={connect} className="btn-primary w-full py-3 text-sm">
+                        Connect Wallet
+                      </button>
+                    ) : !signerReady ? (
+                      <button onClick={connect} className="btn-primary w-full py-3 text-sm">
+                        Reconnect Wallet
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleCctpComplete}
+                        disabled={!cctpEvmTxHash.trim() || cctpStatus === "polling" || cctpStatus === "completing"}
+                        className="btn-primary w-full py-3 text-sm"
+                      >
+                        {cctpStatus === "polling"
+                          ? "Waiting for attestation..."
+                          : cctpStatus === "completing"
+                            ? "Completing via Freighter..."
+                            : "Complete cross-chain transfer"}
+                      </button>
+                    )}
+                  </div>
                 </div>
+              )}
+
+              {/* Wallet + x402 shared amount input */}
+              {(mode === "wallet" || mode === "x402") && (
+                <>
+                  {!publicKey ? (
+                    <div className="text-center space-y-3">
+                      <p className="text-sm" style={{ color: "var(--muted)" }}>Connect your wallet to pay.</p>
+                      <button onClick={connect} className="btn-primary w-full py-3">Connect Wallet</button>
+                    </div>
+                  ) : !signerReady ? (
+                    <div className="text-center space-y-3">
+                      <p className="text-sm" style={{ color: "var(--muted)" }}>Wallet session expired. Please reconnect.</p>
+                      <button onClick={connect} className="btn-primary w-full py-3">Reconnect Wallet</button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium" style={{ color: "var(--text)" }}>Amount (USDC)</label>
+                      <input
+                        value={payAmount}
+                        onChange={(e) => setPayAmount(e.target.value)}
+                        placeholder={`Up to ${formatAmount(remaining)}`}
+                        className="input"
+                        disabled={paying}
+                      />
+
+                      {error && <p className="text-xs text-red-400">{error}</p>}
+
+                      {paying && (
+                        <div className="flex items-center justify-between text-xs" style={{ color: "var(--muted)" }}>
+                          {(["signing", "submitting", "confirming"] as const).map((s, i) => (
+                            <div key={s} className="flex items-center gap-1">
+                              <div className={`w-1.5 h-1.5 rounded-full ${
+                                step === s ? "bg-[#6C63FF] animate-pulse" :
+                                ["signing","submitting","confirming"].indexOf(step) > i ? "bg-[#00D4AA]" :
+                                "bg-[var(--border)]"
+                              }`} />
+                              <span className={step === s ? "text-[#6C63FF]" : ""}>{s}</span>
+                              {i < 2 && <span className="mx-1">→</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <button
+                        onClick={mode === "wallet" ? handleWalletPay : handleX402Pay}
+                        disabled={paying || !payAmount}
+                        className="btn-primary w-full py-3"
+                      >
+                        {paying
+                          ? (stepLabels[step] || "Processing...")
+                          : mode === "x402"
+                            ? `Pay via x402 ${payAmount ? `(${payAmount} USDC)` : ""}`
+                            : `Pay ${payAmount ? `${payAmount} USDC` : ""}`
+                        }
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

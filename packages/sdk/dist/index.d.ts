@@ -1,4 +1,4 @@
-export { A as AuditEntry, B as BatchInvoiceParams, C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-evJGO0-p.js';
+export { A as AuditEntry, B as BatchInvoiceParams, C as CreateInvoiceParams, a as CreateRecurringParams, I as Invoice, R as RecipientAmount, S as SharpyClient, b as SharpyClientConfig, c as SplitRule, d as deadlineFromDays, e as explorerUrl, f as formatAmount, i as isExpired, g as isValidAddress, p as parseAmount, t as truncateAddress } from './index-D3R_4jzw.js';
 
 declare class InvoiceNotFoundError extends Error {
     constructor(invoiceId: number);
@@ -21,7 +21,7 @@ declare const NETWORKS: {
     readonly testnet: {
         readonly rpcUrl: "https://soroban-testnet.stellar.org";
         readonly networkPassphrase: "Test SDF Network ; September 2015";
-        readonly contractId: "CD4USMFARRFLM47FZTPH5QUXRY7MEXDBKLPA2Z5J23ZR7Y3AQEIMEMEL";
+        readonly contractId: "CCMN5OYWBWVVRIB3IDE2CCODM3CMGSMYQ7EV2UVBJ23DVIH2CL6FJRXP";
     };
     readonly mainnet: {
         readonly rpcUrl: "https://mainnet.sorobanrpc.com";

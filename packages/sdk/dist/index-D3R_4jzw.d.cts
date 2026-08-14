@@ -226,6 +226,32 @@ declare class SharpyClient {
      * @returns Claimable balance in stroops
      */
     getClaimableBalance(account: string, token: string): Promise<bigint>;
+    /**
+     * Returns the total number of invoices ever created on-chain.
+     * Reads the global counter directly — O(1), no iteration required.
+     * Useful for landing page stats, dashboards, and protocol analytics.
+     * @returns Total invoice count
+     */
+    getInvoiceCount(): Promise<number>;
+    /**
+     * Fetch all invoice IDs that a given address has paid toward.
+     * Indexed on every pay() call with deduplication — each invoice appears at most once.
+     * Use this to build a payer's payment history or "Invoices Paid" tab.
+     * @param payer - Payer address to query
+     * @returns Array of invoice IDs paid by this address
+     */
+    getInvoicesByPayer(payer: string): Promise<number[]>;
+    buildCctpHookData(forwardRecipientStrkey: string): string;
+    pollCctpAttestation(sourceTxHash: string, sourceDomain: number, opts?: {
+        intervalMs?: number;
+        maxAttempts?: number;
+    }): Promise<{
+        message: string;
+        attestation: string;
+    }>;
+    completeCctpInbound(caller: string, message: string, attestation: string): Promise<{
+        txHash: string;
+    }>;
 }
 
 declare function parseAmount(value: string): bigint;

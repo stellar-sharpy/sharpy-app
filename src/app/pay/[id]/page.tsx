@@ -93,12 +93,17 @@ export default function PayPage() {
         address: publicKey,
         signAuthEntry: async (entryXdr: string) => {
           const result = await signAuthEntry(entryXdr, { networkPassphrase: accept.network });
-          if ("error" in result) throw new Error(String(result.error));
-          const buf = result as unknown as Buffer | null;
-          if (!buf) throw new Error("Auth entry signing returned null");
+          if ("error" in result && result.error) throw new Error(String(result.error));
+          // Freighter returns { signedAuthEntry: Buffer | null, signerAddress: string }
+          const signed = result.signedAuthEntry;
+          if (!signed) throw new Error("Auth entry signing returned null");
+          // Convert Buffer to base64 string as expected by ExactStellarScheme
+          const base64 = Buffer.isBuffer(signed)
+            ? signed.toString("base64")
+            : Buffer.from(signed as unknown as Uint8Array).toString("base64");
           return {
-            signedAuthEntry: Buffer.isBuffer(buf) ? buf.toString("base64") : String(buf),
-            signerAddress: publicKey,
+            signedAuthEntry: base64,
+            signerAddress: result.signerAddress ?? publicKey,
           };
         },
       };

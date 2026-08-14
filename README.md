@@ -17,7 +17,7 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **[Demo Video](https://www.loom.com/share/09aa4a78e0c944dcab866a7036fde24d)**
 
-### 🎯 Live Testnet Transactions
+###  Live Testnet Transactions
 
 See Sharpy in action with real on-chain transactions:
 
@@ -29,9 +29,9 @@ See Sharpy in action with real on-chain transactions:
 
 **Test Account**: [GD4Q2BH6...RS63](https://stellar.expert/explorer/testnet/account/GD4Q2BH6KISIHTZWV5CSUMZC7VUBQAAXPNVSCESTUGH5WEYALMOTRS63)
 
-### 🔐 Recommended Wallet for Testing
+###  Recommended Wallet for Testing
 **Freighter** — Browser-based, instant signing, no phone required.  
-📘 [Freighter Setup Guide](./FREIGHTER_SETUP.md) | 🧪 [Testing Guide](./TESTING.md)
+ [Freighter Setup Guide](./FREIGHTER_SETUP.md) | 🧪 [Testing Guide](./TESTING.md)
 
 <img width="1047" height="649" alt="image" src="https://github.com/user-attachments/assets/fa30c2c8-3f8c-4ebb-b0f1-373d6dab27eb" />
 

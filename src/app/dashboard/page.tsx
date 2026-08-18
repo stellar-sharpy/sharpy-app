@@ -327,17 +327,95 @@ export default function Dashboard() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="card p-16 text-center">
-          <p className="mb-3" style={{ color: "var(--muted)" }}>
-            {activeInvoices.length === 0
-              ? tab === "Created"
-                ? "No invoices created yet."
-                : "No invoices paid yet."
-              : "No invoices match your filters."}
-          </p>
-          {activeInvoices.length === 0 && tab === "Created" && (
-            <Link href="/invoice/new" className="text-sm" style={{ color: "var(--primary)" }}>
-              Create your first invoice
-            </Link>
+          {activeInvoices.length === 0 ? (
+            /* Empty state with illustration */
+            <div className="max-w-xs mx-auto space-y-6">
+              {tab === "Created" ? (
+                <svg
+                  width="120"
+                  height="120"
+                  viewBox="0 0 120 120"
+                  fill="none"
+                  className="mx-auto opacity-40"
+                >
+                  <circle cx="60" cy="60" r="50" stroke="var(--border)" strokeWidth="2" />
+                  <path
+                    d="M40 60h40M60 40v40"
+                    stroke="var(--muted)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M35 75l10 10 20-30"
+                    stroke="var(--primary)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity="0.5"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="120"
+                  height="120"
+                  viewBox="0 0 120 120"
+                  fill="none"
+                  className="mx-auto opacity-40"
+                >
+                  <rect
+                    x="30"
+                    y="40"
+                    width="60"
+                    height="45"
+                    rx="4"
+                    stroke="var(--border)"
+                    strokeWidth="2"
+                  />
+                  <path d="M30 55h60" stroke="var(--border)" strokeWidth="2" />
+                  <circle
+                    cx="60"
+                    cy="68"
+                    r="8"
+                    stroke="var(--muted)"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M52 76a10 10 0 0016 0"
+                    stroke="var(--muted)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+              <div>
+                <p className="mb-2 font-medium" style={{ color: "var(--text)" }}>
+                  {tab === "Created" ? "No invoices created yet" : "No payments made yet"}
+                </p>
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  {tab === "Created"
+                    ? "Create your first invoice to start accepting payments"
+                    : "Pay an invoice to see it appear here"}
+                </p>
+              </div>
+              {tab === "Created" && (
+                <Link href="/invoice/new" className="btn-primary inline-block text-sm px-6 py-2.5">
+                  Create Invoice
+                </Link>
+              )}
+            </div>
+          ) : (
+            /* No matches for filters */
+            <div className="space-y-3">
+              <p style={{ color: "var(--muted)" }}>No invoices match your filters.</p>
+              <button
+                onClick={() => { setSearch(""); setStatusFilter("All"); }}
+                className="text-sm underline"
+                style={{ color: "var(--primary)" }}
+              >
+                Clear filters
+              </button>
+            </div>
           )}
         </div>
       ) : (

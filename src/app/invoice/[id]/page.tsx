@@ -12,6 +12,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { CopyButton } from "../../../components/CopyButton";
 import Tabs from "../../../components/Tabs";
 import AuditLogTab from "../../../components/AuditLogTab";
+import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -24,6 +25,7 @@ const PAY_STEPS: { key: PayStep; label: string }[] = [
 
 const INVOICE_TABS = [
   { id: "details", label: "Details" },
+  { id: "stats", label: "Stats" },
   { id: "audit-log", label: "Audit Log" },
 ];
 
@@ -194,6 +196,10 @@ export default function InvoicePage() {
             </div>
           )}
         </>
+      ) : activeTab === "stats" ? (
+        <div className="card p-6">
+          <InvoiceStatsTab invoiceId={invoiceId} tokenAddress={invoice.tokens[0]} />
+        </div>
       ) : (
         <div className="card p-6"><AuditLogTab invoiceId={invoiceId} /></div>
       )}

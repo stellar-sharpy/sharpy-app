@@ -16,6 +16,7 @@ import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
 import CctpStatusBanner from "../../../components/CctpStatusBanner";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 import VerifiedBadge from "../../../components/VerifiedBadge";
+import ExportPdfButton from "../../../components/ExportPdfButton";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
@@ -115,7 +116,7 @@ export default function InvoicePage() {
   const currentStepIndex = PAY_STEPS.findIndex((s) => s.key === payStep);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5 animate-stagger">
+    <div className="max-w-2xl mx-auto space-y-5 animate-stagger" id="invoice-content">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
@@ -261,6 +262,8 @@ export default function InvoicePage() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5l3 3 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Public Verification
           </Link>
+
+          <ExportPdfButton invoiceId={invoiceId} />
 
           {invoice.escrowEnabled && (
             <Link

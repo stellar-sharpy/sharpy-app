@@ -14,6 +14,7 @@ import Tabs from "../../../components/Tabs";
 import AuditLogTab from "../../../components/AuditLogTab";
 import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
 import CctpStatusBanner from "../../../components/CctpStatusBanner";
+import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -40,6 +41,7 @@ export default function InvoicePage() {
   const [payAmount, setPayAmount] = useState("");
   const [paying, setPaying] = useState(false);
   const [payStep, setPayStep] = useState<PayStep>("idle");
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState("");
   const [txHash, setTxHash] = useState("");
   const [activeTab, setActiveTab] = useState("details");
@@ -76,6 +78,23 @@ export default function InvoicePage() {
       setPayStep("idle");
     } finally {
       setPaying(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!publicKey) return;
+    setCancelling(true);
+    try {
+      toast("Waiting for wallet signature…", "loading", 0);
+      await sharpyClient.cancelInvoice(publicKey, invoiceId);
+      dismissAll();
+      toast("Invoice cancelled and payments refunded", "success");
+      await load();
+    } catch (e: any) {
+      dismissAll();
+      toast(e.message ?? "Cancel failed", "error");
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -134,6 +153,14 @@ export default function InvoicePage() {
                 ))}
               </div>
             </div>
+
+            {invoice.splitRules && invoice.splitRules.length > 0 && (
+              <SplitRulesDisplay
+                recipients={invoice.recipients}
+                splitRules={invoice.splitRules}
+                tokens={invoice.tokens}
+              />
+            )}
 
             {invoice.escrowEnabled && (
               <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
@@ -260,6 +287,22 @@ export default function InvoicePage() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8 1h5v5M5.5 8.5l7-7M2 4a1 1 0 011-1h1M2 4v8a1 1 0 001 1h8a1 1 0 001-1V9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
             View on Stellar Explorer
           </a>
+
+          {invoice.status === "Pending" && publicKey === invoice.creator && (
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border col-span-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.25)", color: "#EF4444" }}
+            >
+              {cancelling ? (
+                <span className="btn-spinner" style={{ borderColor: "rgba(239,68,68,0.25)", borderTopColor: "#EF4444" }} />
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10.5 3.5l-7 7M3.5 3.5l7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              )}
+              {cancelling ? "Cancelling…" : "Cancel Invoice"}
+            </button>
+          )}
         </div>
       </div>
     </div>

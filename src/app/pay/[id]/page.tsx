@@ -206,6 +206,24 @@ export default function PayPage() {
 
       setCctpCompleteTxHash(txHash);
       setCctpStatus("done");
+
+      // Persist completion record so /invoice/[id] can show the banner
+      try {
+        const storageKey = `cctp_completions_${invoiceId}`;
+        const existing = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+        const record = {
+          sourceChain: chain.name,
+          evmTxHash: cctpEvmTxHash.trim(),
+          stellarTxHash: txHash,
+          completedAt: Math.floor(Date.now() / 1000),
+        };
+        if (!existing.some((e: any) => e.evmTxHash === record.evmTxHash)) {
+          localStorage.setItem(storageKey, JSON.stringify([...existing, record]));
+        }
+      } catch {
+        // localStorage not critical — swallow errors
+      }
+
       await load();
     } catch (e: any) {
       setCctpError(e.message ?? "CCTP completion failed.");

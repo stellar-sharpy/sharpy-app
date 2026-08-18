@@ -13,6 +13,7 @@ import { CopyButton } from "../../../components/CopyButton";
 import Tabs from "../../../components/Tabs";
 import AuditLogTab from "../../../components/AuditLogTab";
 import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
+import CctpStatusBanner from "../../../components/CctpStatusBanner";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -101,6 +102,9 @@ export default function InvoicePage() {
         </div>
         <span className={badgeClass}>{invoice.status}</span>
       </div>
+
+      {/* CCTP cross-chain status banner */}
+      <CctpStatusBanner invoiceId={invoiceId} network={NETWORK} />
 
       <Tabs tabs={INVOICE_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 

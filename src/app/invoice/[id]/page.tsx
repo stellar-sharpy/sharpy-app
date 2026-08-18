@@ -15,6 +15,7 @@ import AuditLogTab from "../../../components/AuditLogTab";
 import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
 import CctpStatusBanner from "../../../components/CctpStatusBanner";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
+import VerifiedBadge from "../../../components/VerifiedBadge";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
@@ -116,9 +117,12 @@ export default function InvoicePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-5 animate-stagger">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="mono text-xs mb-1">Invoice #{invoiceId}</p>
-          <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol}</h1>
+        <div className="flex items-center gap-3">
+          <div>
+            <p className="mono text-xs mb-1">Invoice #{invoiceId}</p>
+            <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol}</h1>
+          </div>
+          <VerifiedBadge invoice={invoice} />
         </div>
         <span className={badgeClass}>{invoice.status}</span>
       </div>

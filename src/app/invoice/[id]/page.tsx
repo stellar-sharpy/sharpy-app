@@ -15,6 +15,7 @@ import AuditLogTab from "../../../components/AuditLogTab";
 import InvoiceStatsTab from "../../../components/InvoiceStatsTab";
 import CctpStatusBanner from "../../../components/CctpStatusBanner";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
+import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -158,7 +159,7 @@ export default function InvoicePage() {
               <SplitRulesDisplay
                 recipients={invoice.recipients}
                 splitRules={invoice.splitRules}
-                tokens={invoice.tokens}
+                tokenAddress={invoice.tokens[0]}
               />
             )}
 

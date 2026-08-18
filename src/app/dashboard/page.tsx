@@ -97,6 +97,101 @@ function InvoiceCard({ inv }: { inv: Invoice & { id: number } }) {
   );
 }
 
+function NewInvoiceDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="btn-primary text-sm flex items-center gap-2"
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        + New Invoice
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        >
+          <path d="M2 4l4 4 4-4" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1.5 z-50 w-52 rounded-xl shadow-xl overflow-hidden"
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+          role="menu"
+        >
+          <Link
+            href="/invoice/new"
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[var(--surface-2)]"
+            style={{ color: "var(--text)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            <div>
+              <p className="font-medium">Single Invoice</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                One invoice with recipients
+              </p>
+            </div>
+          </Link>
+
+          <div style={{ borderTop: "1px solid var(--border)" }} />
+
+          <Link
+            href="/invoice/batch"
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-[var(--surface-2)]"
+            style={{ color: "var(--text)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+              <rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+            <div>
+              <p className="font-medium">
+                Batch Invoices{" "}
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded-full ml-1"
+                  style={{ background: "rgba(108,99,255,0.15)", color: "var(--primary)" }}
+                >
+                  up to 10
+                </span>
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                Multiple invoices, one tx
+              </p>
+            </div>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 async function fetchInvoiceList(ids: number[]): Promise<(Invoice & { id: number })[]> {
   const results = await Promise.all(
     ids.map(async (id) => {

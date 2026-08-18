@@ -16,6 +16,7 @@ import {
 import type { Invoice } from "../../../lib/utils";
 import { ExactStellarScheme } from "@x402/stellar/exact/client";
 import { signAuthEntry } from "@stellar/freighter-api";
+import PayoutPreview from "../../../components/PayoutPreview";
 
 const FACILITATOR_URL = "https://channels.openzeppelin.com/x402/testnet";
 const NETWORK_CAIP2 = `stellar:${NETWORK === "testnet" ? "testnet" : "pubnet"}`;
@@ -580,15 +581,20 @@ export default function PayPage() {
                       <button onClick={connect} className="btn-primary w-full py-3">Reconnect Wallet</button>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      <label className="text-sm font-medium" style={{ color: "var(--text)" }}>Amount (USDC)</label>
-                      <input
-                        value={payAmount}
-                        onChange={(e) => setPayAmount(e.target.value)}
-                        placeholder={`Up to ${formatAmount(remaining)}`}
-                        className="input"
-                        disabled={paying}
-                      />
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium" style={{ color: "var(--text)" }}>Amount (USDC)</label>
+                        <input
+                          value={payAmount}
+                          onChange={(e) => setPayAmount(e.target.value)}
+                          placeholder={`Up to ${formatAmount(remaining)}`}
+                          className="input mt-1.5"
+                          disabled={paying}
+                        />
+                      </div>
+
+                      {/* Payout preview */}
+                      {invoice && <PayoutPreview invoiceId={invoiceId} invoice={invoice} defaultAmount={payAmount} />}
 
                       {error && <p className="text-xs text-red-400">{error}</p>}
 

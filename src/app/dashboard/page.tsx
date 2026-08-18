@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useWallet } from "../../components/WalletProvider";
 import { sharpyClient, NETWORK, CONTRACT_ID } from "../../lib/client";

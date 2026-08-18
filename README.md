@@ -4,6 +4,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwindcss)
 ![stellar-sdk](https://img.shields.io/badge/stellar--sdk-16.0.1-6C63FF)
+![Components](https://img.shields.io/badge/components-30%2B-00D4AA)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Version](https://img.shields.io/badge/version-0.2.0-6C63FF)
 [![Demo](https://img.shields.io/badge/Demo-Watch%20on%20Loom-00D4AA?logo=loom)](https://www.loom.com/share/09aa4a78e0c944dcab866a7036fde24d)
@@ -78,6 +79,10 @@ graph TD
 - Recurring invoices — auto-generate next invoice on release
 - Batch creation — up to 10 invoices in one transaction
 - Cancel & refund — creator cancels and refunds all payers
+- Payout preview — see exact per-recipient breakdown before signing
+- Split rules display — visual breakdown of Fixed / Percentage / Tiered rules
+- Recurring invoice timeline — vertical chain visualization of subscription history
+- Invoice stats tab — completion ring, payer count, payment history bar chart
 
 ### Payments
 - Pay toward any invoice with Freighter wallet
@@ -85,11 +90,14 @@ graph TD
 - Transaction confirmation step indicators (Signing → Submitting → Confirming → Done)
 - QR code for sharing invoice payment links
 - Copy-to-clipboard for invoice URLs and contract address
+- Deadline countdown timer — live updates every second
+- Verified badge — displayed when invoice is fully funded
 
 ### Escrow
 - Enable escrow on any invoice with configurable release delay
 - Escrow release management page
 - Dispute mechanism with optional arbitrator
+- CCTP cross-chain status banner with localStorage persistence
 
 ### x402 Agentic Payments
 - Public `/pay/[id]` page with three payment modes: Wallet, x402 / Agent, Cross-chain (CCTP)
@@ -101,12 +109,18 @@ graph TD
 - Public `/verify/[id]` — on-chain verification with no login required (SSR)
 - SHA-256 invoice fingerprint display (Protocol 25/26 CAP-75/82)
 - Audit log tab showing full on-chain history
+- Export invoice as image (html2canvas)
+- Share button with Twitter/Email integration
 
 ### UX
-- Dashboard with search and filter by status
+- Dashboard with search, filter by status, and Created/Paid tabs
 - Dark/light mode with system preference detection
 - Fully responsive — mobile-first layouts
 - Skeleton loading states on all async pages
+- Error boundary with graceful fallback
+- Empty state illustrations for dashboard and invoice list
+- Network indicator (testnet/mainnet)
+- Token icon display per recipient
 
 ---
 

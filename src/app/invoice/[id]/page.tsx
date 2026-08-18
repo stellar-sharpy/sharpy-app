@@ -17,7 +17,6 @@ import CctpStatusBanner from "../../../components/CctpStatusBanner";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 import VerifiedBadge from "../../../components/VerifiedBadge";
 import ExportPdfButton from "../../../components/ExportPdfButton";
-import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 

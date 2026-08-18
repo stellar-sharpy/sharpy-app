@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { sharpyClient } from "../../../../lib/client";
+import { sharpyClient, NETWORK } from "../../../../lib/client";
 import { formatAmount, formatDeadline } from "../../../../lib/utils";
+import { getTokenByAddress } from "../../../../lib/tokens";
 import type { Invoice } from "../../../../lib/utils";
 
 export default function RecurringPage() {
@@ -15,12 +16,14 @@ export default function RecurringPage() {
     const build = async () => {
       const results: { id: number; invoice: Invoice }[] = [];
       let current: number | null = Number(id);
+      // Walk forward through the recurring chain
       while (current) {
         try {
           const inv = await sharpyClient.getInvoice(current);
           results.push({ id: current, invoice: inv });
           current = await sharpyClient.getNextRecurring(current);
         } catch { break; }
+        if (results.length > 50) break; // Safety limit
       }
       setChain(results);
       setLoading(false);
@@ -28,38 +31,139 @@ export default function RecurringPage() {
     build();
   }, [id]);
 
+  const now = Math.floor(Date.now() / 1000);
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <p className="mono text-xs mb-1">Invoice #{id}</p>
-        <h1 className="font-display text-2xl font-bold text-[#F1F2F6]">Recurring Chain</h1>
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <Link
+          href={`/invoice/${id}`}
+          className="text-xs text-[#6C63FF] hover:underline mb-2 block"
+        >
+          ← Back to Invoice #{id}
+        </Link>
+        <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>
+          Recurring Chain
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+          {chain.length > 0
+            ? `${chain.length} invoice${chain.length !== 1 ? "s" : ""} in this recurring series`
+            : "Loading…"}
+        </p>
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="card h-16 animate-pulse" />)}</div>
+        <div className="space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="card h-24 animate-pulse" />
+          ))}
+        </div>
       ) : chain.length === 0 ? (
-        <div className="card p-12 text-center text-[#4B5563] text-sm">No recurring chain found.</div>
+        <div className="card p-12 text-center">
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            No recurring chain found for this invoice.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {chain.map(({ id: cid, invoice }, i) => {
-            const total = invoice.amounts.reduce((a, b) => a + b, 0n);
-            return (
-              <Link key={cid} href={`/invoice/${cid}`}
-                className="card p-4 flex items-center justify-between hover:border-[#2E3040] transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-[#4B5563] font-mono w-5">{i + 1}</span>
-                  <div>
-                    <p className="text-sm font-medium text-[#F1F2F6]">Invoice #{cid}</p>
-                    <p className="text-xs text-[#4B5563]">Due {formatDeadline(invoice.deadline)}</p>
+        <div className="relative">
+          {/* Timeline vertical line */}
+          <div
+            className="absolute left-5 top-0 bottom-0 w-0.5"
+            style={{ background: "var(--border)" }}
+          />
+
+          {/* Timeline nodes */}
+          <div className="space-y-5">
+            {chain.map(({ id: cid, invoice }, i) => {
+              const total = invoice.amounts.reduce((a, b) => a + b, 0n);
+              const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
+              const expired = invoice.deadline < now;
+              const isCurrent = cid === Number(id);
+              const statusColor =
+                invoice.status === "Released" ? "#00D4AA" :
+                invoice.status === "Pending" && !expired ? "#6C63FF" :
+                invoice.status === "Pending" && expired ? "#FB923C" :
+                invoice.status === "Refunded" ? "#4B5563" :
+                "#EF4444";
+
+              return (
+                <div key={cid} className="relative flex items-start gap-4">
+                  {/* Timeline dot */}
+                  <div className="relative z-10 shrink-0">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
+                      style={{
+                        background: isCurrent ? statusColor : "var(--surface-2)",
+                        border: `2px solid ${statusColor}`,
+                        color: isCurrent ? "#fff" : statusColor,
+                      }}
+                    >
+                      {i + 1}
+                    </div>
                   </div>
+
+                  {/* Card */}
+                  <Link
+                    href={`/invoice/${cid}`}
+                    className="card flex-1 p-5 hover:border-[var(--border-hover)] transition-colors"
+                    style={{
+                      borderColor: isCurrent ? statusColor : "var(--border)",
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div>
+                        <p className="mono text-xs mb-1" style={{ color: "var(--muted)" }}>
+                          Invoice #{cid}
+                          {isCurrent && (
+                            <span className="ml-2 text-[#00D4AA]">• Current</span>
+                          )}
+                        </p>
+                        <p className="font-display text-xl font-bold" style={{ color: "var(--text)" }}>
+                          {formatAmount(total)} {tokenSymbol}
+                        </p>
+                      </div>
+                      <span className={`badge badge-${invoice.status.toLowerCase()}`}>
+                        {invoice.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <p style={{ color: "var(--muted)" }}>Deadline</p>
+                        <p className="font-medium mt-0.5" style={{ color: "var(--text-secondary)" }}>
+                          {formatDeadline(invoice.deadline)}
+                        </p>
+                      </div>
+                      <div>
+                        <p style={{ color: "var(--muted)" }}>Funded</p>
+                        <p className="font-medium mt-0.5" style={{ color: "#00D4AA" }}>
+                          {formatAmount(invoice.funded)} / {formatAmount(total)}
+                        </p>
+                      </div>
+                      <div>
+                        <p style={{ color: "var(--muted)" }}>Recipients</p>
+                        <p className="font-medium mt-0.5" style={{ color: "var(--text-secondary)" }}>
+                          {invoice.recipients.length}
+                        </p>
+                      </div>
+                      <div>
+                        <p style={{ color: "var(--muted)" }}>Status</p>
+                        <p
+                          className="font-medium mt-0.5"
+                          style={{
+                            color: statusColor,
+                          }}
+                        >
+                          {expired && invoice.status === "Pending" ? "Expired" : invoice.status}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-[#9CA3AF]">{formatAmount(total)} tokens</span>
-                  <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
-                </div>
-              </Link>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

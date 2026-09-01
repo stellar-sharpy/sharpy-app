@@ -45,23 +45,52 @@ const STATIC_STATS = [
   { label: "License", value: "MIT" },
 ];
 
+function useCountUp(target: number | null, duration = 900): number | null {
+  const [display, setDisplay] = useState<number | null>(target);
+  useEffect(() => {
+    if (target === null) { setDisplay(null); return; }
+    let start = display ?? 0;
+    if (start === target) return;
+    const startTime = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(start + (target - start) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]); // eslint-disable-line react-hooks/exhaustive-deps
+  return display;
+}
+
 export default function Home() {
   const [invoiceCount, setInvoiceCount] = useState<number | null>(null);
+  const [loadingCount, setLoadingCount] = useState(true);
+  const [countError, setCountError] = useState(false);
+  const animatedCount = useCountUp(invoiceCount);
 
-  useEffect(() => {
+  const fetchCount = () => {
+    setLoadingCount(true);
+    setCountError(false);
     sharpyClient.getInvoiceCount()
       .then((count) => setInvoiceCount(count))
-      .catch(() => setInvoiceCount(null));
-  }, []);
+      .catch(() => { setCountError(true); setInvoiceCount(null); })
+      .finally(() => setLoadingCount(false));
+  };
+
+  useEffect(() => { fetchCount(); }, []);
 
   // Replace "Protocol" slot with live invoice count
   const stats = STATIC_STATS.map((s) =>
     s.label === "Protocol"
       ? {
           label: "Invoices Created",
-          value: invoiceCount === null ? "—" : invoiceCount.toLocaleString(),
+          value: loadingCount ? "…" : countError ? "—" : animatedCount === null ? "—" : animatedCount.toLocaleString(),
+          live: true as const,
         }
-      : s
+      : { ...s, live: false as const }
   );
 
   return (
@@ -105,10 +134,18 @@ export default function Home() {
 
       {/* Stats bar */}
       <section className="relative z-10 w-full card p-5 grid grid-cols-2 sm:grid-cols-4 gap-4 glow">
-        {stats.map((s) => (
+        {stats.map((s: any) => (
           <div key={s.label} className="flex flex-col gap-1">
-            <p className="text-xs text-[#4B5563] uppercase tracking-widest">{s.label}</p>
-            <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{s.value}</p>
+            <p className="text-xs text-[#4B5563] uppercase tracking-widest flex items-center gap-1.5">
+              {s.label}
+              {s.live && !loadingCount && !countError && <span className="w-1.5 h-1.5 rounded-full bg-[#00D4AA] animate-pulse" />}
+            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium" style={{ color: "var(--text)" }}>{s.value}</p>
+              {s.live && countError && (
+                <button onClick={fetchCount} className="text-xs text-[#6C63FF] hover:underline">Retry</button>
+              )}
+            </div>
           </div>
         ))}
       </section>

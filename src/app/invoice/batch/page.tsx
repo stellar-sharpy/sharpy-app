@@ -76,6 +76,8 @@ export default function BatchCreateInvoice() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [createdIds, setCreatedIds] = useState<number[]>([]);
+  const [csvInput, setCsvInput] = useState("");
+  const [csvOpen, setCsvOpen] = useState(false);
 
   // ── Mutators ────────────────────────────────────────────────────────────────
 
@@ -110,6 +112,33 @@ export default function BatchCreateInvoice() {
           : inv
       )
     );
+  };
+
+  const handleCsvImport = () => {
+    const lines = csvInput.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) { setError("CSV is empty."); return; }
+    if (lines.length > MAX_INVOICES) { setError(`CSV has ${lines.length} rows, max ${MAX_INVOICES}.`); return; }
+    // Detect header
+    const hasHeader = lines[0].toLowerCase().includes("address") && lines[0].toLowerCase().includes("amount");
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+    const newRows: InvoiceRow[] = [];
+    for (let i = 0; i < dataLines.length; i++) {
+      const cols = dataLines[i].split(",").map((c) => c.trim());
+      if (cols.length < 2) { setError(`Line ${i + 1}: need at least address,amount`); return; }
+      const [addr, amt] = cols;
+      if (!isValidAddress(addr)) { setError(`Line ${i + 1}: invalid address ${addr}`); return; }
+      if (isNaN(Number(amt)) || Number(amt) <= 0) { setError(`Line ${i + 1}: invalid amount ${amt}`); return; }
+      newRows.push({
+        id: Math.random().toString(36).slice(2),
+        recipients: { addresses: addr, amounts: amt },
+        tokenAddress: DEFAULT_TOKEN,
+        selectedToken: TOKENS[0],
+        deadlineDays: 7,
+      });
+    }
+    setInvoices(newRows);
+    setCsvOpen(false);
+    setCsvInput("");
   };
 
   // ── Submit ───────────────────────────────────────────────────────────────────
@@ -260,6 +289,24 @@ export default function BatchCreateInvoice() {
           Create up to {MAX_INVOICES} invoices in a single transaction. Each invoice can have
           multiple recipients, its own token, and its own deadline.
         </p>
+      </div>
+
+      {/* CSV quick import */}
+      <div className="card p-4 space-y-3">
+        <button type="button" onClick={() => setCsvOpen((o) => !o)} className="text-sm font-medium flex items-center gap-2" style={{ color: "var(--primary)" }}>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M7 1v3h3"/><path d="M2 2.5A1.5 1.5 0 013.5 1H7v4h4v7A1.5 1.5 0 0110 13.5H3.5A1.5 1.5 0 012 12V2.5z"/><path d="M4 9h6M4 11h6"/></svg>
+          Import from CSV {csvOpen ? "▲" : "▼"}
+        </button>
+        {csvOpen && (
+          <div className="space-y-2">
+            <p className="text-xs" style={{ color: "var(--muted)" }}>One invoice per line: <code className="mono">address,amount</code> — header row optional. Up to {MAX_INVOICES} rows.</p>
+            <textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder={"GABC...,10\nGDEF...,25.5\nor with header:\naddress,amount\nGABC...,10"} rows={5} className="input font-mono text-xs resize-none" />
+            <div className="flex gap-2">
+              <button type="button" onClick={handleCsvImport} className="btn-primary text-sm px-4 py-2">Import CSV</button>
+              <button type="button" onClick={() => { setCsvInput(""); setCsvOpen(false); }} className="btn-ghost text-sm px-4 py-2">Cancel</button>
+            </div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -180,11 +180,24 @@ export default function InvoicePage() {
             )}
 
             {invoice.escrowEnabled && (
-              <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-                <span className="text-xs text-amber-400">Escrow enabled — {invoice.escrowReleaseDelay / 3600}h release delay</span>
-                {invoice.status === "Pending" && invoice.funded >= total && (
-                  <Link href={`/invoice/${invoiceId}/escrow`} className="text-xs text-[#6C63FF] hover:underline">Manage</Link>
-                )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+                  <span className="text-xs text-amber-400">Escrow enabled — {invoice.escrowReleaseDelay / 3600}h release delay</span>
+                  {invoice.status === "Pending" && invoice.funded >= total && (
+                    <Link href={`/invoice/${invoiceId}/escrow`} className="text-xs text-[#6C63FF] hover:underline">Manage</Link>
+                  )}
+                </div>
+                <div className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+                  <span className="text-xs" style={{ color: "var(--muted)" }}>Arbitrator</span>
+                  {invoice.arbitrator ? (
+                    <span className="mono text-xs flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+                      {truncateAddress(invoice.arbitrator)}
+                      <a href={explorerUrl(NETWORK, invoice.arbitrator, "contract")} target="_blank" rel="noreferrer" className="text-[#6C63FF] underline">view</a>
+                    </span>
+                  ) : (
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>None assigned</span>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -21,6 +21,7 @@ import FreezeControls from "../../../components/FreezeControls";
 import InvoiceNotes from "../../../components/InvoiceNotes";
 import RecurringNav from "../../../components/RecurringNav";
 import { VersionBadge } from "../../../components/ContractInfo";
+import SharpyButton from "../../../components/SharpyButton";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -211,6 +212,19 @@ export default function InvoicePage() {
             <div className="flex items-center gap-2 w-full">
               <p className="mono text-xs text-[#4B5563] truncate flex-1">{invoiceUrl}</p>
               <CopyButton value={invoiceUrl} label="invoice URL" />
+            </div>
+          </div>
+
+          {/* Widget preview */}
+          <div className="card p-5 space-y-3">
+            <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Embeddable widget</p>
+            <div className="flex justify-center py-2">
+              <SharpyButton invoiceId={invoiceId} amount={`${formatAmount(total)} ${tokenSymbol}`} />
+            </div>
+            <div className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <code className="text-xs mono flex-1 truncate" style={{ color: "var(--muted)" }}>
+                {`<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/widget/${invoiceId}" width="220" height="48" frameborder="0"></iframe>`}
+              </code>
             </div>
           </div>
 

@@ -603,6 +603,131 @@ export class SharpyClient {
       (this.config as any).contractId = savedContractId;
     }
   }
+
+  /** Pays toward an invoice with an additional tip to the treasury.
+   * @param payer Payer address (must sign)
+   * @param invoiceId Target invoice ID
+   * @param amount Amount in stroops
+   * @param tip Additional tip in stroops
+   */
+  async payWithTip(payer: string, invoiceId: number, amount: bigint, tip: bigint): Promise<{ txHash: string }> {
+    const args = [
+      new Address(payer).toScVal(),
+      nativeToScVal(invoiceId, { type: "u64" }),
+      nativeToScVal(amount, { type: "i128" }),
+      nativeToScVal(tip, { type: "i128" }),
+    ];
+    const { txHash } = await this.buildAndSubmit(payer, "pay_with_tip", args, invoiceId);
+    return { txHash };
+  }
+
+  /** Freezes an invoice (admin only). Prevents further payments until unfrozen.
+   * @param admin Admin address (must sign)
+   * @param invoiceId Invoice ID to freeze
+   */
+  async freezeInvoice(admin: string, invoiceId: number): Promise<{ txHash: string }> {
+    const args = [nativeToScVal(invoiceId, { type: "u64" })];
+    const { txHash } = await this.buildAndSubmit(admin, "freeze_invoice", args, invoiceId);
+    return { txHash };
+  }
+
+  /** Unfreezes a previously frozen invoice (admin only).
+   * @param admin Admin address (must sign)
+   * @param invoiceId Invoice ID to unfreeze
+   */
+  async unfreezeInvoice(admin: string, invoiceId: number): Promise<{ txHash: string }> {
+    const args = [nativeToScVal(invoiceId, { type: "u64" })];
+    const { txHash } = await this.buildAndSubmit(admin, "unfreeze_invoice", args, invoiceId);
+    return { txHash };
+  }
+
+  /** Returns treasury address configured at contract initialization.
+   */
+  async getTreasury(): Promise<string> {
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call("get_treasury"))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    return String(scValToNative((sim as any).result.retval));
+  }
+
+  /** Returns on-chain invoice version (protocol version at creation time).
+   * @param invoiceId Invoice ID
+   */
+  async getInvoiceVersion(invoiceId: number): Promise<number> {
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call("get_invoice_version", nativeToScVal(invoiceId, { type: "u64" })))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    return Number(scValToNative((sim as any).result.retval));
+  }
+
+  /** Returns recurring subscription params for a recurring invoice, if any.
+   * @param invoiceId Invoice ID
+   * @returns Subscription params or null
+   */
+  async getRecurringParams(invoiceId: number): Promise<{ interval: number; maxRecurrences: number; currentRecurrence: number } | null> {
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call("get_recurring_params", nativeToScVal(invoiceId, { type: "u64" })))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    const raw = scValToNative((sim as any).result.retval) as any;
+    if (!raw) return null;
+    return {
+      interval: Number(raw.interval ?? raw.recurrence_interval ?? 0),
+      maxRecurrences: Number(raw.max_recurrences ?? raw.maxRecurrences ?? 0),
+      currentRecurrence: Number(raw.current_recurrence ?? raw.currentRecurrence ?? 0),
+    };
+  }
+
+  /** Fetches free-text notes attached to an invoice.
+   * @param invoiceId Invoice ID
+   * @returns Notes object or null if none set
+   */
+  async getInvoiceNotes(invoiceId: number): Promise<{ text: string; author: string; updatedAt: number } | null> {
+    const account = await this.server.getAccount("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
+    const contract = new Contract(this.config.contractId);
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: this.config.networkPassphrase })
+      .addOperation(contract.call("get_invoice_notes", nativeToScVal(invoiceId, { type: "u64" })))
+      .setTimeout(30)
+      .build();
+    const sim = await this.server.simulateTransaction(tx);
+    if ("error" in sim) throw new Error(`Simulation failed: ${sim.error}`);
+    const raw = scValToNative((sim as any).result.retval) as any;
+    if (!raw) return null;
+    return {
+      text: String(raw.text ?? raw.notes ?? ""),
+      author: String(raw.author ?? raw.creator ?? ""),
+      updatedAt: Number(raw.updated_at ?? raw.updatedAt ?? raw.timestamp ?? 0),
+    };
+  }
+
+  /** Sets free-text notes on an invoice (creator only).
+   * @param caller Creator address (must sign)
+   * @param invoiceId Invoice ID
+   * @param text Notes text
+   */
+  async setInvoiceNotes(caller: string, invoiceId: number, text: string): Promise<{ txHash: string }> {
+    const args = [
+      new Address(caller).toScVal(),
+      nativeToScVal(invoiceId, { type: "u64" }),
+      nativeToScVal(text, { type: "string" }),
+    ];
+    const { txHash } = await this.buildAndSubmit(caller, "set_invoice_notes", args, invoiceId);
+    return { txHash };
+  }
 }
 
 function buildInvoiceOptions(params: CreateInvoiceParams): xdr.ScVal {

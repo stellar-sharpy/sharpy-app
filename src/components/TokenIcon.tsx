@@ -1,27 +1,26 @@
 "use client";
-import { useState } from "react";
+import { Token } from "../lib/tokens";
 
-interface TokenIconProps {
-  value?: any;
-  onChange?: (value: any) => void;
-}
-
-/**
- * TokenIcon - add token icon display component
- * Auto-generated component with basic structure
- */
-export default function TokenIcon({ value, onChange }: TokenIconProps) {
-  const [state, setState] = useState(value);
-
-  const handleChange = (newValue: any) => {
-    setState(newValue);
-    onChange?.(newValue);
-  };
-
+export default function TokenIcon({ token, size = 20 }: { token: Token; size?: number }) {
+  if (token.logoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={token.logoUrl}
+        alt={token.symbol}
+        width={size}
+        height={size}
+        className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   return (
-    <div className="component-TokenIcon" style={{ padding: "1rem" }}>
-      <p style={{ color: "var(--text)" }}>TokenIcon Component</p>
-      {/* Component implementation */}
-    </div>
+    <span
+      className="rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+      style={{ width: size, height: size, background: "#6C63FF", color: "#fff", fontSize: size * 0.5 }}
+    >
+      {token.symbol.slice(0, 1)}
+    </span>
   );
 }

@@ -198,6 +198,16 @@ export default function PayPage() {
     setCctpError("");
     const chain = CCTP_CHAINS[cctpChainIdx];
 
+    // Store pending so /invoice/[id] shows "Pending cross-chain payment" banner
+    try {
+      const pendingKey = `cctp_pending_${invoiceId}`;
+      const existing = JSON.parse(localStorage.getItem(pendingKey) ?? "[]");
+      const pendingRec = { sourceChain: chain.name, evmTxHash: cctpEvmTxHash.trim(), startedAt: Math.floor(Date.now() / 1000), domain: chain.domain };
+      if (!existing.some((e: any) => e.evmTxHash === pendingRec.evmTxHash)) {
+        localStorage.setItem(pendingKey, JSON.stringify([...existing, pendingRec]));
+      }
+    } catch { /* ignore */ }
+
     try {
       // Step 1: poll for Circle attestation
       setCctpStatus("polling");
@@ -214,7 +224,12 @@ export default function PayPage() {
       setCctpCompleteTxHash(txHash);
       setCctpStatus("done");
 
-      // Persist completion record so /invoice/[id] can show the banner
+      // Remove from pending and persist completion record so /invoice/[id] can show the banner
+      try {
+        const pendingKey = `cctp_pending_${invoiceId}`;
+        const pendingExisting = JSON.parse(localStorage.getItem(pendingKey) ?? "[]");
+        localStorage.setItem(pendingKey, JSON.stringify(pendingExisting.filter((e: any) => e.evmTxHash !== cctpEvmTxHash.trim())));
+      } catch { /* ignore */ }
       try {
         const storageKey = `cctp_completions_${invoiceId}`;
         const existing = JSON.parse(localStorage.getItem(storageKey) ?? "[]");

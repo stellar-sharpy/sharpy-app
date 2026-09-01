@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { explorerUrl } from "../lib/utils";
+import { sharpyClient } from "../lib/client";
 
 interface CctpInboundRecord {
   sourceChain: string;
@@ -59,40 +60,121 @@ export function useCctpCompletions(invoiceId: number): {
   return { records: read(), addRecord, clear };
 }
 
+interface PendingRecord {
+  sourceChain: string;
+  evmTxHash: string;
+  startedAt: number;
+  domain: number;
+}
+
+function useCctpPending(invoiceId: number) {
+  const key = `cctp_pending_${invoiceId}`;
+  const read = (): PendingRecord[] => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { return []; }
+  };
+  const [pending, setPending] = useState<PendingRecord[]>([]);
+  useEffect(() => { setPending(read()); }, [invoiceId]);
+  // Poll attestation for pending entries every 8s — auto-clear when attested
+  useEffect(() => {
+    if (pending.length === 0) return;
+    const iv = setInterval(async () => {
+      for (const p of pending) {
+        try {
+          const res = await fetch(`https://iris-api-sandbox.circle.com/v2/messages/${p.domain}?transactionHash=${p.evmTxHash}`);
+          if (res.ok) {
+            const data = await res.json() as any;
+            const complete = (data.messages ?? []).find((m: any) => m.status === "complete");
+            if (complete) {
+              // Move from pending to completion will be handled by pay page; just remove from pending UI after success
+              const next = read().filter((x) => x.evmTxHash !== p.evmTxHash);
+              localStorage.setItem(key, JSON.stringify(next));
+              setPending(next);
+            }
+          }
+        } catch { /* ignore */ }
+      }
+    }, 8000);
+    return () => clearInterval(iv);
+  }, [pending]);
+  const clearPending = (hash: string) => {
+    const next = read().filter((x) => x.evmTxHash !== hash);
+    localStorage.setItem(key, JSON.stringify(next));
+    setPending(next);
+  };
+  return { pending, clearPending, refresh: () => setPending(read()) };
+}
+
+export function addPendingCctp(invoiceId: number, rec: PendingRecord) {
+  const key = `cctp_pending_${invoiceId}`;
+  try {
+    const existing: PendingRecord[] = JSON.parse(localStorage.getItem(key) ?? "[]");
+    if (existing.some((e) => e.evmTxHash === rec.evmTxHash)) return;
+    localStorage.setItem(key, JSON.stringify([...existing, rec]));
+  } catch { localStorage.setItem(key, JSON.stringify([rec])); }
+}
+
 export default function CctpStatusBanner({ invoiceId, network }: Props) {
   const { records, clear } = useCctpCompletions(invoiceId);
+  const { pending, clearPending } = useCctpPending(invoiceId);
   const [dismissed, setDismissed] = useState(false);
 
-  if (dismissed || records.length === 0) return null;
+  const hasContent = records.length > 0 || pending.length > 0;
+  if (dismissed || !hasContent) return null;
+
+  const isPendingOnly = pending.length > 0 && records.length === 0;
 
   return (
     <div
       className="rounded-xl p-4 space-y-3"
       style={{
-        background: "rgba(0,212,170,0.07)",
-        border: "1px solid rgba(0,212,170,0.25)",
+        background: isPendingOnly ? "rgba(59,130,246,0.07)" : "rgba(0,212,170,0.07)",
+        border: `1px solid ${isPendingOnly ? "rgba(59,130,246,0.25)" : "rgba(0,212,170,0.25)"}`,
       }}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-[#00D4AA]">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M2 8.5l4 4 8-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          <span className={isPendingOnly ? "text-blue-500" : "text-[#00D4AA]"}>
+            {isPendingOnly ? (
+              <span className="w-3 h-3 rounded-full bg-blue-500 animate-pulse inline-block" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8.5l4 4 8-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
           </span>
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            Cross-chain payment{records.length > 1 ? "s" : ""} received
+            {isPendingOnly ? "Pending cross-chain payment" : `Cross-chain payment${records.length > 1 ? "s" : ""} received`}
           </p>
+          {isPendingOnly && <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 animate-pulse">awaiting attestation</span>}
         </div>
         <button
-          onClick={() => { setDismissed(true); clear(); }}
+          onClick={() => { setDismissed(true); clear(); pending.forEach((p) => clearPending(p.evmTxHash)); }}
           className="text-xs px-2 py-1 rounded-lg transition-colors"
           style={{ color: "var(--muted)", background: "var(--surface-2)" }}
         >
           Dismiss
         </button>
       </div>
+
+      {/* Pending */}
+      {pending.length > 0 && (
+        <div className="space-y-2">
+          {pending.map((p) => (
+            <div key={p.evmTxHash} className="rounded-lg px-3 py-2.5 flex items-center justify-between" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>{p.sourceChain}</span>
+                  <span className="text-xs mono truncate max-w-[160px]" style={{ color: "var(--muted)" }}>{p.evmTxHash.slice(0, 10)}…{p.evmTxHash.slice(-6)}</span>
+                </div>
+                <p className="text-xs" style={{ color: "var(--muted)" }}>Started {new Date(p.startedAt * 1000).toLocaleTimeString()} • polling Circle attestation…</p>
+              </div>
+              <button onClick={() => clearPending(p.evmTxHash)} className="text-xs text-blue-500 hover:underline shrink-0">Cancel</button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Records */}
       <div className="space-y-2">

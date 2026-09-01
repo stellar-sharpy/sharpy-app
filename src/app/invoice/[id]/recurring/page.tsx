@@ -7,10 +7,18 @@ import { formatAmount, formatDeadline } from "../../../../lib/utils";
 import { getTokenByAddress } from "../../../../lib/tokens";
 import type { Invoice } from "../../../../lib/utils";
 
+function formatInterval(secs: number): string {
+  if (secs % 2592000 === 0) return `${secs / 2592000} month${secs !== 2592000 ? "s" : ""}`;
+  if (secs % 86400 === 0) return `${secs / 86400} day${secs !== 86400 ? "s" : ""}`;
+  if (secs % 3600 === 0) return `${secs / 3600} hour${secs !== 3600 ? "s" : ""}`;
+  return `${secs}s`;
+}
+
 export default function RecurringPage() {
   const { id } = useParams<{ id: string }>();
   const [chain, setChain] = useState<{ id: number; invoice: Invoice }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [params, setParams] = useState<{ interval: number; maxRecurrences: number; currentRecurrence: number } | null>(null);
 
   useEffect(() => {
     const build = async () => {
@@ -28,6 +36,7 @@ export default function RecurringPage() {
       setChain(results);
       setLoading(false);
     };
+    sharpyClient.getRecurringParams(Number(id)).then(setParams).catch(() => {});
     build();
   }, [id]);
 
@@ -51,6 +60,22 @@ export default function RecurringPage() {
             ? `${chain.length} invoice${chain.length !== 1 ? "s" : ""} in this recurring series`
             : "Loading…"}
         </p>
+        {params && (
+          <div className="mt-4 grid grid-cols-3 gap-3 card p-4">
+            <div>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Interval</p>
+              <p className="text-sm font-semibold mt-0.5" style={{ color: "var(--text)" }}>{formatInterval(params.interval)}</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Max recurrences</p>
+              <p className="text-sm font-semibold mt-0.5" style={{ color: "var(--text)" }}>{params.maxRecurrences === 0 ? "∞ unlimited" : String(params.maxRecurrences)}</p>
+            </div>
+            <div>
+              <p className="text-xs" style={{ color: "var(--muted)" }}>Current</p>
+              <p className="text-sm font-semibold mt-0.5" style={{ color: "#6C63FF" }}>#{params.currentRecurrence}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (

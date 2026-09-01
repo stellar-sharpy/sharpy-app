@@ -454,6 +454,20 @@ export default function PayPage() {
                     </div>
                   </div>
 
+                  {/* Amount for CCTP burn — syncs with wallet pay amount */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium" style={{ color: "var(--muted)" }}>Amount to bridge (USDC)</label>
+                    <input
+                      value={payAmount}
+                      onChange={(e) => setPayAmount(e.target.value)}
+                      placeholder={`Up to ${formatAmount(remaining)}`}
+                      className="input text-sm"
+                    />
+                    <p className="text-xs" style={{ color: "var(--muted-2)" }}>
+                      This is the <code className="font-mono">amount</code> you will burn on {selectedChain.name}. Estimated attestation time: ~4 minutes.
+                    </p>
+                  </div>
+
                   {/* Step 1: burn instructions */}
                   <div className="space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--border)" }}>
                     <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>

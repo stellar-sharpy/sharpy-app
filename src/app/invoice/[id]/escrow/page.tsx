@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useWallet } from "../../../../components/WalletProvider";
 import { sharpyClient, NETWORK } from "../../../../lib/client";
-import { explorerUrl } from "../../../../lib/utils";
+import { explorerUrl, truncateAddress } from "../../../../lib/utils";
 import type { Invoice } from "../../../../lib/utils";
 
 export default function EscrowPage() {
@@ -52,6 +52,23 @@ export default function EscrowPage() {
         <div className="flex justify-between text-sm">
           <span className="text-[#4B5563]">Status</span>
           <span className={`badge badge-${invoice.status.toLowerCase()}`}>{invoice.status}</span>
+        </div>
+
+        {/* Arbitrator */}
+        <div className="rounded-xl p-4 space-y-2" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l2.5 3L13 5.5 10 8l0.5 4L7 10.2 3.5 12 4 8 1 5.5l3.5-1.5L7 1z" stroke="var(--muted)" strokeWidth="1.2" strokeLinejoin="round"/></svg>
+            <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Arbitrator</p>
+            {invoice.arbitrator ? <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#6C63FF]/15 text-[#6C63FF]">assigned</span> : <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: "var(--surface)", color: "var(--muted)", border: "1px solid var(--border)" }}>none</span>}
+          </div>
+          {invoice.arbitrator ? (
+            <div className="flex items-center gap-2">
+              <span className="mono text-xs" style={{ color: "var(--text-secondary)" }}>{truncateAddress(invoice.arbitrator)}</span>
+              <a href={explorerUrl(NETWORK, invoice.arbitrator, "contract")} target="_blank" rel="noreferrer" className="text-xs text-[#6C63FF] underline">Explorer</a>
+            </div>
+          ) : (
+            <p className="text-xs" style={{ color: "var(--muted)" }}>No arbitrator assigned. Escrow release is automatic after the delay. If assigned, the arbitrator can resolve disputes.</p>
+          )}
         </div>
 
         {invoice.status === "Released" ? (

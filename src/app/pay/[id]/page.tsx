@@ -46,6 +46,8 @@ export default function PayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [payAmount, setPayAmount] = useState("");
+  const [tipAmount, setTipAmount] = useState("");
+  const [tipPercent, setTipPercent] = useState<number | null>(null);
   const [paying, setPaying] = useState(false);
   const [step, setStep] = useState<PayStep>("idle");
   const [txHash, setTxHash] = useState("");
@@ -89,7 +91,7 @@ export default function PayPage() {
 
   const cctpForwarder = NETWORK === "testnet" ? CCTP_FORWARDER_TESTNET : CCTP_FORWARDER_MAINNET;
 
-  // Standard wallet pay
+  // Standard wallet pay (with optional tip via pay_with_tip)
   const handleWalletPay = async () => {
     if (!publicKey || !signerReady || !payAmount) return;
     setError(""); setPaying(true);
@@ -97,7 +99,11 @@ export default function PayPage() {
       setStep("signing");
       await new Promise((r) => setTimeout(r, 400));
       setStep("submitting");
-      const { txHash } = await sharpyClient.pay(publicKey, invoiceId, parseAmount(payAmount));
+      const amount = parseAmount(payAmount);
+      const tip = tipAmount ? parseAmount(tipAmount) : 0n;
+      const { txHash } = tip > 0n
+        ? await sharpyClient.payWithTip(publicKey, invoiceId, amount, tip)
+        : await sharpyClient.pay(publicKey, invoiceId, amount);
       setStep("confirming");
       await new Promise((r) => setTimeout(r, 800));
       setStep("done");
@@ -586,11 +592,70 @@ export default function PayPage() {
                         <label className="text-sm font-medium" style={{ color: "var(--text)" }}>Amount (USDC)</label>
                         <input
                           value={payAmount}
-                          onChange={(e) => setPayAmount(e.target.value)}
+                          onChange={(e) => {
+                            setPayAmount(e.target.value);
+                            if (tipPercent !== null && e.target.value) {
+                              const base = Number(e.target.value);
+                              if (!isNaN(base)) setTipAmount(((base * tipPercent) / 100).toFixed(2));
+                            }
+                          }}
                           placeholder={`Up to ${formatAmount(remaining)}`}
                           className="input mt-1.5"
                           disabled={paying}
                         />
+                      </div>
+
+                      {/* Tip selector */}
+                      <div className="rounded-xl border p-3 space-y-2" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-medium" style={{ color: "var(--muted)" }}>
+                            Add a tip for the creator
+                          </label>
+                          <span className="text-xs" style={{ color: "var(--muted-2)" }}>Optional</span>
+                        </div>
+                        <div className="flex gap-2">
+                          {[5, 10, 15].map((pct) => (
+                            <button
+                              key={pct}
+                              type="button"
+                              onClick={() => {
+                                if (tipPercent === pct) {
+                                  setTipPercent(null);
+                                  setTipAmount("");
+                                } else {
+                                  setTipPercent(pct);
+                                  const base = Number(payAmount);
+                                  if (!isNaN(base) && payAmount) setTipAmount(((base * pct) / 100).toFixed(2));
+                                }
+                              }}
+                              className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors ${tipPercent === pct ? "bg-[#6C63FF] text-white border-[#6C63FF]" : ""}`}
+                              style={tipPercent !== pct ? { borderColor: "var(--border)", color: "var(--muted)" } : {}}
+                            >
+                              {pct}%
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => { setTipPercent(null); setTipAmount(""); }}
+                            className="px-3 py-1.5 text-xs rounded-lg border"
+                            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                          >
+                            None
+                          </button>
+                        </div>
+                        <input
+                          value={tipAmount}
+                          onChange={(e) => { setTipAmount(e.target.value); setTipPercent(null); }}
+                          placeholder="Custom tip amount (USDC)"
+                          className="input text-sm"
+                          disabled={paying}
+                        />
+                        {tipAmount && parseAmount(tipAmount) > 0n && (
+                          <p className="text-xs" style={{ color: "var(--muted)" }}>
+                            Total: {formatAmount((payAmount ? parseAmount(payAmount) : 0n) + parseAmount(tipAmount))} USDC
+                            {" "}(incl. {formatAmount(parseAmount(tipAmount))} tip to treasury)
+                          </p>
+                        )}
                       </div>
 
                       {/* Payout preview */}

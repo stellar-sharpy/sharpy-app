@@ -8,6 +8,7 @@ import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from ".
 import type { Invoice } from "../../lib/utils";
 import ContractInfo from "../../components/ContractInfo";
 import TransactionHistoryExport from "../../components/TransactionHistoryExport";
+import InvoiceSearchFilter, { DEFAULT_FILTERS, useInvoiceFilters, type FilterState } from "../../components/InvoiceSearchFilter";
 
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
 type DashboardTab = "Created" | "Paid";
@@ -218,8 +219,7 @@ export default function Dashboard() {
   const [loadingCreated, setLoadingCreated] = useState(false);
   const [loadingPaid, setLoadingPaid] = useState(false);
   const [paidLoaded, setPaidLoaded] = useState(false);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
   // Load "Created" invoices on wallet connect
   useEffect(() => {
@@ -246,11 +246,7 @@ export default function Dashboard() {
   const activeInvoices = tab === "Created" ? createdInvoices : paidInvoices;
   const isLoading = tab === "Created" ? loadingCreated : loadingPaid;
 
-  const filtered = activeInvoices.filter((inv) => {
-    if (search && !String(inv.id).includes(search)) return false;
-    if (statusFilter !== "All" && inv.status !== statusFilter) return false;
-    return true;
-  });
+  const filtered = useInvoiceFilters(activeInvoices, filters);
 
   if (!publicKey) {
     return (
@@ -306,23 +302,9 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Filters + Export */}
-      <div className="flex flex-wrap gap-3 mb-3">
-        <input
-          type="text"
-          placeholder="Search by invoice #"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="input flex-1 min-w-[140px] text-sm"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="input text-sm w-auto"
-        >
-          <option value="All">All statuses</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+      {/* Advanced Search & Filters */}
+      <div className="mb-3">
+        <InvoiceSearchFilter filters={filters} onChange={setFilters} resultCount={filtered.length} totalCount={activeInvoices.length} />
       </div>
       {filtered.length > 0 && (
         <div className="flex justify-end mb-4">
@@ -421,7 +403,7 @@ export default function Dashboard() {
             <div className="space-y-3">
               <p style={{ color: "var(--muted)" }}>No invoices match your filters.</p>
               <button
-                onClick={() => { setSearch(""); setStatusFilter("All"); }}
+                onClick={() => setFilters(DEFAULT_FILTERS)}
                 className="text-sm underline"
                 style={{ color: "var(--primary)" }}
               >

@@ -17,6 +17,7 @@ import CctpStatusBanner from "../../../components/CctpStatusBanner";
 import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 import VerifiedBadge from "../../../components/VerifiedBadge";
 import ExportPdfButton from "../../../components/ExportPdfButton";
+import FreezeControls from "../../../components/FreezeControls";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -130,6 +131,14 @@ export default function InvoicePage() {
       {/* CCTP cross-chain status banner */}
       <CctpStatusBanner invoiceId={invoiceId} network={NETWORK} />
 
+      {/* Frozen warning */}
+      {invoice.frozen && (
+        <div className="rounded-xl px-4 py-3 flex items-center gap-2" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <p className="text-xs font-medium text-red-400">This invoice is frozen by admin — payments are paused.</p>
+        </div>
+      )}
+
       <Tabs tabs={INVOICE_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === "details" ? (
@@ -239,6 +248,9 @@ export default function InvoicePage() {
       ) : (
         <div className="card p-6"><AuditLogTab invoiceId={invoiceId} /></div>
       )}
+
+      {/* Admin freeze controls */}
+      <FreezeControls invoiceId={invoiceId} frozen={invoice.frozen} onUpdate={load} />
 
       {/* Action buttons */}
       <div className="card p-4">

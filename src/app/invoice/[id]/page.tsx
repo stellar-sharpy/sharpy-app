@@ -20,6 +20,7 @@ import ExportPdfButton from "../../../components/ExportPdfButton";
 import FreezeControls from "../../../components/FreezeControls";
 import InvoiceNotes from "../../../components/InvoiceNotes";
 import RecurringNav from "../../../components/RecurringNav";
+import { VersionBadge } from "../../../components/ContractInfo";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -123,7 +124,7 @@ export default function InvoicePage() {
         <div className="flex items-center gap-3">
           <div>
             <p className="mono text-xs mb-1">Invoice #{invoiceId}</p>
-            <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol}</h1>
+            <h1 className="font-display text-2xl font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>{formatAmount(total)} {tokenSymbol} <VersionBadge invoiceId={invoiceId} /></h1>
           </div>
           <VerifiedBadge invoice={invoice} />
         </div>

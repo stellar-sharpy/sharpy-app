@@ -6,6 +6,7 @@ import { sharpyClient, NETWORK, CONTRACT_ID } from "../../lib/client";
 import { getTokenByAddress } from "../../lib/tokens";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../lib/utils";
 import type { Invoice } from "../../lib/utils";
+import ContractInfo from "../../components/ContractInfo";
 
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
 type DashboardTab = "Created" | "Paid";
@@ -269,6 +270,8 @@ export default function Dashboard() {
         </div>
         <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
       </div>
+
+      <div className="mb-6"><ContractInfo /></div>
 
       {/* Tabs: Created / Paid */}
       <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }}>

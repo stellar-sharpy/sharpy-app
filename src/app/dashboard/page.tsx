@@ -7,6 +7,7 @@ import { getTokenByAddress } from "../../lib/tokens";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../lib/utils";
 import type { Invoice } from "../../lib/utils";
 import ContractInfo from "../../components/ContractInfo";
+import TransactionHistoryExport from "../../components/TransactionHistoryExport";
 
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
 type DashboardTab = "Created" | "Paid";
@@ -305,8 +306,8 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
+      {/* Filters + Export */}
+      <div className="flex flex-wrap gap-3 mb-3">
         <input
           type="text"
           placeholder="Search by invoice #"
@@ -323,6 +324,11 @@ export default function Dashboard() {
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
+      {filtered.length > 0 && (
+        <div className="flex justify-end mb-4">
+          <TransactionHistoryExport invoices={filtered} tabName={tab} />
+        </div>
+      )}
 
       {/* Grid */}
       {isLoading ? (

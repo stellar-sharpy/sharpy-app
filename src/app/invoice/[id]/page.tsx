@@ -18,6 +18,7 @@ import SplitRulesDisplay from "../../../components/SplitRulesDisplay";
 import VerifiedBadge from "../../../components/VerifiedBadge";
 import ExportPdfButton from "../../../components/ExportPdfButton";
 import FreezeControls from "../../../components/FreezeControls";
+import InvoiceNotes from "../../../components/InvoiceNotes";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -197,6 +198,9 @@ export default function InvoicePage() {
               <CopyButton value={invoiceUrl} label="invoice URL" />
             </div>
           </div>
+
+          {/* Invoice notes */}
+          <InvoiceNotes invoiceId={invoiceId} isCreator={publicKey === invoice.creator} />
 
           {/* Pay */}
           {invoice.status === "Pending" && remaining > 0n && (

@@ -19,6 +19,7 @@ import VerifiedBadge from "../../../components/VerifiedBadge";
 import ExportPdfButton from "../../../components/ExportPdfButton";
 import FreezeControls from "../../../components/FreezeControls";
 import InvoiceNotes from "../../../components/InvoiceNotes";
+import RecurringNav from "../../../components/RecurringNav";
 
 type PayStep = "idle" | "signing" | "submitting" | "confirming" | "done";
 
@@ -198,6 +199,9 @@ export default function InvoicePage() {
               <CopyButton value={invoiceUrl} label="invoice URL" />
             </div>
           </div>
+
+          {/* Recurring navigation */}
+          <RecurringNav invoiceId={invoiceId} />
 
           {/* Invoice notes */}
           <InvoiceNotes invoiceId={invoiceId} isCreator={publicKey === invoice.creator} />

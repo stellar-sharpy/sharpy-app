@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { useWallet } from "./WalletProvider";
 import { truncateAddress } from "../lib/utils";
+import WalletBalanceInline from "./WalletBalance";
 
 function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
@@ -136,6 +137,38 @@ function NavNewInvoiceDropdown() {
   );
 }
 
+function WalletBalanceDropdown({ address, onDisconnect }: { address: string; onDisconnect: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="mono text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+      >
+        {truncateAddress(address)}
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${open ? "rotate-180" : ""}`}><path d="M2 4l4 4 4-4" /></svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl shadow-xl p-3 space-y-3" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Balances</p>
+            <button onClick={() => { setOpen(false); onDisconnect(); }} className="text-xs px-2 py-1 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}>Disconnect</button>
+          </div>
+          <WalletBalanceInline address={address} />
+          <a href={`https://stellar.expert/explorer/testnet/account/${address}`} target="_blank" rel="noreferrer" className="text-xs text-[#6C63FF] hover:underline block">View on Explorer →</a>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const { publicKey, connect, disconnect } = useWallet();
 
@@ -157,11 +190,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <NavNewInvoiceDropdown />
-              <button onClick={disconnect}
-                className="mono text-xs px-3 py-1.5 rounded-lg transition-colors"
-                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                {truncateAddress(publicKey)}
-              </button>
+              <WalletBalanceDropdown address={publicKey} onDisconnect={disconnect} />
             </>
           ) : (
             <button onClick={connect} className="btn-primary text-sm py-1.5 px-4">

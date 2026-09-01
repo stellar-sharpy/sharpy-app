@@ -4,6 +4,7 @@ import { sharpyClient } from "../lib/client";
 import { formatAmount, parseAmount } from "../lib/utils";
 import { getTokenByAddress } from "../lib/tokens";
 import type { Invoice } from "../lib/utils";
+import TokenIcon from "./TokenIcon";
 
 interface Props {
   invoiceId: number;
@@ -22,8 +23,14 @@ export default function PayoutPreview({ invoiceId, invoice, defaultAmount = "" }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Sync with parent payAmount
+  useEffect(() => {
+    if (defaultAmount !== amount) setAmount(defaultAmount);
+  }, [defaultAmount]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const total = invoice.amounts.reduce((a, b) => a + b, 0n);
-  const tokenSymbol = getTokenByAddress(invoice.tokens[0] ?? "")?.symbol ?? "tokens";
+  const token = getTokenByAddress(invoice.tokens[0] ?? "");
+  const tokenSymbol = token?.symbol ?? "tokens";
 
   const fetchPreview = useCallback(
     async (amt: string) => {
@@ -67,18 +74,21 @@ export default function PayoutPreview({ invoiceId, invoice, defaultAmount = "" }
         className="flex items-center justify-between px-4 py-3"
         style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border)" }}
       >
-        <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-          Payout Preview
-        </p>
+        <div className="flex items-center gap-2">
+          {token && <TokenIcon token={token} size={18} />}
+          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+            Payout Preview
+          </p>
+        </div>
         <span className="text-xs" style={{ color: "var(--muted)" }}>
-          {invoice.recipients.length} recipient{invoice.recipients.length !== 1 ? "s" : ""}
+          {invoice.recipients.length} recipient{invoice.recipients.length !== 1 ? "s" : ""} • live
         </span>
       </div>
 
       {/* Amount input */}
-      <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
-        <label className="text-xs mb-1.5 block" style={{ color: "var(--muted)" }}>
-          Simulate payment amount
+      <div className="px-4 py-3 space-y-1.5" style={{ borderBottom: "1px solid var(--border)" }}>
+        <label className="text-xs mb-1 block" style={{ color: "var(--muted)" }}>
+          Simulate payment amount — updates live as you type (debounced 400ms)
         </label>
         <input
           type="text"
@@ -87,6 +97,9 @@ export default function PayoutPreview({ invoiceId, invoice, defaultAmount = "" }
           placeholder={`Max ${formatAmount(total - invoice.funded)} ${tokenSymbol}`}
           className="input text-sm w-full"
         />
+        {invoice.splitRules && invoice.splitRules.length > 0 && (
+          <p className="text-xs" style={{ color: "var(--muted-2)" }}>Split rules applied • dust-correct rounding per contract</p>
+        )}
       </div>
 
       {/* Table */}
@@ -116,11 +129,14 @@ export default function PayoutPreview({ invoiceId, invoice, defaultAmount = "" }
                     {addr.slice(0, 6)}…{addr.slice(-4)}
                   </span>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    {formatAmount(payout)} {tokenSymbol}
-                  </p>
-                  <p className="text-xs" style={{ color: "var(--muted)" }}>{share}%</p>
+                <div className="text-right shrink-0 flex items-center gap-2">
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                      {formatAmount(payout)} {tokenSymbol}
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--muted)" }}>{share}%</p>
+                  </div>
+                  {token && <TokenIcon token={token} size={16} />}
                 </div>
               </div>
             );

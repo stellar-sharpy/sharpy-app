@@ -303,3 +303,4 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 - feat/app-discount — discount editor
 - feat/app-recurring-pause
 - template
+- approval

@@ -302,3 +302,4 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 - feat/app-metadata — feat(app): invoice metadata editor
 - feat/app-discount — discount editor
 - feat/app-recurring-pause
+- template

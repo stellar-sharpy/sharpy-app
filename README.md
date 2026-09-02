@@ -304,3 +304,4 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 - feat/app-recurring-pause
 - template
 - approval
+- archival

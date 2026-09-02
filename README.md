@@ -299,3 +299,4 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 - `feat/app-batch-refund` — feat(app): batch refund UI
 
 - `feat/app-extend-deadline` — feat(app): extend deadline control
+- feat/app-metadata — feat(app): invoice metadata editor

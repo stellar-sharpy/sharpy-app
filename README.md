@@ -293,3 +293,5 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 [MIT](LICENSE)
 
 - `feat/app-tags` — feat(app): invoice tags editor
+
+- `feat/app-memo-ext` — feat(app): memo ext display

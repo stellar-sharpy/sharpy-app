@@ -297,3 +297,5 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 - `feat/app-memo-ext` — feat(app): memo ext display
 
 - `feat/app-batch-refund` — feat(app): batch refund UI
+
+- `feat/app-extend-deadline` — feat(app): extend deadline control

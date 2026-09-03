@@ -118,7 +118,7 @@ graph TD
 - Dark/light mode with system preference detection
 - Fully responsive — mobile-first layouts
 - Skeleton loading states on all async pages
-- Error boundary with graceful fallback
+- Error boundary with graceful fallback and retry
 - Empty state illustrations for dashboard and invoice list
 - Network indicator (testnet/mainnet)
 - Token icon display per recipient

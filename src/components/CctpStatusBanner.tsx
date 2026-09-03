@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { explorerUrl } from "../lib/utils";
-import { sharpyClient } from "../lib/client";
 
 interface CctpInboundRecord {
   sourceChain: string;
@@ -12,8 +11,8 @@ interface CctpInboundRecord {
 }
 
 const CHAIN_LABELS: Record<number, string> = { 0: "Ethereum", 3: "Arbitrum", 6: "Base" };
-// Supported source chains for the cross-chain pay tab copy.
-const SUPPORTED_CHAINS = ["Ethereum", "Arbitrum", "Base"] as const;
+// Supported source chains for the cross-chain pay tab copy (mirrors CHAIN_LABELS values).
+export const SUPPORTED_CHAINS: readonly string[] = Object.values(CHAIN_LABELS);
 const EVM_EXPLORER: Record<number, string> = {
   0: "https://etherscan.io/tx/",
   3: "https://arbiscan.io/tx/",

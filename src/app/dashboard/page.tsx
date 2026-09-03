@@ -424,11 +424,38 @@ export default function Dashboard() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((inv) => (
-            <InvoiceCard key={inv.id} inv={inv} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {visible.map((inv) => (
+              <InvoiceCard key={inv.id} inv={inv} />
+            ))}
+          </div>
+          {pageCount > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6" role="navigation" aria-label="Dashboard pagination">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+                className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
+                style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
+                aria-label="Previous page"
+              >
+                ← Prev
+              </button>
+              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite">
+                Page {safePage + 1} of {pageCount}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                disabled={safePage >= pageCount - 1}
+                className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
+                style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
+                aria-label="Next page"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

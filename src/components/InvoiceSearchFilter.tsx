@@ -92,7 +92,7 @@ export default function InvoiceSearchFilter({
   const update = (patch: Partial<FilterState>) => onChange({ ...filters, ...patch });
 
   return (
-    <div className="card p-4 space-y-3">
+    <div className="card p-4 space-y-3 hover:border-[var(--border-hover)] transition-colors">
       {/* Primary search row */}
       <div className="flex gap-2">
         <div className="relative flex-1">
@@ -101,6 +101,7 @@ export default function InvoiceSearchFilter({
             value={filters.query}
             onChange={(e) => update({ query: e.target.value })}
             placeholder="Search by invoice #, address, amount, status, token..."
+            aria-label="Search invoices"
             className="input pl-9 text-sm"
           />
         </div>
@@ -150,7 +151,7 @@ export default function InvoiceSearchFilter({
         </div>
       )}
       {!advancedOpen && (
-        <p className="text-xs" style={{ color: "var(--muted)" }}>{resultCount} results {filters.query || filters.status !== "All" ? `for current filters` : ""}</p>
+        <p className="text-xs" style={{ color: "var(--muted)" }} aria-live="polite">{resultCount} result{resultCount === 1 ? "" : "s"} {filters.query || filters.status !== "All" ? `for current filters` : "total"}</p>
       )}
     </div>
   );

@@ -13,6 +13,9 @@ import InvoiceSearchFilter, { DEFAULT_FILTERS, useInvoiceFilters, type FilterSta
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
 type DashboardTab = "Created" | "Paid";
 
+// Dashboard grid pagination — 9 cards per page (3×3 on desktop).
+const PAGE_SIZE = 9;
+
 function ExternalIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -220,6 +223,7 @@ export default function Dashboard() {
   const [loadingPaid, setLoadingPaid] = useState(false);
   const [paidLoaded, setPaidLoaded] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [page, setPage] = useState(0);
 
   // Load "Created" invoices on wallet connect
   useEffect(() => {
@@ -248,6 +252,13 @@ export default function Dashboard() {
 
   const filtered = useInvoiceFilters(activeInvoices, filters);
 
+  // Reset to first page whenever filters or tab change.
+  useEffect(() => { setPage(0); }, [filters, tab]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
   if (!publicKey) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -263,9 +274,9 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
-          <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)}</p>
+          <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)} · {createdInvoices.length} created{paidLoaded ? ` · ${paidInvoices.length} paid` : ""}</p>
         </div>
-        <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
+        <Link href="/invoice/new" className="btn-primary text-sm" aria-label="Create new invoice">+ New Invoice</Link>
       </div>
 
       <div className="flex justify-end mb-2">
@@ -274,13 +285,15 @@ export default function Dashboard() {
       <div className="mb-6"><ContractInfo /></div>
 
       {/* Tabs: Created / Paid */}
-      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }}>
+      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }} role="tablist" aria-label="Invoice lists">
         {(["Created", "Paid"] as DashboardTab[]).map((t) => {
           const count = t === "Created" ? createdInvoices.length : paidInvoices.length;
           return (
             <button
               key={t}
               onClick={() => setTab(t)}
+              role="tab"
+              aria-selected={tab === t}
               className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
                 background: tab === t ? "var(--surface)" : "transparent",
@@ -400,12 +413,13 @@ export default function Dashboard() {
             </div>
           ) : (
             /* No matches for filters */
-            <div className="space-y-3">
-              <p style={{ color: "var(--muted)" }}>No invoices match your filters.</p>
+            <div className="space-y-3" role="status">
+              <p style={{ color: "var(--muted)" }}>No invoices match your filters. Try widening the search or clearing a filter.</p>
               <button
                 onClick={() => setFilters(DEFAULT_FILTERS)}
                 className="text-sm underline"
                 style={{ color: "var(--primary)" }}
+                aria-label="Clear all dashboard filters"
               >
                 Clear filters
               </button>
@@ -413,11 +427,38 @@ export default function Dashboard() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((inv) => (
-            <InvoiceCard key={inv.id} inv={inv} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {visible.map((inv) => (
+              <InvoiceCard key={inv.id} inv={inv} />
+            ))}
+          </div>
+          {pageCount > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6" role="navigation" aria-label="Dashboard pagination">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+                className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
+                style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
+                aria-label="Previous page"
+              >
+                ← Prev
+              </button>
+              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite">
+                Page {safePage + 1} of {pageCount}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                disabled={safePage >= pageCount - 1}
+                className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
+                style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
+                aria-label="Next page"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

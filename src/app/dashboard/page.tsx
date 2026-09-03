@@ -7,6 +7,7 @@ import { getTokenByAddress } from "../../lib/tokens";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../lib/utils";
 import type { Invoice } from "../../lib/utils";
 import ContractInfo from "../../components/ContractInfo";
+import ErrorBoundary from "../../components/ErrorBoundary";
 import TransactionHistoryExport from "../../components/TransactionHistoryExport";
 import InvoiceSearchFilter, { DEFAULT_FILTERS, useInvoiceFilters, type FilterState } from "../../components/InvoiceSearchFilter";
 
@@ -428,11 +429,13 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {visible.map((inv) => (
-              <InvoiceCard key={inv.id} inv={inv} />
-            ))}
-          </div>
+          <ErrorBoundary>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {visible.map((inv) => (
+                <InvoiceCard key={inv.id} inv={inv} />
+              ))}
+            </div>
+          </ErrorBoundary>
           {pageCount > 1 && (
             <div className="flex items-center justify-center gap-2 mt-6" role="navigation" aria-label="Dashboard pagination">
               <button

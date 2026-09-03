@@ -9,6 +9,7 @@ import { formatAmount } from "../lib/utils";
  * Rendered inside the details tab next to RecurringNav (no tab changes).
  * Manages create / withdraw / cancel / top-up UI backed by localStorage
  * until on-chain streaming lands; reads live invoice state for gating.
+ * Wrapped in `ErrorBoundary` on the invoice page for resilience.
  *
  * @param invoiceId - Target invoice id; used as localStorage key namespace.
  */

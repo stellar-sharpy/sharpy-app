@@ -73,6 +73,7 @@ function NavNewInvoiceDropdown() {
         className="btn-primary text-sm py-1.5 px-4 flex items-center gap-1.5"
         aria-haspopup="true"
         aria-expanded={open}
+        aria-label="Create new invoice menu"
       >
         New Invoice
         <svg

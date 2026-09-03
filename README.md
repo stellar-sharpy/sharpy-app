@@ -114,11 +114,11 @@ graph TD
 - Share button with Twitter/Email integration
 
 ### UX
-- Dashboard with search, filter by status, and Created/Paid tabs
+- Dashboard with search, filter by status, pagination, and Created/Paid tabs
 - Dark/light mode with system preference detection
 - Fully responsive — mobile-first layouts
 - Skeleton loading states on all async pages
-- Error boundary with graceful fallback
+- Error boundary with graceful fallback and retry
 - Empty state illustrations for dashboard and invoice list
 - Network indicator (testnet/mainnet)
 - Token icon display per recipient
@@ -145,9 +145,9 @@ graph TD
 | Route | Type | Description |
 |-------|------|-------------|
 | `/` | Static | Landing page with feature highlights and CTAs |
-| `/dashboard` | Client | Wallet-gated invoice list with search and filter |
+| `/dashboard` | Client | Wallet-gated invoice list with search, filter, and pagination |
 | `/invoice/new` | Client | Create invoice — single, escrow, or recurring |
-| `/invoice/[id]` | Dynamic | Invoice detail, funding progress, pay button, QR code |
+| `/invoice/[id]` | Dynamic | Invoice detail, funding progress, pay button, QR code, streaming card |
 | `/invoice/[id]/escrow` | Dynamic | Escrow release and dispute management |
 | `/invoice/[id]/recurring` | Dynamic | Recurring invoice chain viewer |
 | `/invoice/[id]/cancel` | Dynamic | Creator cancel and refund |

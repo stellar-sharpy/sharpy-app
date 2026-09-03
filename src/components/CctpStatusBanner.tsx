@@ -214,6 +214,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
                   href={`${EVM_EXPLORER[getDomainFromChain(r.sourceChain)] ?? "https://etherscan.io/tx/"}${r.evmTxHash}`}
                   target="_blank"
                   rel="noreferrer"
+                  title={`View ${r.sourceChain} transaction ${r.evmTxHash}`}
                   className="mono text-xs underline truncate max-w-[200px]"
                   style={{ color: "var(--text-secondary)" }}
                 >

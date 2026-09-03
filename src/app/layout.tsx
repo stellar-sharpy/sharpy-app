@@ -21,9 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer
             className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between text-xs"
             style={{ color: "var(--muted)", borderTop: "1px solid var(--border)" }}
+            aria-label="Site footer"
           >
             <span>Sharpy · Split Payments on Stellar</span>
-            <span className="mono" aria-label="App version">v0.2.0</span>
+            <span className="mono" aria-label="App version">v0.2.0 · testnet</span>
           </footer>
         </Providers>
       </body>

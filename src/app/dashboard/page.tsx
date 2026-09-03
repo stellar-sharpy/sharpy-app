@@ -411,12 +411,13 @@ export default function Dashboard() {
             </div>
           ) : (
             /* No matches for filters */
-            <div className="space-y-3">
-              <p style={{ color: "var(--muted)" }}>No invoices match your filters.</p>
+            <div className="space-y-3" role="status">
+              <p style={{ color: "var(--muted)" }}>No invoices match your filters. Try widening the search or clearing a filter.</p>
               <button
                 onClick={() => setFilters(DEFAULT_FILTERS)}
                 className="text-sm underline"
                 style={{ color: "var(--primary)" }}
+                aria-label="Clear all dashboard filters"
               >
                 Clear filters
               </button>

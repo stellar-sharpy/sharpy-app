@@ -107,11 +107,12 @@ export default function InvoicePage() {
   };
 
   if (loading) return (
-    <div className="max-w-2xl mx-auto space-y-4 animate-stagger">
-      {[...Array(4)].map((_, i) => <div key={i} className="card h-20 animate-pulse" />)}
+    <div className="max-w-2xl mx-auto space-y-4 animate-stagger" role="status" aria-label="Loading invoice" aria-live="polite">
+      {[...Array(4)].map((_, i) => <div key={i} className="card h-20 animate-pulse" aria-hidden="true" />)}
+      <span className="sr-only">Loading invoice…</span>
     </div>
   );
-  if (!invoice) return <p className="text-red-400">{error || "Invoice not found."}</p>;
+  if (!invoice) return <p className="text-red-400" role="alert">{error || "Invoice not found."}</p>;
 
   const total = invoice.amounts.reduce((a, b) => a + b, 0n);
   const pct = fundingPercent(invoice.funded, invoice.amounts);

@@ -13,6 +13,9 @@ import InvoiceSearchFilter, { DEFAULT_FILTERS, useInvoiceFilters, type FilterSta
 const STATUSES = ["Pending", "Released", "Refunded", "Cancelled"] as const;
 type DashboardTab = "Created" | "Paid";
 
+// Dashboard grid pagination — 9 cards per page (3×3 on desktop).
+const PAGE_SIZE = 9;
+
 function ExternalIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">

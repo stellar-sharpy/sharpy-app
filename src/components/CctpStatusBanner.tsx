@@ -12,6 +12,8 @@ interface CctpInboundRecord {
 }
 
 const CHAIN_LABELS: Record<number, string> = { 0: "Ethereum", 3: "Arbitrum", 6: "Base" };
+// Supported source chains for the cross-chain pay tab copy.
+const SUPPORTED_CHAINS = ["Ethereum", "Arbitrum", "Base"] as const;
 const EVM_EXPLORER: Record<number, string> = {
   0: "https://etherscan.io/tx/",
   3: "https://arbiscan.io/tx/",

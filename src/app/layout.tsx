@@ -17,7 +17,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen antialiased" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
         <Providers>
           <Navbar />
-          <main className="max-w-5xl mx-auto px-4 py-10">{children}</main>
+          <main className="max-w-5xl mx-auto px-4 py-10" id="main-content">{children}</main>
+          <footer
+            className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between text-xs"
+            style={{ color: "var(--muted)", borderTop: "1px solid var(--border)" }}
+          >
+            <span>Sharpy · Split Payments on Stellar</span>
+            <span className="mono" aria-label="App version">v0.2.0</span>
+          </footer>
         </Providers>
       </body>
     </html>

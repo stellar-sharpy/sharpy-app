@@ -223,6 +223,7 @@ export default function Dashboard() {
   const [loadingPaid, setLoadingPaid] = useState(false);
   const [paidLoaded, setPaidLoaded] = useState(false);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [page, setPage] = useState(0);
 
   // Load "Created" invoices on wallet connect
   useEffect(() => {

@@ -171,7 +171,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>{p.sourceChain}</span>
                   <span className="text-xs mono truncate max-w-[160px]" style={{ color: "var(--muted)" }}>{p.evmTxHash.slice(0, 10)}…{p.evmTxHash.slice(-6)}</span>
                 </div>
-                <p className="text-xs" style={{ color: "var(--muted)" }}>Started {new Date(p.startedAt * 1000).toLocaleTimeString()} • polling Circle attestation…</p>
+                <p className="text-xs" style={{ color: "var(--muted)" }}>Started {new Date(p.startedAt * 1000).toLocaleTimeString()} • polling Circle attestation every 8s…</p>
               </div>
               <button onClick={() => clearPending(p.evmTxHash)} className="text-xs text-blue-500 hover:underline shrink-0">Cancel</button>
             </div>

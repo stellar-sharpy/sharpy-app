@@ -170,7 +170,7 @@ const claimed = await client.claim(accountAddress, tokenAddress);
 import { SharpyClient } from "@stellar-sharpy/sdk";
 
 const client = new SharpyClient({
-  contractId: "CCMN5OYWBWVVRIB3IDE2CCODM3CMGSMYQ7EV2UVBJ23DVIH2CL6FJRXP",
+  contractId: "CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T",
   rpcUrl: "https://soroban-testnet.stellar.org",
   networkPassphrase: "Test SDF Network ; September 2015",
   nativeContractId: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",

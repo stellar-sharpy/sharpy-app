@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 
 export const metadata: Metadata = {
   title: "Sharpy — Split Payments on Stellar",
-  description: "Advanced on-chain split payment protocol with recurring invoices, escrow, and batch operations.",
+  description: "Advanced on-chain split payment protocol with recurring invoices, escrow, streaming previews, and batch operations.",
   icons: {
     icon: "/favicon.ico",
   },

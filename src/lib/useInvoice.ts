@@ -5,6 +5,8 @@ import type { Invoice } from "./utils";
 /**
  * useInvoice — fetch a single invoice with loading / error states.
  * Wraps `sharpyClient.getInvoice` so pages share one typed data path.
+ * Pair with {@link useInvoiceStats} for funding progress and with
+ * `ErrorBoundary` + `LoadingSkeleton` for resilient async UI.
  *
  * @param invoiceId - Target invoice id (NaN-safe: skips fetch when invalid).
  */
@@ -81,5 +83,4 @@ export function useInvoiceStats(invoiceId: number) {
   }, [invoiceId]);
 
   return { stats, loading };
-}
 }

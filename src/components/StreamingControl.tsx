@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useToast } from "./Toast";
+import { useStreaming } from "../lib/streamingHook";
+import { formatAmount } from "../lib/utils";
 
 /**
  * StreamingControl — card section for invoice payment streaming.
@@ -20,6 +22,7 @@ const DEFAULT_CONFIG: StreamConfig = { ratePerDay: "", durationDays: "30", recip
 
 export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
   const { toast } = useToast();
+  const { funded } = useStreaming(invoiceId);
   const [config, setConfig] = useState<StreamConfig>(DEFAULT_CONFIG);
   const [saved, setSaved] = useState<StreamConfig | null>(null);
   const [busy, setBusy] = useState<"create" | "withdraw" | "cancel" | "topup" | null>(null);
@@ -100,6 +103,7 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
       <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
         Stream invoice #{invoiceId} payouts over time instead of one lump sum. Configure a rate below;
         full controls unlock next. Schedules persist locally per invoice.
+        {funded !== null && <> Currently funded: {formatAmount(funded)}.</>}
       </p>
       <div className="grid grid-cols-3 gap-2">
         <label className="space-y-1">

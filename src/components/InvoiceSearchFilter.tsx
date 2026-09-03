@@ -151,7 +151,7 @@ export default function InvoiceSearchFilter({
         </div>
       )}
       {!advancedOpen && (
-        <p className="text-xs" style={{ color: "var(--muted)" }}>{resultCount} results {filters.query || filters.status !== "All" ? `for current filters` : ""}</p>
+        <p className="text-xs" style={{ color: "var(--muted)" }} aria-live="polite">{resultCount} result{resultCount === 1 ? "" : "s"} {filters.query || filters.status !== "All" ? `for current filters` : "total"}</p>
       )}
     </div>
   );

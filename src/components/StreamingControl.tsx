@@ -82,7 +82,7 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
     setBusy(null);
   };
   return (
-    <div className="card p-5 space-y-3" aria-label={`Payment streaming for invoice ${invoiceId}`} role="region">
+    <div className="card p-5 space-y-3 hover:border-[var(--border-hover)] transition-colors" aria-label={`Payment streaming for invoice ${invoiceId}`} role="region">
       <div className="flex items-center gap-2">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="M2 8h3l2-4 2 8 2-4h3" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

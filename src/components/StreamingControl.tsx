@@ -7,6 +7,8 @@ import { useToast } from "./Toast";
  * Rendered inside the details tab next to RecurringNav (no tab changes).
  * Manages create / withdraw / cancel / top-up UI backed by localStorage
  * until on-chain streaming lands; reads live invoice state for gating.
+ *
+ * @param invoiceId - Target invoice id; used as localStorage key namespace.
  */
 interface StreamConfig {
   ratePerDay: string;
@@ -80,7 +82,7 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
     setBusy(null);
   };
   return (
-    <div className="card p-5 space-y-3" aria-label={`Payment streaming for invoice ${invoiceId}`}>
+    <div className="card p-5 space-y-3" aria-label={`Payment streaming for invoice ${invoiceId}`} role="region">
       <div className="flex items-center gap-2">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="M2 8h3l2-4 2 8 2-4h3" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -97,7 +99,7 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
       </div>
       <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
         Stream invoice #{invoiceId} payouts over time instead of one lump sum. Configure a rate below;
-        full controls unlock next.
+        full controls unlock next. Schedules persist locally per invoice.
       </p>
       <div className="grid grid-cols-3 gap-2">
         <label className="space-y-1">

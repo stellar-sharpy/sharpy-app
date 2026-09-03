@@ -101,6 +101,7 @@ export default function InvoiceSearchFilter({
             value={filters.query}
             onChange={(e) => update({ query: e.target.value })}
             placeholder="Search by invoice #, address, amount, status, token..."
+            aria-label="Search invoices"
             className="input pl-9 text-sm"
           />
         </div>

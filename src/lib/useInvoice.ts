@@ -43,3 +43,43 @@ export function useInvoice(invoiceId: number) {
 
   return { invoice, loading, error, reload: load, reset };
 }
+
+/** Stats shape returned by `sharpyClient.getInvoiceStats`. */
+export interface InvoiceStats {
+  funded: bigint;
+  total: bigint;
+  paymentCount: number;
+  uniquePayers: number;
+  completionBps: number;
+}
+
+/**
+ * useInvoiceStats — fetch funding stats for an invoice card or header.
+ * Returns null stats until loaded; errors are swallowed to keep cards resilient.
+ */
+export function useInvoiceStats(invoiceId: number) {
+  const [stats, setStats] = useState<InvoiceStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    sharpyClient
+      .getInvoiceStats(invoiceId)
+      .then((s) => {
+        if (!cancelled) setStats(s);
+      })
+      .catch(() => {
+        if (!cancelled) setStats(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [invoiceId]);
+
+  return { stats, loading };
+}
+}

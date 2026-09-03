@@ -26,6 +26,7 @@ interface Props {
 /**
  * CctpStatusBanner — shown on /invoice/[id] when a cross-chain CCTP inbound transfer
  * has been completed for this invoice. Records are stored in localStorage keyed by invoiceId.
+ * Pending transfers poll the Circle Iris attestation API every 8s until complete.
  *
  * Storage key: `cctp_completions_${invoiceId}`
  * Value: JSON array of CctpInboundRecord

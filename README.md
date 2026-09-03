@@ -114,7 +114,7 @@ graph TD
 - Share button with Twitter/Email integration
 
 ### UX
-- Dashboard with search, filter by status, and Created/Paid tabs
+- Dashboard with search, filter by status, pagination, and Created/Paid tabs
 - Dark/light mode with system preference detection
 - Fully responsive — mobile-first layouts
 - Skeleton loading states on all async pages

@@ -21,6 +21,7 @@ import FreezeControls from "../../../components/FreezeControls";
 import InvoiceNotes from "../../../components/InvoiceNotes";
 import RecurringNav from "../../../components/RecurringNav";
 import StreamingControl from "../../../components/StreamingControl";
+import ErrorBoundary from "../../../components/ErrorBoundary";
 import { VersionBadge } from "../../../components/ContractInfo";
 import SharpyButton from "../../../components/SharpyButton";
 
@@ -234,7 +235,9 @@ export default function InvoicePage() {
           <RecurringNav invoiceId={invoiceId} />
 
           {/* Payment streaming (details-tab card, no tab change) */}
-          <StreamingControl invoiceId={invoiceId} />
+          <ErrorBoundary>
+            <StreamingControl invoiceId={invoiceId} />
+          </ErrorBoundary>
 
           {/* Invoice notes */}
           <InvoiceNotes invoiceId={invoiceId} isCreator={publicKey === invoice.creator} />

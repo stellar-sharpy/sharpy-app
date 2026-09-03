@@ -145,7 +145,7 @@ graph TD
 | Route | Type | Description |
 |-------|------|-------------|
 | `/` | Static | Landing page with feature highlights and CTAs |
-| `/dashboard` | Client | Wallet-gated invoice list with search and filter |
+| `/dashboard` | Client | Wallet-gated invoice list with search, filter, and pagination |
 | `/invoice/new` | Client | Create invoice — single, escrow, or recurring |
 | `/invoice/[id]` | Dynamic | Invoice detail, funding progress, pay button, QR code, streaming card |
 | `/invoice/[id]/escrow` | Dynamic | Escrow release and dispute management |

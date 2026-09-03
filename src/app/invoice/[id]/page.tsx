@@ -21,6 +21,7 @@ import FreezeControls from "../../../components/FreezeControls";
 import InvoiceNotes from "../../../components/InvoiceNotes";
 import RecurringNav from "../../../components/RecurringNav";
 import StreamingControl from "../../../components/StreamingControl";
+import ErrorBoundary from "../../../components/ErrorBoundary";
 import { VersionBadge } from "../../../components/ContractInfo";
 import SharpyButton from "../../../components/SharpyButton";
 
@@ -107,11 +108,12 @@ export default function InvoicePage() {
   };
 
   if (loading) return (
-    <div className="max-w-2xl mx-auto space-y-4 animate-stagger">
-      {[...Array(4)].map((_, i) => <div key={i} className="card h-20 animate-pulse" />)}
+    <div className="max-w-2xl mx-auto space-y-4 animate-stagger" role="status" aria-label="Loading invoice" aria-live="polite">
+      {[...Array(4)].map((_, i) => <div key={i} className="card h-20 animate-pulse" aria-hidden="true" />)}
+      <span className="sr-only">Loading invoice…</span>
     </div>
   );
-  if (!invoice) return <p className="text-red-400">{error || "Invoice not found."}</p>;
+  if (!invoice) return <p className="text-red-400" role="alert">{error || "Invoice not found."}</p>;
 
   const total = invoice.amounts.reduce((a, b) => a + b, 0n);
   const pct = fundingPercent(invoice.funded, invoice.amounts);
@@ -233,7 +235,9 @@ export default function InvoicePage() {
           <RecurringNav invoiceId={invoiceId} />
 
           {/* Payment streaming (details-tab card, no tab change) */}
-          <StreamingControl invoiceId={invoiceId} />
+          <ErrorBoundary>
+            <StreamingControl invoiceId={invoiceId} />
+          </ErrorBoundary>
 
           {/* Invoice notes */}
           <InvoiceNotes invoiceId={invoiceId} isCreator={publicKey === invoice.creator} />

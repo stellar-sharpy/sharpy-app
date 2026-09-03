@@ -1,27 +1,21 @@
 "use client";
-import { useState } from "react";
 
 interface LoadingSkeletonProps {
-  value?: any;
-  onChange?: (value: any) => void;
+  rows?: number;
+  className?: string;
 }
 
 /**
- * LoadingSkeleton - add loading skeleton component
- * Auto-generated component with basic structure
+ * LoadingSkeleton — accessible pulse placeholder for async cards.
+ * Renders `rows` pulsing bars inside a live region.
  */
-export default function LoadingSkeleton({ value, onChange }: LoadingSkeletonProps) {
-  const [state, setState] = useState(value);
-
-  const handleChange = (newValue: any) => {
-    setState(newValue);
-    onChange?.(newValue);
-  };
-
+export default function LoadingSkeleton({ rows = 3, className = "" }: LoadingSkeletonProps) {
   return (
-    <div className="component-LoadingSkeleton" style={{ padding: "1rem" }}>
-      <p style={{ color: "var(--text)" }}>LoadingSkeleton Component</p>
-      {/* Component implementation */}
+    <div className={`space-y-3 ${className}`} role="status" aria-label="Loading content" aria-live="polite">
+      {[...Array(rows)].map((_, i) => (
+        <div key={i} className="card h-16 animate-pulse" aria-hidden="true" />
+      ))}
+      <span className="sr-only">Loading…</span>
     </div>
   );
 }

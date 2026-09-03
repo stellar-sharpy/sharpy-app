@@ -92,7 +92,7 @@ export default function InvoiceSearchFilter({
   const update = (patch: Partial<FilterState>) => onChange({ ...filters, ...patch });
 
   return (
-    <div className="card p-4 space-y-3">
+    <div className="card p-4 space-y-3 hover:border-[var(--border-hover)] transition-colors">
       {/* Primary search row */}
       <div className="flex gap-2">
         <div className="relative flex-1">

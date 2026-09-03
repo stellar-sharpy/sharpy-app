@@ -35,5 +35,11 @@ export function useInvoice(invoiceId: number) {
     void load();
   }, [load]);
 
-  return { invoice, loading, error, reload: load };
+  const reset = useCallback(() => {
+    setInvoice(null);
+    setError("");
+    setLoading(false);
+  }, []);
+
+  return { invoice, loading, error, reload: load, reset };
 }

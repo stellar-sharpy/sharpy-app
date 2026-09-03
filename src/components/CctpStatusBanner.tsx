@@ -158,8 +158,9 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
         </div>
         <button
           onClick={() => { setDismissed(true); clear(); pending.forEach((p) => clearPending(p.evmTxHash)); }}
-          className="text-xs px-2 py-1 rounded-lg transition-colors"
+          className="text-xs px-2 py-1 rounded-lg transition-colors hover:opacity-80"
           style={{ color: "var(--muted)", background: "var(--surface-2)" }}
+          aria-label="Dismiss cross-chain status banner"
         >
           Dismiss
         </button>

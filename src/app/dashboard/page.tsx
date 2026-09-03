@@ -252,6 +252,13 @@ export default function Dashboard() {
 
   const filtered = useInvoiceFilters(activeInvoices, filters);
 
+  // Reset to first page whenever filters or tab change.
+  useEffect(() => { setPage(0); }, [filters, tab]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
   if (!publicKey) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-4">

@@ -83,6 +83,7 @@ graph TD
 - Split rules display — visual breakdown of Fixed / Percentage / Tiered rules
 - Recurring invoice timeline — vertical chain visualization of subscription history
 - Invoice stats tab — completion ring, payer count, payment history bar chart
+- Payment streaming card — configure rate/day schedule on invoice details (beta, local preview)
 
 ### Payments
 - Pay toward any invoice with Freighter wallet

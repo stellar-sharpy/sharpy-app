@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useToast } from "./Toast";
 
 /**
  * StreamingControl — card section for invoice payment streaming.
@@ -16,8 +17,10 @@ interface StreamConfig {
 const DEFAULT_CONFIG: StreamConfig = { ratePerDay: "", durationDays: "30", recipient: "" };
 
 export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
+  const { toast } = useToast();
   const [config, setConfig] = useState<StreamConfig>(DEFAULT_CONFIG);
   const [saved, setSaved] = useState<StreamConfig | null>(null);
+  const [busy, setBusy] = useState<"create" | "withdraw" | "cancel" | "topup" | null>(null);
 
   useEffect(() => {
     try {
@@ -27,6 +30,55 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
       /* ignore */
     }
   }, [invoiceId]);
+
+  const persist = (next: StreamConfig) => {
+    setSaved(next);
+    try {
+      localStorage.setItem(`streaming_config_${invoiceId}`, JSON.stringify(next));
+    } catch {
+      /* storage unavailable */
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!config.ratePerDay || !config.durationDays) {
+      toast("Enter a rate and duration first", "error");
+      return;
+    }
+    setBusy("create");
+    await new Promise((r) => setTimeout(r, 400));
+    persist(config);
+    toast("Streaming schedule saved", "success");
+    setBusy(null);
+  };
+
+  const handleWithdraw = async () => {
+    setBusy("withdraw");
+    await new Promise((r) => setTimeout(r, 400));
+    toast("Withdrawable amount claimed (preview)", "success");
+    setBusy(null);
+  };
+
+  const handleCancel = async () => {
+    setBusy("cancel");
+    await new Promise((r) => setTimeout(r, 400));
+    try {
+      localStorage.removeItem(`streaming_config_${invoiceId}`);
+    } catch {
+      /* ignore */
+    }
+    setSaved(null);
+    setConfig(DEFAULT_CONFIG);
+    toast("Streaming schedule cancelled", "info");
+    setBusy(null);
+  };
+
+  const handleTopUp = async () => {
+    setBusy("topup");
+    await new Promise((r) => setTimeout(r, 400));
+    toast("Top-up recorded (preview)", "success");
+    setBusy(null);
+  };
   return (
     <div className="card p-5 space-y-3" aria-label={`Payment streaming for invoice ${invoiceId}`}>
       <div className="flex items-center gap-2">
@@ -86,6 +138,20 @@ export default function StreamingControl({ invoiceId }: { invoiceId: number }) {
           Saved: {saved.ratePerDay || "—"}/day × {saved.durationDays}d
         </p>
       )}
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <button onClick={handleCreate} disabled={busy !== null} className="btn-primary text-xs py-2 disabled:opacity-50" aria-label="Create stream">
+          {busy === "create" ? "Saving…" : "Create stream"}
+        </button>
+        <button onClick={handleTopUp} disabled={busy !== null || !saved} className="text-xs py-2 rounded-lg border disabled:opacity-50" style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }} aria-label="Top up stream">
+          {busy === "topup" ? "Topping up…" : "Top up"}
+        </button>
+        <button onClick={handleWithdraw} disabled={busy !== null || !saved} className="text-xs py-2 rounded-lg border disabled:opacity-50" style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }} aria-label="Withdraw from stream">
+          {busy === "withdraw" ? "Withdrawing…" : "Withdraw"}
+        </button>
+        <button onClick={handleCancel} disabled={busy !== null || !saved} className="text-xs py-2 rounded-lg border disabled:opacity-50" style={{ borderColor: "rgba(239,68,68,0.25)", color: "#EF4444", background: "rgba(239,68,68,0.08)" }} aria-label="Cancel stream">
+          {busy === "cancel" ? "Cancelling…" : "Cancel"}
+        </button>
+      </div>
     </div>
   );
 }

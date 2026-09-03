@@ -19,7 +19,7 @@ Next.js 14 frontend dApp for **Sharpy** — advanced on-chain split payment on S
 
 **[Demo Video](https://www.loom.com/share/09aa4a78e0c944dcab866a7036fde24d)**
 
-###  Live Testnet Transactions
+### Live Testnet Transactions
 
 See Sharpy in action with real on-chain transactions:
 
@@ -33,7 +33,7 @@ See Sharpy in action with real on-chain transactions:
 
 ###  Recommended Wallet for Testing
 **Freighter** — Browser-based, instant signing, no phone required.  
- [Freighter Setup Guide](./FREIGHTER_SETUP.md) | 🧪 [Testing Guide](./TESTING.md)
+ [Freighter Setup Guide](./FREIGHTER_SETUP.md) | [Testing Guide](./TESTING.md)
 
 <img width="1047" height="649" alt="image" src="https://github.com/user-attachments/assets/fa30c2c8-3f8c-4ebb-b0f1-373d6dab27eb" />
 
@@ -83,7 +83,7 @@ graph TD
 - Split rules display — visual breakdown of Fixed / Percentage / Tiered rules
 - Recurring invoice timeline — vertical chain visualization of subscription history
 - Invoice stats tab — completion ring, payer count, payment history bar chart
-- Payment streaming card — configure rate/day schedule on invoice details (beta, local preview)
+- Payment streaming card — create, withdraw, top-up, and cancel cliff-gated vesting schedules on invoice details
 
 ### Payments
 - Pay toward any invoice with Freighter wallet
@@ -152,8 +152,13 @@ graph TD
 | `/invoice/[id]/recurring` | Dynamic | Recurring invoice chain viewer |
 | `/invoice/[id]/cancel` | Dynamic | Creator cancel and refund |
 | `/verify/[id]` | SSR | Public on-chain verification with fingerprint |
+| `/invoice/batch` | Client | Batch invoice creation (up to 10 in one transaction) |
 | `/pay/[id]` | Client | Public shareable payment page — wallet, x402, and CCTP cross-chain |
+| `/pool-pay` | Client | Pay multiple invoices in one call |
+| `/claim` | Client | Withdraw claimable fallback balances |
+| `/widget/[id]` | Static | Embeddable payment widget |
 | `/api/x402/[id]` | API | x402 HTTP endpoint (GET: requirements, POST: settle) |
+| `/api/og/[id]` | API | Open Graph image for invoice share cards |
 
 ---
 
@@ -181,7 +186,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```bash
 NEXT_PUBLIC_STELLAR_NETWORK=testnet
-NEXT_PUBLIC_CONTRACT_ID=CAYTIFPD6RFWVHMK5SPPUUIWWAAANHKOJB6GOAJS5SR5MBKZMEY2UODZ
+NEXT_PUBLIC_CONTRACT_ID=CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T
 NEXT_PUBLIC_RPC_URL=https://soroban-testnet.stellar.org
 NEXT_PUBLIC_USDC_CONTRACT_ID=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA
 ```
@@ -227,19 +232,27 @@ sharpy-app/
 │   │   ├── dashboard/
 │   │   ├── invoice/
 │   │   │   ├── new/
+│   │   │   ├── batch/
 │   │   │   └── [id]/
 │   │   │       ├── page.tsx
 │   │   │       ├── escrow/
 │   │   │       ├── recurring/
 │   │   │       └── cancel/
 │   │   ├── pay/[id]/           # Public shareable payment page
+│   │   ├── pool-pay/           # Pay multiple invoices in one call
+│   │   ├── claim/              # Withdraw claimable balances
+│   │   ├── widget/[id]/        # Embeddable payment widget
 │   │   ├── verify/[id]/        # SSR public verification
-│   │   └── api/x402/[id]/      # x402 HTTP payment endpoint
+│   │   └── api/
+│   │       ├── x402/[id]/      # x402 HTTP payment endpoint
+│   │       └── og/[id]/        # Open Graph share images
 │   ├── components/
 │   │   ├── Navbar.tsx          # Sticky navbar with theme toggle
 │   │   ├── WalletProvider.tsx  # Freighter wallet context
 │   │   ├── Providers.tsx       # ThemeProvider + WalletProvider
 │   │   ├── TokenSelector.tsx   # Multi-token dropdown
+│   │   ├── StreamingControl.tsx # Streaming schedule card
+│   │   ├── CctpStatusBanner.tsx # Cross-chain payment status
 │   │   └── CopyButton.tsx      # Copy to clipboard
 │   └── lib/
 │       ├── client.ts           # SDK client setup from env vars
@@ -261,7 +274,7 @@ sharpy-app/
 
 | stellar-sdk | Protocol | Status | Features |
 |-------------|----------|--------|---------|
-| 16.0.1 | 27 | ✅ Current | CAP-71 auth delegation ready |
+| 16.0.1 | 27 | Current | CAP-71 auth delegation ready |
 
 ### Protocol 25/26 Integration
 
@@ -292,17 +305,3 @@ See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.
 ## License
 
 [MIT](LICENSE)
-
-- `feat/app-tags` — feat(app): invoice tags editor
-
-- `feat/app-memo-ext` — feat(app): memo ext display
-
-- `feat/app-batch-refund` — feat(app): batch refund UI
-
-- `feat/app-extend-deadline` — feat(app): extend deadline control
-- feat/app-metadata — feat(app): invoice metadata editor
-- feat/app-discount — discount editor
-- feat/app-recurring-pause
-- template
-- approval
-- archival

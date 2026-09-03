@@ -274,9 +274,9 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
-          <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)}</p>
+          <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)} · {createdInvoices.length} created{paidLoaded ? ` · ${paidInvoices.length} paid` : ""}</p>
         </div>
-        <Link href="/invoice/new" className="btn-primary text-sm">+ New Invoice</Link>
+        <Link href="/invoice/new" className="btn-primary text-sm" aria-label="Create new invoice">+ New Invoice</Link>
       </div>
 
       <div className="flex justify-end mb-2">

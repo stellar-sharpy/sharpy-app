@@ -57,5 +57,16 @@ export function useStreaming(invoiceId: number) {
     }
   }, [invoiceId]);
 
-  return { schedule, funded, refresh };
+  const clear = useCallback(() => {
+    try {
+      localStorage.removeItem(keyFor(invoiceId));
+    } catch {
+      /* ignore */
+    }
+    setSchedule(null);
+  }, [invoiceId]);
+
+  const hasActiveSchedule = schedule !== null;
+
+  return { schedule, funded, refresh, clear, hasActiveSchedule };
 }

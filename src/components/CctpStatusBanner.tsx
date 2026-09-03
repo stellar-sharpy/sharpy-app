@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { explorerUrl } from "../lib/utils";
-import { sharpyClient } from "../lib/client";
 
 interface CctpInboundRecord {
   sourceChain: string;
@@ -12,6 +11,8 @@ interface CctpInboundRecord {
 }
 
 const CHAIN_LABELS: Record<number, string> = { 0: "Ethereum", 3: "Arbitrum", 6: "Base" };
+// Supported source chains for the cross-chain pay tab copy (mirrors CHAIN_LABELS values).
+export const SUPPORTED_CHAINS: readonly string[] = Object.values(CHAIN_LABELS);
 const EVM_EXPLORER: Record<number, string> = {
   0: "https://etherscan.io/tx/",
   3: "https://arbiscan.io/tx/",
@@ -26,6 +27,7 @@ interface Props {
 /**
  * CctpStatusBanner — shown on /invoice/[id] when a cross-chain CCTP inbound transfer
  * has been completed for this invoice. Records are stored in localStorage keyed by invoiceId.
+ * Pending transfers poll the Circle Iris attestation API every 8s until complete.
  *
  * Storage key: `cctp_completions_${invoiceId}`
  * Value: JSON array of CctpInboundRecord
@@ -74,8 +76,10 @@ function useCctpPending(invoiceId: number) {
     try { return JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { return []; }
   };
   const [pending, setPending] = useState<PendingRecord[]>([]);
+  const [pollError, setPollError] = useState("");
   useEffect(() => { setPending(read()); }, [invoiceId]);
-  // Poll attestation for pending entries every 8s — auto-clear when attested
+  // Poll attestation for pending entries every 8s — auto-clear when attested.
+  // Failures are swallowed per-entry; pollError surfaces only repeated outages.
   useEffect(() => {
     if (pending.length === 0) return;
     const iv = setInterval(async () => {
@@ -102,7 +106,7 @@ function useCctpPending(invoiceId: number) {
     localStorage.setItem(key, JSON.stringify(next));
     setPending(next);
   };
-  return { pending, clearPending, refresh: () => setPending(read()) };
+  return { pending, pollError, clearPending, refresh: () => setPending(read()) };
 }
 
 export function addPendingCctp(invoiceId: number, rec: PendingRecord) {
@@ -116,7 +120,7 @@ export function addPendingCctp(invoiceId: number, rec: PendingRecord) {
 
 export default function CctpStatusBanner({ invoiceId, network }: Props) {
   const { records, clear } = useCctpCompletions(invoiceId);
-  const { pending, clearPending } = useCctpPending(invoiceId);
+  const { pending, pollError, clearPending } = useCctpPending(invoiceId);
   const [dismissed, setDismissed] = useState(false);
 
   const hasContent = records.length > 0 || pending.length > 0;
@@ -126,6 +130,9 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-label={isPendingOnly ? "Pending cross-chain payment" : "Cross-chain payments received"}
       className="rounded-xl p-4 space-y-3"
       style={{
         background: isPendingOnly ? "rgba(59,130,246,0.07)" : "rgba(0,212,170,0.07)",
@@ -147,18 +154,21 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {isPendingOnly ? "Pending cross-chain payment" : `Cross-chain payment${records.length > 1 ? "s" : ""} received`}
           </p>
+          {/* Supported: Ethereum · Arbitrum · Base */}
           {isPendingOnly && <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 animate-pulse">awaiting attestation</span>}
         </div>
         <button
           onClick={() => { setDismissed(true); clear(); pending.forEach((p) => clearPending(p.evmTxHash)); }}
-          className="text-xs px-2 py-1 rounded-lg transition-colors"
+          className="text-xs px-2 py-1 rounded-lg transition-colors hover:opacity-80"
           style={{ color: "var(--muted)", background: "var(--surface-2)" }}
+          aria-label="Dismiss cross-chain status banner"
         >
           Dismiss
         </button>
       </div>
 
       {/* Pending */}
+      {pollError && <p className="text-xs text-red-400" role="alert">{pollError}</p>}
       {pending.length > 0 && (
         <div className="space-y-2">
           {pending.map((p) => (
@@ -168,7 +178,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>{p.sourceChain}</span>
                   <span className="text-xs mono truncate max-w-[160px]" style={{ color: "var(--muted)" }}>{p.evmTxHash.slice(0, 10)}…{p.evmTxHash.slice(-6)}</span>
                 </div>
-                <p className="text-xs" style={{ color: "var(--muted)" }}>Started {new Date(p.startedAt * 1000).toLocaleTimeString()} • polling Circle attestation…</p>
+                <p className="text-xs" style={{ color: "var(--muted)" }}>Started {new Date(p.startedAt * 1000).toLocaleTimeString()} • polling Circle attestation every 8s…</p>
               </div>
               <button onClick={() => clearPending(p.evmTxHash)} className="text-xs text-blue-500 hover:underline shrink-0">Cancel</button>
             </div>
@@ -203,6 +213,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
                   href={`${EVM_EXPLORER[getDomainFromChain(r.sourceChain)] ?? "https://etherscan.io/tx/"}${r.evmTxHash}`}
                   target="_blank"
                   rel="noreferrer"
+                  title={`View ${r.sourceChain} transaction ${r.evmTxHash}`}
                   className="mono text-xs underline truncate max-w-[200px]"
                   style={{ color: "var(--text-secondary)" }}
                 >

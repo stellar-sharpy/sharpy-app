@@ -285,13 +285,15 @@ export default function Dashboard() {
       <div className="mb-6"><ContractInfo /></div>
 
       {/* Tabs: Created / Paid */}
-      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }}>
+      <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }} role="tablist" aria-label="Invoice lists">
         {(["Created", "Paid"] as DashboardTab[]).map((t) => {
           const count = t === "Created" ? createdInvoices.length : paidInvoices.length;
           return (
             <button
               key={t}
               onClick={() => setTab(t)}
+              role="tab"
+              aria-selected={tab === t}
               className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
                 background: tab === t ? "var(--surface)" : "transparent",

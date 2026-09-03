@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const id = params.id;
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sharpy.example.com";
   const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL ?? "https://soroban-testnet.stellar.org";
-  const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID ?? "CCMN5OYWBWVVRIB3IDE2CCODM3CMGSMYQ7EV2UVBJ23DVIH2CL6FJRXP";
+  const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID ?? "CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T";
 
   // Try to fetch invoice for rich preview; fall back gracefully
   let title = `Pay Invoice #${id} — Sharpy`;

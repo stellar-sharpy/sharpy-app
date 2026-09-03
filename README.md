@@ -147,7 +147,7 @@ graph TD
 | `/` | Static | Landing page with feature highlights and CTAs |
 | `/dashboard` | Client | Wallet-gated invoice list with search and filter |
 | `/invoice/new` | Client | Create invoice — single, escrow, or recurring |
-| `/invoice/[id]` | Dynamic | Invoice detail, funding progress, pay button, QR code |
+| `/invoice/[id]` | Dynamic | Invoice detail, funding progress, pay button, QR code, streaming card |
 | `/invoice/[id]/escrow` | Dynamic | Escrow release and dispute management |
 | `/invoice/[id]/recurring` | Dynamic | Recurring invoice chain viewer |
 | `/invoice/[id]/cancel` | Dynamic | Creator cancel and refund |

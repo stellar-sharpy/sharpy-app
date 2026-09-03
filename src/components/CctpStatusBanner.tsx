@@ -129,6 +129,9 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-label={isPendingOnly ? "Pending cross-chain payment" : "Cross-chain payments received"}
       className="rounded-xl p-4 space-y-3"
       style={{
         background: isPendingOnly ? "rgba(59,130,246,0.07)" : "rgba(0,212,170,0.07)",

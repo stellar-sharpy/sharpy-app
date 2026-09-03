@@ -150,6 +150,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
           <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {isPendingOnly ? "Pending cross-chain payment" : `Cross-chain payment${records.length > 1 ? "s" : ""} received`}
           </p>
+          {/* Supported: Ethereum · Arbitrum · Base */}
           {isPendingOnly && <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 animate-pulse">awaiting attestation</span>}
         </div>
         <button

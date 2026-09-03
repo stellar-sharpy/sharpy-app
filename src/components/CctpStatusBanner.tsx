@@ -107,7 +107,7 @@ function useCctpPending(invoiceId: number) {
     localStorage.setItem(key, JSON.stringify(next));
     setPending(next);
   };
-  return { pending, clearPending, refresh: () => setPending(read()) };
+  return { pending, pollError, clearPending, refresh: () => setPending(read()) };
 }
 
 export function addPendingCctp(invoiceId: number, rec: PendingRecord) {
@@ -121,7 +121,7 @@ export function addPendingCctp(invoiceId: number, rec: PendingRecord) {
 
 export default function CctpStatusBanner({ invoiceId, network }: Props) {
   const { records, clear } = useCctpCompletions(invoiceId);
-  const { pending, clearPending } = useCctpPending(invoiceId);
+  const { pending, pollError, clearPending } = useCctpPending(invoiceId);
   const [dismissed, setDismissed] = useState(false);
 
   const hasContent = records.length > 0 || pending.length > 0;
@@ -169,6 +169,7 @@ export default function CctpStatusBanner({ invoiceId, network }: Props) {
       </div>
 
       {/* Pending */}
+      {pollError && <p className="text-xs text-red-400" role="alert">{pollError}</p>}
       {pending.length > 0 && (
         <div className="space-y-2">
           {pending.map((p) => (

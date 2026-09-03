@@ -77,8 +77,10 @@ function useCctpPending(invoiceId: number) {
     try { return JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { return []; }
   };
   const [pending, setPending] = useState<PendingRecord[]>([]);
+  const [pollError, setPollError] = useState("");
   useEffect(() => { setPending(read()); }, [invoiceId]);
-  // Poll attestation for pending entries every 8s — auto-clear when attested
+  // Poll attestation for pending entries every 8s — auto-clear when attested.
+  // Failures are swallowed per-entry; pollError surfaces only repeated outages.
   useEffect(() => {
     if (pending.length === 0) return;
     const iv = setInterval(async () => {

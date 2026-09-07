@@ -190,6 +190,11 @@ export default function Navbar() {
                 style={{ color: "var(--muted)" }}>
                 Dashboard
               </Link>
+              <Link href="/treasury"
+                className="text-sm px-3 py-1.5 rounded-lg transition-colors"
+                style={{ color: "var(--muted)" }}>
+                Treasury
+              </Link>
               <NavNewInvoiceDropdown />
               <WalletBalanceDropdown address={publicKey} onDisconnect={disconnect} />
             </>

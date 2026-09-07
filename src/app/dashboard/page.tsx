@@ -280,7 +280,8 @@ export default function Dashboard() {
         <Link href="/invoice/new" className="btn-primary text-sm" aria-label="Create new invoice">+ New Invoice</Link>
       </div>
 
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-end mb-2 gap-2">
+        <Link href="/treasury" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Treasury → protocol funds</Link>
         <Link href="/pool-pay" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Pool Pay → pay many in one tx</Link>
       </div>
       <div className="mb-6"><ContractInfo /></div>

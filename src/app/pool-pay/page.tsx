@@ -60,14 +60,16 @@ export default function PoolPayPage() {
             <div key={r.id} className="flex gap-2 items-end">
               <div className="flex-1">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Invoice #{i + 1} ID</label>
-                <input value={r.invoiceId} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" className="input mt-1 text-sm" />
+                <input value={r.invoiceId} disabled={paying || !!txHash} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} ID`} />
               </div>
               <div className="flex-1">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Amount (USDC)</label>
-                <input value={r.amount} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" className="input mt-1 text-sm" />
+                <input value={r.amount} disabled={paying || !!txHash} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} amount in USDC`} />
               </div>
-              {rows.length > 1 && (
-                <button onClick={() => remove(r.id)} className="mb-1 text-xs px-2 py-1 rounded-lg border text-red-400" style={{ borderColor: "rgba(239,68,68,0.25)" }}>✕</button>
+              {txHash ? (
+                <span className="mb-2 text-emerald-400 text-sm" role="img" aria-label={`Invoice ${r.invoiceId} paid`}>✓</span>
+              ) : rows.length > 1 && (
+                <button onClick={() => remove(r.id)} disabled={paying} className="mb-1 text-xs px-2 py-1 rounded-lg border text-red-400 disabled:opacity-50" style={{ borderColor: "rgba(239,68,68,0.25)" }} aria-label={`Remove invoice row ${i + 1}`}>✕</button>
               )}
             </div>
           ))}

@@ -22,15 +22,19 @@ export default function PoolPayPage() {
   const handlePay = async () => {
     if (!publicKey || !signerReady) return;
     setError("");
-    const payments = rows.map((r) => {
-      const iid = Number(r.invoiceId);
-      if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
-      if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
-      return { invoiceId: iid, amount: parseAmount(r.amount) };
-    });
-    if (payments.length === 0) throw new Error("Add at least one payment");
-    setPaying(true);
+    setTxHash("");
     try {
+      const filled = rows.filter((r) => r.invoiceId.trim() !== "" || r.amount.trim() !== "");
+      const skipped = rows.length - filled.length;
+      const payments = filled.map((r) => {
+        const iid = Number(r.invoiceId);
+        if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
+        if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
+        return { invoiceId: iid, amount: parseAmount(r.amount) };
+      });
+      if (payments.length === 0) throw new Error("Add at least one payment");
+      if (skipped > 0) setRows(filled);
+      setPaying(true);
       const { txHash: h } = await sharpyClient.poolPay(publicKey, payments);
       setTxHash(h);
     } catch (e: any) { setError(e.message ?? "pool_pay failed"); }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { sharpyClient, NETWORK, CONTRACT_ID } from "../../lib/client";
 import { truncateAddress } from "../../lib/utils";
 import { CopyButton } from "../../components/CopyButton";
+import ContractInfo from "../../components/ContractInfo";
 
 export default function TreasuryPage() {
   const [treasury, setTreasury] = useState<string | null>(null);
@@ -29,6 +30,8 @@ export default function TreasuryPage() {
         <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Treasury</h1>
         <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Protocol treasury for contract <span className="mono">{truncateAddress(CONTRACT_ID)}</span> on {NETWORK}.</p>
       </div>
+
+      <ContractInfo />
 
       <div className="card p-4 space-y-2">
         <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Treasury address</p>

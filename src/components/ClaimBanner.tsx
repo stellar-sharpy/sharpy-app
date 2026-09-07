@@ -38,7 +38,7 @@ export default function ClaimBanner({ address }: { address: string }) {
   const total = entries.reduce((a, b) => a + b.balance, 0n);
 
   return (
-    <div className="card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: "rgba(0,212,170,0.35)" }}>
+    <div className="card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: "rgba(0,212,170,0.35)" }} role="status" aria-label={`${formatAmount(total)} claimable across ${entries.length} tokens`}>
       <div>
         <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
           {formatAmount(total)} claimable

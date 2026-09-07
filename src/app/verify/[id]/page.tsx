@@ -21,7 +21,7 @@ export default async function VerifyPage({ params }: { params: { id: string } })
   if (error || !invoice) {
     return (
       <div className="max-w-lg mx-auto text-center py-32">
-        <p className="text-red-400">{error || "Invoice not found."}</p>
+        <p className="text-red-400" role="alert">{error || "Invoice not found."}</p>
       </div>
     );
   }

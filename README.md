@@ -294,6 +294,15 @@ sharpy-app/
 
 ---
 
+## Release Notes — 0.3.0
+
+- Version 0.3.0 release polish: footer version badge, layout metadata, landing network stat, and protocol badge sync.
+- Features in this release: recurring invoices, escrow protection, batch operations, payment streaming card, x402 agentic payments, CCTP cross-chain USDC bridging, and public on-chain verification.
+- Testnet contract: `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` (`CAEWQX36…`).
+- App routes: 16 routes — see Pages & Routes table above. `npm run build` green.
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Always test with Freighter connected to testnet before opening a PR.

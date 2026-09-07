@@ -90,7 +90,15 @@ export default function PoolPayPage() {
                 <span className="mono" style={{ color: "var(--muted)" }}>{txHash.slice(0, 12)}…</span>
                 <CopyButton value={txHash} label="transaction hash" />
                 <a href={explorerUrl(NETWORK, txHash, "tx")} target="_blank" rel="noreferrer" className="text-[#6C63FF] hover:underline">Explorer</a>
-                <Link href="/dashboard" className="underline ml-auto">Dashboard</Link>
+                <button
+                  onClick={() => { setRows([{ id: "1", invoiceId: "", amount: "" }]); setTxHash(""); setError(""); }}
+                  className="underline ml-auto"
+                  style={{ color: "var(--muted)" }}
+                  aria-label="Start a new batch"
+                >
+                  New batch
+                </button>
+                <Link href="/dashboard" className="underline">Dashboard</Link>
               </div>
             </div>
           ) : (

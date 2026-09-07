@@ -1,6 +1,6 @@
 export default function VerifyLoading() {
   return (
-    <div className="max-w-lg mx-auto space-y-5 animate-pulse">
+    <div className="max-w-lg mx-auto space-y-5 animate-pulse" role="status" aria-label="Loading verification">
       <div className="text-center space-y-3">
         <div className="h-3 w-32 mx-auto rounded bg-[#1E2028]" />
         <div className="h-8 w-48 mx-auto rounded bg-[#1E2028]" />

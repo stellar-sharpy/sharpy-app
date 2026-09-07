@@ -156,6 +156,7 @@ graph TD
 | `/pay/[id]` | Client | Public shareable payment page — wallet, x402, and CCTP cross-chain |
 | `/pool-pay` | Client | Pay multiple invoices in one call |
 | `/claim` | Client | Withdraw claimable fallback balances |
+| `/treasury` | Client | Protocol treasury address, funding explainer, explorer link |
 | `/widget/[id]` | Static | Embeddable payment widget |
 | `/api/x402/[id]` | API | x402 HTTP endpoint (GET: requirements, POST: settle) |
 | `/api/og/[id]` | API | Open Graph image for invoice share cards |
@@ -241,6 +242,7 @@ sharpy-app/
 │   │   ├── pay/[id]/           # Public shareable payment page
 │   │   ├── pool-pay/           # Pay multiple invoices in one call
 │   │   ├── claim/              # Withdraw claimable balances
+│   │   ├── treasury/           # Protocol treasury viewer
 │   │   ├── widget/[id]/        # Embeddable payment widget
 │   │   ├── verify/[id]/        # SSR public verification
 │   │   └── api/
@@ -305,7 +307,7 @@ sharpy-app/
 
 ## Release Verification — 0.3.0 Smoke Results
 
-- `npm run build` green — 16 routes (`/`, `/_not-found`, `/api/og/[id]`, `/api/x402/[id]`, `/claim`, `/dashboard`, `/invoice/[id]`, `/invoice/[id]/cancel`, `/invoice/[id]/escrow`, `/invoice/[id]/recurring`, `/invoice/batch`, `/invoice/new`, `/pay/[id]`, `/pool-pay`, `/verify/[id]`, `/widget/[id]`).
+- `npm run build` green — 17 routes (`/`, `/_not-found`, `/api/og/[id]`, `/api/x402/[id]`, `/claim`, `/dashboard`, `/invoice/[id]`, `/invoice/[id]/cancel`, `/invoice/[id]/escrow`, `/invoice/[id]/recurring`, `/invoice/batch`, `/invoice/new`, `/pay/[id]`, `/pool-pay`, `/treasury`, `/verify/[id]`, `/widget/[id]`).
 - Live `https://sharpy-sigma.vercel.app` HTTP 200 for `/`, `/dashboard`, `/verify/1`. `/verify/1` renders Invoice #1 (10 USDC, Pending).
 - On-chain reads via `stellar contract invoke` on `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` (testnet, `--source alice`): `get_treasury` returns `GDG52G6HDELQPT4OQOALG5TFEH7WLP7IEE3WH7PEH3XEYNLMOTSTOVCT`; `get_invoice_count` returns `2`; `get_invoice --invoice-id 1` returns Pending, 10000000 stroops (10 USDC), funded 0, version 1.
 - Smoke found zero blocking issues; this PR adds fallback-URL fix and loading/empty-state robustness touches only.

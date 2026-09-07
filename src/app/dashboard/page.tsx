@@ -7,6 +7,7 @@ import { getTokenByAddress } from "../../lib/tokens";
 import { formatAmount, formatDeadline, fundingPercent, truncateAddress } from "../../lib/utils";
 import type { Invoice } from "../../lib/utils";
 import ContractInfo from "../../components/ContractInfo";
+import ClaimBanner from "../../components/ClaimBanner";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import TransactionHistoryExport from "../../components/TransactionHistoryExport";
 import InvoiceSearchFilter, { DEFAULT_FILTERS, useInvoiceFilters, type FilterState } from "../../components/InvoiceSearchFilter";
@@ -285,6 +286,7 @@ export default function Dashboard() {
         <Link href="/pool-pay" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Pool Pay → pay many in one tx</Link>
       </div>
       <div className="mb-6"><ContractInfo /></div>
+      <div className="mb-6"><ClaimBanner address={publicKey} /></div>
 
       {/* Tabs: Created / Paid */}
       <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit" style={{ background: "var(--surface-2)" }} role="tablist" aria-label="Invoice lists">

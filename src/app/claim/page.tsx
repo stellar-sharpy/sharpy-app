@@ -10,6 +10,10 @@ export default function ClaimPage() {
         <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Recover funds from failed recipient transfers.</p>
       </div>
       <ClaimableBalance />
+      <p className="text-xs" style={{ color: "var(--muted)" }}>
+        Balances are credited on-chain when a recipient transfer fails, so funds are never stranded —
+        claim them here at any time.
+      </p>
       <Link href="/dashboard" className="text-xs text-[#6C63FF] hover:underline" aria-label="Back to dashboard">← Back to dashboard</Link>
     </div>
   );

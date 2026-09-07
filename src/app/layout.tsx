@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             aria-label="Site footer"
           >
             <span>Sharpy · Split Payments on Stellar</span>
-            <span className="mono" aria-label="App version">v0.2.0 · testnet</span>
+            <span className="mono" aria-label="App version">v0.3.0 · testnet</span>
           </footer>
         </Providers>
       </body>

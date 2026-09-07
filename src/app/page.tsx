@@ -39,7 +39,7 @@ const features = [
 ];
 
 const STATIC_STATS = [
-  { label: "Network", value: "Stellar" },
+  { label: "Network", value: "Stellar Testnet" },
   { label: "Contract", value: "Soroban" },
   { label: "Protocol", value: "27" },
   { label: "License", value: "MIT" },

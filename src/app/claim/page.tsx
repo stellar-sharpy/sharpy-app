@@ -10,7 +10,7 @@ export default function ClaimPage() {
         <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Recover funds from failed recipient transfers.</p>
       </div>
       <ClaimableBalance />
-      <Link href="/dashboard" className="text-xs text-[#6C63FF] hover:underline">← Back to dashboard</Link>
+      <Link href="/dashboard" className="text-xs text-[#6C63FF] hover:underline" aria-label="Back to dashboard">← Back to dashboard</Link>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const id = params.id;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sharpy.example.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sharpy-sigma.vercel.app";
   const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL ?? "https://soroban-testnet.stellar.org";
   const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID ?? "CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T";
 

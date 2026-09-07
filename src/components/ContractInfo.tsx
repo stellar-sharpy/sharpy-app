@@ -14,7 +14,7 @@ export default function ContractInfo() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="card p-4 animate-pulse h-20" />;
+  if (loading) return <div className="card p-4 animate-pulse h-20" role="status" aria-label="Loading contract info" />;
 
   return (
     <div className="card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">

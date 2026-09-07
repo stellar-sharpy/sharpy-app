@@ -71,7 +71,7 @@ export default function PoolPayPage() {
             </div>
           ))}
           <button onClick={add} className="text-xs text-[#6C63FF] hover:underline">+ Add invoice</button>
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           {txHash ? (
             <div className="rounded-xl p-3 bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400">
               Pool pay confirmed! Tx: {txHash.slice(0,12)}… <Link href="/dashboard" className="underline ml-2">Dashboard</Link>

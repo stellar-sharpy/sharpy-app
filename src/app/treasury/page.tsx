@@ -10,11 +10,17 @@ export default function TreasuryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  function load() {
+    setLoading(true);
+    setError(null);
     sharpyClient.getTreasury()
       .then((t) => { setTreasury(t); setError(null); })
       .catch(() => { setTreasury(null); setError("Could not load the treasury address from the contract."); })
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
   }, []);
 
   return (
@@ -27,7 +33,14 @@ export default function TreasuryPage() {
       <div className="card p-4 space-y-2">
         <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Treasury address</p>
         {loading && <div className="h-6 rounded animate-pulse" role="status" aria-label="Loading treasury address" style={{ background: "var(--surface-2)" }} />}
-        {!loading && error && <p className="text-sm" role="alert" style={{ color: "#E5484D" }}>{error}</p>}
+        {!loading && error && (
+          <div className="space-y-2">
+            <p className="text-sm" role="alert" style={{ color: "#E5484D" }}>{error}</p>
+            <button onClick={load} className="btn-ghost text-xs px-3 py-1.5" aria-label="Retry loading treasury address">
+              Retry
+            </button>
+          </div>
+        )}
         {!loading && !error && treasury && (
           <div className="flex items-center gap-2">
             <p className="mono text-sm break-all" style={{ color: "var(--text)" }}>{treasury}</p>

@@ -2,8 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useWallet } from "../../components/WalletProvider";
-import { sharpyClient } from "../../lib/client";
-import { formatAmount, parseAmount } from "../../lib/utils";
+import { sharpyClient, NETWORK } from "../../lib/client";
+import { formatAmount, parseAmount, explorerUrl } from "../../lib/utils";
+import { CopyButton } from "../../components/CopyButton";
 
 interface Row { id: string; invoiceId: string; amount: string; }
 
@@ -73,8 +74,22 @@ export default function PoolPayPage() {
           <button onClick={add} className="text-xs text-[#6C63FF] hover:underline">+ Add invoice</button>
           {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           {txHash ? (
-            <div className="rounded-xl p-3 bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400">
-              Pool pay confirmed! Tx: {txHash.slice(0,12)}… <Link href="/dashboard" className="underline ml-2">Dashboard</Link>
+            <div className="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20 space-y-3" role="status" aria-label="Pool pay confirmed">
+              <p className="text-sm font-medium text-emerald-400">Pool pay confirmed — {rows.length} invoice{rows.length > 1 ? "s" : ""} in one transaction</p>
+              <ul className="space-y-1">
+                {rows.map((r) => (
+                  <li key={r.id} className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
+                    <span className="mono">Invoice #{r.invoiceId}</span>
+                    <span>{(() => { try { return `${formatAmount(parseAmount(r.amount))} USDC`; } catch { return r.amount; } })()}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="mono" style={{ color: "var(--muted)" }}>{txHash.slice(0, 12)}…</span>
+                <CopyButton value={txHash} label="transaction hash" />
+                <a href={explorerUrl(NETWORK, txHash, "tx")} target="_blank" rel="noreferrer" className="text-[#6C63FF] hover:underline">Explorer</a>
+                <Link href="/dashboard" className="underline ml-auto">Dashboard</Link>
+              </div>
             </div>
           ) : (
             <button onClick={handlePay} disabled={paying} className="btn-primary w-full py-3 disabled:opacity-50">{paying ? "Paying..." : `Pay ${rows.length} invoice${rows.length>1?"s":""} in one tx`}</button>

@@ -33,7 +33,7 @@ export default function ContractInfo() {
           Explorer ↗
         </a>
         <span className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(0,212,170,0.12)", color: "#00D4AA", border: "1px solid rgba(0,212,170,0.25)" }}>
-          Soroban v22
+          Protocol 27
         </span>
       </div>
     </div>

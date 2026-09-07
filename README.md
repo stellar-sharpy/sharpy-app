@@ -303,6 +303,15 @@ sharpy-app/
 
 ---
 
+## Release Verification — 0.3.0 Smoke Results
+
+- `npm run build` green — 16 routes (`/`, `/_not-found`, `/api/og/[id]`, `/api/x402/[id]`, `/claim`, `/dashboard`, `/invoice/[id]`, `/invoice/[id]/cancel`, `/invoice/[id]/escrow`, `/invoice/[id]/recurring`, `/invoice/batch`, `/invoice/new`, `/pay/[id]`, `/pool-pay`, `/verify/[id]`, `/widget/[id]`).
+- Live `https://sharpy-sigma.vercel.app` HTTP 200 for `/`, `/dashboard`, `/verify/1`. `/verify/1` renders Invoice #1 (10 USDC, Pending).
+- On-chain reads via `stellar contract invoke` on `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` (testnet, `--source alice`): `get_treasury` returns `GDG52G6HDELQPT4OQOALG5TFEH7WLP7IEE3WH7PEH3XEYNLMOTSTOVCT`; `get_invoice_count` returns `2`; `get_invoice --invoice-id 1` returns Pending, 10000000 stroops (10 USDC), funded 0, version 1.
+- Smoke found zero blocking issues; this PR adds fallback-URL fix and loading/empty-state robustness touches only.
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Always test with Freighter connected to testnet before opening a PR.

@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 
 export const metadata: Metadata = {
   title: "Sharpy — Split Payments on Stellar",
-  description: "Advanced on-chain split payment protocol with recurring invoices, escrow, streaming previews, and batch operations.",
+  description: "Advanced on-chain split payment protocol with recurring invoices, escrow, streaming previews, batch operations, x402 agentic payments, and CCTP cross-chain bridging.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             aria-label="Site footer"
           >
             <span>Sharpy · Split Payments on Stellar</span>
-            <span className="mono" aria-label="App version">v0.2.0 · testnet</span>
+            <span className="mono" aria-label="App version">v0.3.0 · testnet</span>
           </footer>
         </Providers>
       </body>

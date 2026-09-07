@@ -115,6 +115,7 @@ graph TD
 
 ### UX
 - Dashboard with search, filter by status, pagination, and Created/Paid tabs
+- Claimable-balance banner on the dashboard with per-token breakdown and claim shortcut
 - Dark/light mode with system preference detection
 - Fully responsive — mobile-first layouts
 - Skeleton loading states on all async pages

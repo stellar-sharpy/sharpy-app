@@ -73,7 +73,18 @@ export default function PoolPayPage() {
               )}
             </div>
           ))}
-          <button onClick={add} className="text-xs text-[#6C63FF] hover:underline">+ Add invoice</button>
+          <button onClick={add} disabled={!!txHash} className="text-xs text-[#6C63FF] hover:underline disabled:opacity-50" aria-label="Add another invoice row">+ Add invoice</button>
+          <div className="rounded-xl p-3 space-y-1" style={{ background: "var(--surface-2)" }} aria-label="Batch summary">
+            <div className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
+              <span>Invoices in batch</span>
+              <span className="mono">{rows.length}</span>
+            </div>
+            <div className="flex justify-between text-sm font-medium" style={{ color: "var(--text)" }}>
+              <span>Total</span>
+              <span>{(() => { try { return `${formatAmount(rows.reduce((a, r) => a + (r.amount ? parseAmount(r.amount) : 0n), 0n))} USDC`; } catch { return "—"; } })()}</span>
+            </div>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Settles in a single transaction.</p>
+          </div>
           {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           {txHash ? (
             <div className="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20 space-y-3" role="status" aria-label="Pool pay confirmed">
@@ -103,9 +114,6 @@ export default function PoolPayPage() {
             </div>
           ) : (
             <button onClick={handlePay} disabled={paying} className="btn-primary w-full py-3 disabled:opacity-50">{paying ? "Paying..." : `Pay ${rows.length} invoice${rows.length>1?"s":""} in one tx`}</button>
-          )}
-          {rows.length > 0 && (
-            <p className="text-xs text-center" style={{ color: "var(--muted)" }}>Total amount: {(() => { try { return formatAmount(rows.reduce((a, r) => a + (r.amount ? parseAmount(r.amount) : 0n), 0n)); } catch { return "—"; } })()} USDC</p>
           )}
         </div>
       )}

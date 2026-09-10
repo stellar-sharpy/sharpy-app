@@ -23,7 +23,7 @@ export default function TreasuryPage() {
     setError(null);
     getTreasuryAddress()
       .then((t: string) => { setTreasury(t); setError(null); })
-      .catch(() => { setTreasury(null); setError("Could not load the treasury address from the contract."); })
+      .catch(() => { setTreasury(null); setError(`Could not load the treasury address from the contract on ${NETWORK}. Check your connection and retry.`); })
       .finally(() => setLoading(false));
   }
 

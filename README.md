@@ -32,7 +32,8 @@ See Sharpy in action with real on-chain transactions:
 **Test Account**: [GD4Q2BH6...RS63](https://stellar.expert/explorer/testnet/account/GD4Q2BH6KISIHTZWV5CSUMZC7VUBQAAXPNVSCESTUGH5WEYALMOTRS63)
 
 ###  Recommended Wallet for Testing
-**Freighter** — Browser-based, instant signing, no phone required.  
+**Freighter** — Browser-based, instant signing, no phone required.
+The connect modal also supports xBull, Lobstr, and Albedo.  
  [Freighter Setup Guide](./FREIGHTER_SETUP.md) | [Testing Guide](./TESTING.md)
 
 <img width="1047" height="649" alt="image" src="https://github.com/user-attachments/assets/fa30c2c8-3f8c-4ebb-b0f1-373d6dab27eb" />

@@ -53,16 +53,28 @@ export default function ExportPdfButton({ invoiceId }: Props) {
   };
 
   return (
-    <button
-      onClick={handleExport}
-      disabled={exporting}
-      className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border"
-      style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 1v8m0 0L4 6m3 3l3-3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      {exporting ? "Exporting…" : "Export as Image"}
-    </button>
+    <div className="space-y-2">
+      <button
+        onClick={handleExport}
+        disabled={exporting}
+        aria-label={exporting ? `Exporting invoice ${invoiceId} as image` : `Export invoice ${invoiceId} as image`}
+        aria-busy={exporting}
+        className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors border disabled:opacity-50 w-full"
+        style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M7 1v8m0 0L4 6m3 3l3-3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span role="status">{exporting ? "Exporting…" : "Export as Image"}</span>
+      </button>
+      {error && (
+        <p className="text-xs text-red-400" role="alert">
+          {error}{" "}
+          <button onClick={handleExport} className="underline" aria-label="Retry image export">
+            Retry
+          </button>
+        </p>
+      )}
+    </div>
   );
 }

@@ -40,9 +40,14 @@ export default function TreasuryPage() {
 
       <ContractInfo />
 
-      <div className="card p-4 space-y-2">
+      <div className="card p-4 space-y-2" aria-live="polite">
         <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Treasury address</p>
-        {loading && <div className="h-6 rounded animate-pulse" role="status" aria-label="Loading treasury address" style={{ background: "var(--surface-2)" }} />}
+        {loading && (
+          <div className="space-y-2" role="status" aria-label="Loading treasury address">
+            <div className="h-6 rounded animate-pulse" style={{ background: "var(--surface-2)" }} />
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Reading treasury address from the contract…</p>
+          </div>
+        )}
         {!loading && error && (
           <div className="space-y-2">
             <p className="text-sm" role="alert" style={{ color: "#E5484D" }}>{error}</p>
@@ -51,16 +56,29 @@ export default function TreasuryPage() {
             </button>
           </div>
         )}
+        {!loading && !error && !treasury && (
+          <div className="space-y-2" role="status">
+            <p className="text-sm" style={{ color: "var(--muted)" }}>No treasury address is set on this contract yet.</p>
+            <button onClick={load} className="btn-ghost text-xs px-3 py-1.5" aria-label="Refresh treasury address">
+              Refresh
+            </button>
+          </div>
+        )}
         {!loading && !error && treasury && (
-          <div className="flex items-center gap-2">
-            <p className="mono text-sm break-all" style={{ color: "var(--text)" }}>{treasury}</p>
+          <div className="flex items-start gap-2 min-w-0">
+            <p className="mono text-sm break-all flex-1 min-w-0" style={{ color: "var(--text)" }}>{treasury}</p>
             <CopyButton value={treasury} label="treasury address" />
           </div>
         )}
         {!loading && !error && treasury && (
-          <a href={`https://stellar.expert/explorer/testnet/account/${treasury}`} target="_blank" rel="noreferrer" className="text-xs text-[#6C63FF] hover:underline">
-            View on Explorer
-          </a>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            <a href={`https://stellar.expert/explorer/${NETWORK}/account/${treasury}`} target="_blank" rel="noreferrer" className="text-xs text-[#6C63FF] hover:underline" aria-label="View treasury account on Stellar Explorer">
+              View treasury on Explorer
+            </a>
+            <a href={`https://stellar.expert/explorer/${NETWORK}/contract/${CONTRACT_ID}`} target="_blank" rel="noreferrer" className="text-xs text-[#6C63FF] hover:underline" aria-label="View Sharpy contract on Stellar Explorer">
+              View contract on Explorer
+            </a>
+          </div>
         )}
       </div>
 

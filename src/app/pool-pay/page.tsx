@@ -89,9 +89,9 @@ export default function PoolPayPage() {
             </div>
             <p className="text-xs" style={{ color: "var(--muted)" }}>Settles in a single transaction.</p>
           </div>
-          {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
+          {error && <p className="text-xs text-red-400" role="alert" aria-live="assertive">{error}</p>}
           {txHash ? (
-            <div className="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20 space-y-3" role="status" aria-label="Pool pay confirmed">
+            <div className="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20 space-y-3" role="status" aria-live="polite" aria-label="Pool pay confirmed">
               <p className="text-sm font-medium text-emerald-400">Pool pay confirmed — {rows.length} invoice{rows.length > 1 ? "s" : ""} in one transaction</p>
               <ul className="space-y-1">
                 {rows.map((r) => (

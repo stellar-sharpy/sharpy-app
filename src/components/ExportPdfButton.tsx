@@ -33,12 +33,32 @@ export default function ExportPdfButton({ invoiceId }: Props) {
     return canvas.toDataURL("image/png");
   };
 
+  const shareImage = async (dataUrl: string) => {
+    // Prefer the native share sheet (mobile) with the PNG attached;
+    // fall back to a plain download on desktop browsers.
+    try {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `sharpy-invoice-${invoiceId}.png`, { type: "image/png" });
+      const nav = navigator as Navigator & { canShare?: (data: { files: File[] }) => boolean; share?: (data: { files: File[]; title: string }) => Promise<void> };
+      if (nav.canShare?.({ files: [file] })) {
+        await nav.share?.({ files: [file], title: `Sharpy invoice #${invoiceId}` });
+        return true;
+      }
+    } catch {
+      // Share dismissed or unsupported — fall through to download.
+    }
+    return false;
+  };
+
   const handleExport = async () => {
     setExporting(true);
     setError("");
     try {
       // Capture the invoice page as image
       const dataUrl = await captureInvoice(invoiceId);
+
+      if (await shareImage(dataUrl)) return;
 
       // Download as PNG
       const link = document.createElement("a");

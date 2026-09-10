@@ -172,10 +172,13 @@ export default function NewInvoice() {
               <span className="text-sm text-[#9CA3AF] group-hover:text-[#F1F2F6] transition-colors">Enable Escrow</span>
             </label>
             {escrow && (
-              <div className="flex items-center gap-3 pl-12">
-                <input type="number" min={1} value={escrowDelay} onChange={(e) => setEscrowDelay(Number(e.target.value))}
-                  className="input w-24" />
-                <span className="text-sm text-[#4B5563]">hour release delay</span>
+              <div className="pl-12 space-y-1">
+                <div className="flex items-center gap-3">
+                  <input id="escrow-delay" type="number" min={1} step={1} value={escrowDelay} onChange={(e) => setEscrowDelay(Number(e.target.value))}
+                    className="input w-24" aria-label="Escrow release delay in hours" aria-invalid={!!fieldErrors["escrow"]} aria-describedby={fieldErrors["escrow"] ? "err-escrow" : undefined} />
+                  <span className="text-sm text-[#4B5563]">hour release delay</span>
+                </div>
+                {fieldErrors["escrow"] && <p id="err-escrow" className="text-xs text-red-400" role="alert">{fieldErrors["escrow"]}</p>}
               </div>
             )}
           </div>

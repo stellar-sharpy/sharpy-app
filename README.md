@@ -155,7 +155,7 @@ graph TD
 | `/verify/[id]` | SSR | Public on-chain verification with fingerprint |
 | `/invoice/batch` | Client | Batch invoice creation (up to 10 in one transaction) |
 | `/pay/[id]` | Client | Public shareable payment page — wallet, x402, and CCTP cross-chain |
-| `/pool-pay` | Client | Pay multiple invoices in one call |
+| `/pool-pay` | Client | Pay multiple invoices in one call — batch summary, itemized confirmation, new-batch reset |
 | `/claim` | Client | Withdraw claimable fallback balances |
 | `/treasury` | Client | Protocol treasury address, funding explainer, explorer link |
 | `/widget/[id]` | Static | Embeddable payment widget |

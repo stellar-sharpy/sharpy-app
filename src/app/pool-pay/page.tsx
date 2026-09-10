@@ -2,8 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useWallet } from "../../components/WalletProvider";
-import { sharpyClient } from "../../lib/client";
-import { formatAmount, parseAmount } from "../../lib/utils";
+import { sharpyClient, NETWORK } from "../../lib/client";
+import { formatAmount, parseAmount, explorerUrl } from "../../lib/utils";
+import { CopyButton } from "../../components/CopyButton";
 
 interface Row { id: string; invoiceId: string; amount: string; }
 
@@ -21,15 +22,19 @@ export default function PoolPayPage() {
   const handlePay = async () => {
     if (!publicKey || !signerReady) return;
     setError("");
-    const payments = rows.map((r) => {
-      const iid = Number(r.invoiceId);
-      if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
-      if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
-      return { invoiceId: iid, amount: parseAmount(r.amount) };
-    });
-    if (payments.length === 0) throw new Error("Add at least one payment");
-    setPaying(true);
+    setTxHash("");
     try {
+      const filled = rows.filter((r) => r.invoiceId.trim() !== "" || r.amount.trim() !== "");
+      const skipped = rows.length - filled.length;
+      const payments = filled.map((r) => {
+        const iid = Number(r.invoiceId);
+        if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
+        if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
+        return { invoiceId: iid, amount: parseAmount(r.amount) };
+      });
+      if (payments.length === 0) throw new Error("Add at least one payment");
+      if (skipped > 0) setRows(filled);
+      setPaying(true);
       const { txHash: h } = await sharpyClient.poolPay(publicKey, payments);
       setTxHash(h);
     } catch (e: any) { setError(e.message ?? "pool_pay failed"); }
@@ -59,28 +64,60 @@ export default function PoolPayPage() {
             <div key={r.id} className="flex gap-2 items-end">
               <div className="flex-1">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Invoice #{i + 1} ID</label>
-                <input value={r.invoiceId} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" className="input mt-1 text-sm" />
+                <input value={r.invoiceId} disabled={paying || !!txHash} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} ID`} />
               </div>
               <div className="flex-1">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Amount (USDC)</label>
-                <input value={r.amount} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" className="input mt-1 text-sm" />
+                <input value={r.amount} disabled={paying || !!txHash} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} amount in USDC`} />
               </div>
-              {rows.length > 1 && (
-                <button onClick={() => remove(r.id)} className="mb-1 text-xs px-2 py-1 rounded-lg border text-red-400" style={{ borderColor: "rgba(239,68,68,0.25)" }}>✕</button>
+              {txHash ? (
+                <span className="mb-2 text-emerald-400 text-sm" role="img" aria-label={`Invoice ${r.invoiceId} paid`}>✓</span>
+              ) : rows.length > 1 && (
+                <button onClick={() => remove(r.id)} disabled={paying} className="mb-1 text-xs px-2 py-1 rounded-lg border text-red-400 disabled:opacity-50" style={{ borderColor: "rgba(239,68,68,0.25)" }} aria-label={`Remove invoice row ${i + 1}`}>✕</button>
               )}
             </div>
           ))}
-          <button onClick={add} className="text-xs text-[#6C63FF] hover:underline">+ Add invoice</button>
+          <button onClick={add} disabled={!!txHash} className="text-xs text-[#6C63FF] hover:underline disabled:opacity-50" aria-label="Add another invoice row">+ Add invoice</button>
+          <div className="rounded-xl p-3 space-y-1" style={{ background: "var(--surface-2)" }} aria-label="Batch summary">
+            <div className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
+              <span>Invoices in batch</span>
+              <span className="mono">{rows.length}</span>
+            </div>
+            <div className="flex justify-between text-sm font-medium" style={{ color: "var(--text)" }}>
+              <span>Total</span>
+              <span>{(() => { try { return `${formatAmount(rows.reduce((a, r) => a + (r.amount ? parseAmount(r.amount) : 0n), 0n))} USDC`; } catch { return "—"; } })()}</span>
+            </div>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Settles in a single transaction.</p>
+          </div>
           {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           {txHash ? (
-            <div className="rounded-xl p-3 bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400">
-              Pool pay confirmed! Tx: {txHash.slice(0,12)}… <Link href="/dashboard" className="underline ml-2">Dashboard</Link>
+            <div className="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20 space-y-3" role="status" aria-label="Pool pay confirmed">
+              <p className="text-sm font-medium text-emerald-400">Pool pay confirmed — {rows.length} invoice{rows.length > 1 ? "s" : ""} in one transaction</p>
+              <ul className="space-y-1">
+                {rows.map((r) => (
+                  <li key={r.id} className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
+                    <span className="mono">Invoice #{r.invoiceId}</span>
+                    <span>{(() => { try { return `${formatAmount(parseAmount(r.amount))} USDC`; } catch { return r.amount; } })()}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="mono" style={{ color: "var(--muted)" }}>{txHash.slice(0, 12)}…</span>
+                <CopyButton value={txHash} label="transaction hash" />
+                <a href={explorerUrl(NETWORK, txHash, "tx")} target="_blank" rel="noreferrer" className="text-[#6C63FF] hover:underline">Explorer</a>
+                <button
+                  onClick={() => { setRows([{ id: "1", invoiceId: "", amount: "" }]); setTxHash(""); setError(""); }}
+                  className="underline ml-auto"
+                  style={{ color: "var(--muted)" }}
+                  aria-label="Start a new batch"
+                >
+                  New batch
+                </button>
+                <Link href="/dashboard" className="underline">Dashboard</Link>
+              </div>
             </div>
           ) : (
             <button onClick={handlePay} disabled={paying} className="btn-primary w-full py-3 disabled:opacity-50">{paying ? "Paying..." : `Pay ${rows.length} invoice${rows.length>1?"s":""} in one tx`}</button>
-          )}
-          {rows.length > 0 && (
-            <p className="text-xs text-center" style={{ color: "var(--muted)" }}>Total amount: {(() => { try { return formatAmount(rows.reduce((a, r) => a + (r.amount ? parseAmount(r.amount) : 0n), 0n)); } catch { return "—"; } })()} USDC</p>
           )}
         </div>
       )}

@@ -117,7 +117,7 @@ graph TD
 - Dashboard with search, filter by status, pagination, and Created/Paid tabs
 - Claimable-balance banner on the dashboard with per-token breakdown and claim shortcut
 - Dark/light mode with system preference detection
-- Fully responsive — mobile-first layouts
+- Fully responsive — mobile-first layouts, audited at 375px with no horizontal overflow
 - Skeleton loading states on all async pages
 - Error boundary with graceful fallback and retry
 - Empty state illustrations for dashboard and invoice list

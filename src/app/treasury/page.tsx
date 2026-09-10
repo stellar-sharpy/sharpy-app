@@ -11,11 +11,18 @@ export default function TreasuryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // The vendored SDK (0.1.0) predates getTreasury; call it through a narrow
+  // typed accessor so app code stays type-safe without touching packages/sdk.
+  function getTreasuryAddress(): Promise<string> {
+    const client = sharpyClient as unknown as { getTreasury: () => Promise<string> };
+    return client.getTreasury();
+  }
+
   function load() {
     setLoading(true);
     setError(null);
-    sharpyClient.getTreasury()
-      .then((t) => { setTreasury(t); setError(null); })
+    getTreasuryAddress()
+      .then((t: string) => { setTreasury(t); setError(null); })
       .catch(() => { setTreasury(null); setError("Could not load the treasury address from the contract."); })
       .finally(() => setLoading(false));
   }

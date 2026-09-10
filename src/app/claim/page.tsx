@@ -12,7 +12,8 @@ export default function ClaimPage() {
       <ClaimableBalance />
       <p className="text-xs" style={{ color: "var(--muted)" }}>
         Balances are credited on-chain when a recipient transfer fails, so funds are never stranded —
-        claim them here at any time.
+        claim them here at any time. Tips attached via <span className="mono">pay_with_tip</span> instead
+        settle to the <Link href="/treasury" className="text-[#6C63FF] hover:underline">protocol treasury</Link>.
       </p>
       <Link href="/dashboard" className="text-xs text-[#6C63FF] hover:underline" aria-label="Back to dashboard">← Back to dashboard</Link>
     </div>

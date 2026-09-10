@@ -445,17 +445,17 @@ export default function Dashboard() {
             </div>
           </ErrorBoundary>
           {pageCount > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6" role="navigation" aria-label="Dashboard pagination">
+            <nav className="flex items-center justify-center gap-2 mt-6" aria-label="Dashboard pagination">
               <button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={safePage === 0}
                 className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
                 style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
-                aria-label="Previous page"
+                aria-label={`Previous page, currently on page ${safePage + 1} of ${pageCount}`}
               >
                 ← Prev
               </button>
-              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite">
+              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite" aria-label={`Page ${safePage + 1} of ${pageCount}`}>
                 Page {safePage + 1} of {pageCount}
               </span>
               <button
@@ -463,11 +463,11 @@ export default function Dashboard() {
                 disabled={safePage >= pageCount - 1}
                 className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
                 style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
-                aria-label="Next page"
+                aria-label={`Next page, currently on page ${safePage + 1} of ${pageCount}`}
               >
                 Next →
               </button>
-            </div>
+            </nav>
           )}
         </>
       )}

@@ -12,6 +12,7 @@ import { TOKENS, getTokenAddress } from "../lib/tokens";
  */
 export default function ClaimBanner({ address }: { address: string }) {
   const [entries, setEntries] = useState<{ symbol: string; balance: bigint }[] | null>(null);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,11 +35,11 @@ export default function ClaimBanner({ address }: { address: string }) {
     return () => { cancelled = true; };
   }, [address]);
 
-  if (entries === null || entries.length === 0) return null;
+  if (dismissed || entries === null || entries.length === 0) return null;
   const total = entries.reduce((a, b) => a + b.balance, 0n);
 
   return (
-    <div className="card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: "rgba(0,212,170,0.35)" }} role="status" aria-label={`${formatAmount(total)} claimable across ${entries.length} tokens`}>
+    <div className="card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ borderColor: "rgba(0,212,170,0.35)" }} role="status" aria-live="polite" aria-label={`${formatAmount(total)} claimable across ${entries.length} token${entries.length !== 1 ? "s" : ""}`}>
       <div>
         <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
           {formatAmount(total)} claimable
@@ -48,9 +49,19 @@ export default function ClaimBanner({ address }: { address: string }) {
           transfers were credited back; withdraw via claim.
         </p>
       </div>
-      <Link href="/claim" className="btn-primary text-xs px-4 py-2 text-center" aria-label="Review and claim balances">
-        Review &amp; claim
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link href="/claim" className="btn-primary text-xs px-4 py-2 text-center" aria-label={`Review and claim ${formatAmount(total)} across ${entries.length} token${entries.length !== 1 ? "s" : ""}`}>
+          Review &amp; claim
+        </Link>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-xs px-3 py-2 rounded-lg border"
+          style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+          aria-label="Dismiss claimable balance banner"
+        >
+          Dismiss
+        </button>
+      </div>
     </div>
   );
 }

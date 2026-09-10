@@ -43,12 +43,13 @@ export default async function VerifyPage({ params }: { params: { id: string } })
       </div>
 
       <div className="card p-4 space-y-3 overflow-hidden">
+        <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Share this verification</p>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-[#4B5563] mb-1">Invoice URL</p>
             <p className="mono text-xs break-all">{invoiceUrl}</p>
           </div>
-          <CopyButton value={invoiceUrl} label="invoice URL" />
+          <CopyButton value={invoiceUrl} label={`shareable URL for invoice ${invoiceId}`} />
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -56,6 +57,26 @@ export default async function VerifyPage({ params }: { params: { id: string } })
             <p className="mono text-xs break-all">{CONTRACT_ID}</p>
           </div>
           <CopyButton value={CONTRACT_ID} label="contract address" />
+        </div>
+        <div className="flex gap-2">
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Verify Sharpy invoice #${invoiceId} on-chain`)}&url=${encodeURIComponent(invoiceUrl)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 text-center text-xs py-2 rounded-lg border font-medium"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            aria-label={`Share invoice ${invoiceId} verification on X`}
+          >
+            Share on X
+          </a>
+          <a
+            href={`mailto:?subject=${encodeURIComponent(`Verify invoice #${invoiceId} — Sharpy`)}&body=${encodeURIComponent(`Verify this invoice on-chain: ${invoiceUrl}`)}`}
+            className="flex-1 text-center text-xs py-2 rounded-lg border font-medium"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            aria-label={`Share invoice ${invoiceId} verification by email`}
+          >
+            Share by Email
+          </a>
         </div>
       </div>
 

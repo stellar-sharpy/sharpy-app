@@ -210,7 +210,7 @@ NEXT_PUBLIC_USDC_CONTRACT_ID=CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMX
 npm run build    # builds SDK workspace then Next.js
 npm run start    # production server
 npm run lint     # ESLint + TypeScript check
-npm run test:e2e # Playwright end-to-end tests
+npm run test:e2e # Playwright end-to-end tests (e2e/pool-pay* runnable wallet-free; *.wallet.spec needs E2E_WALLET=connected)
 ```
 
 ---

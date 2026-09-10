@@ -8,26 +8,42 @@ interface Props {
 
 export default function ExportPdfButton({ invoiceId }: Props) {
   const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState("");
+
+  const captureInvoice = async (invoiceId: number): Promise<string> => {
+    // Deterministic capture: wait for webfonts so Inter/Space Grotesk
+    // render identically on every export instead of falling back mid-load.
+    try {
+      await document.fonts.ready;
+    } catch {
+      // fonts API unavailable — proceed with system fallback fonts.
+    }
+    const element = document.getElementById("invoice-content");
+    if (!element) throw new Error("Invoice content not found");
+
+    const canvas = await html2canvas(element, {
+      backgroundColor: "#0A0B0D",
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+    return canvas.toDataURL("image/png");
+  };
 
   const handleExport = async () => {
     setExporting(true);
+    setError("");
     try {
       // Capture the invoice page as image
-      const element = document.getElementById("invoice-content");
-      if (!element) throw new Error("Invoice content not found");
-
-      const canvas = await html2canvas(element, {
-        backgroundColor: "#0A0B0D",
-        scale: 2,
-      });
+      const dataUrl = await captureInvoice(invoiceId);
 
       // Download as PNG
       const link = document.createElement("a");
       link.download = `sharpy-invoice-${invoiceId}.png`;
-      link.href = canvas.toDataURL();
+      link.href = dataUrl;
       link.click();
     } catch (e: any) {
-      alert(e.message ?? "Export failed");
+      setError(e.message ?? "Export failed");
     } finally {
       setExporting(false);
     }

@@ -95,19 +95,19 @@ export default async function VerifyPage({ params }: { params: { id: string } })
       </div>
 
       {fingerprint && (
-        <div className="card p-4 space-y-2">
-          <div className="flex items-center justify-between">
+        <div className="card p-4 space-y-2 overflow-hidden" aria-label={`Content fingerprint for invoice ${invoiceId}`}>
+          <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Content Fingerprint</p>
-            <span className="text-xs bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/20 px-2 py-0.5 rounded-full shrink-0">
               Protocol 25/26
             </span>
           </div>
           <p className="text-xs text-[#4B5563]">
             SHA-256 hash of immutable invoice fields. Any change to terms produces a different hash.
           </p>
-          <div className="flex items-center gap-2">
-            <code className="mono text-xs flex-1 truncate">{fingerprint}</code>
-            <CopyButton value={fingerprint} label="fingerprint" />
+          <div className="flex items-center gap-2 min-w-0">
+            <code className="mono text-xs flex-1 min-w-0 break-all" title={fingerprint}>{fingerprint}</code>
+            <CopyButton value={fingerprint} label={`content fingerprint for invoice ${invoiceId}`} />
           </div>
         </div>
       )}

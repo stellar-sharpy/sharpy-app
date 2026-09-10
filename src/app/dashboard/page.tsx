@@ -324,6 +324,10 @@ export default function Dashboard() {
       <div className="mb-3">
         <InvoiceSearchFilter filters={filters} onChange={setFilters} resultCount={filtered.length} totalCount={activeInvoices.length} />
       </div>
+      <p className="text-xs mb-4" style={{ color: "var(--muted)" }} role="status" aria-live="polite">
+        Showing {visible.length} of {filtered.length} {tab === "Created" ? "created" : "paid"} invoice{filtered.length !== 1 ? "s" : ""}
+        {pageCount > 1 ? ` — page ${safePage + 1} of ${pageCount}` : ""}
+      </p>
       {filtered.length > 0 && (
         <div className="flex justify-end mb-4">
           <TransactionHistoryExport invoices={filtered} tabName={tab} />

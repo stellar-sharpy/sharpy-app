@@ -110,7 +110,7 @@ graph TD
 - Public `/verify/[id]` — on-chain verification with no login required (SSR)
 - SHA-256 invoice fingerprint display (Protocol 25/26 CAP-75/82)
 - Audit log tab showing full on-chain history
-- Export invoice as image (html2canvas)
+- Export invoice as deterministic image (webfont-ready, fixed theme) with native share-sheet support
 - Share button with Twitter/Email integration
 
 ### UX

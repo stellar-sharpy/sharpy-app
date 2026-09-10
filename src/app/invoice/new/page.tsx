@@ -123,15 +123,21 @@ export default function NewInvoice() {
           </div>
           {recipients.map((r, i) => (
             <div key={i} className="flex flex-col sm:flex-row gap-2 min-w-0">
-              <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
-                placeholder="G... stellar address" autoComplete="off" spellCheck={false} className="input flex-1 min-w-0 font-mono text-xs" aria-label={`Recipient ${i + 1} stellar address`} />
-              <div className="flex gap-2 min-w-0">
-                <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
-                  placeholder={selectedToken.symbol} inputMode="decimal" className="input flex-1 min-w-0 sm:w-28" aria-label={`Recipient ${i + 1} amount in ${selectedToken.symbol}`} />
-                {recipients.length > 1 && (
-                  <button type="button" onClick={() => removeRecipient(i)}
-                    className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2">×</button>
-                )}
+              <div className="flex-1 min-w-0 space-y-1">
+                <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
+                  placeholder="G... stellar address" autoComplete="off" spellCheck={false} className="input w-full min-w-0 font-mono text-xs" aria-label={`Recipient ${i + 1} stellar address`} aria-invalid={!!fieldErrors[`addr-${i}`]} aria-describedby={fieldErrors[`addr-${i}`] ? `err-addr-${i}` : undefined} />
+                {fieldErrors[`addr-${i}`] && <p id={`err-addr-${i}`} className="text-xs text-red-400" role="alert">{fieldErrors[`addr-${i}`]}</p>}
+              </div>
+              <div className="min-w-0 space-y-1">
+                <div className="flex gap-2">
+                  <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
+                    placeholder={selectedToken.symbol} inputMode="decimal" className="input flex-1 min-w-0 sm:w-28" aria-label={`Recipient ${i + 1} amount in ${selectedToken.symbol}`} aria-invalid={!!fieldErrors[`amt-${i}`]} aria-describedby={fieldErrors[`amt-${i}`] ? `err-amt-${i}` : undefined} />
+                  {recipients.length > 1 && (
+                    <button type="button" onClick={() => removeRecipient(i)}
+                      className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2" aria-label={`Remove recipient ${i + 1}`}>×</button>
+                  )}
+                </div>
+                {fieldErrors[`amt-${i}`] && <p id={`err-amt-${i}`} className="text-xs text-red-400" role="alert">{fieldErrors[`amt-${i}`]}</p>}
               </div>
             </div>
           ))}

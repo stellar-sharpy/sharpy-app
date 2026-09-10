@@ -36,6 +36,22 @@ See Sharpy in action with real on-chain transactions:
 The connect modal also supports xBull, Lobstr, and Albedo.  
  [Freighter Setup Guide](./FREIGHTER_SETUP.md) | [Testing Guide](./TESTING.md)
 
+### Embedding the Pay Widget
+
+```html
+<iframe src="https://sharpy-sigma.vercel.app/widget/42?label=Pay%20now&theme=auto&size=md"
+  width="220" height="48" frameborder="0" title="Pay invoice #42 via Sharpy"></iframe>
+```
+
+Query params: `label`, `amount`, `theme` (`light`/`dark`/`auto`), `size` (`sm`/`md`/`lg`).
+
+### Paying Many Invoices at Once (Pool Pay)
+
+`/pool-pay` settles a same-token batch in a single transaction: add rows,
+check the batch summary total, sign once, then share the confirmation via the
+Explorer link or start a "New batch". Batch math and validation are covered by
+wallet-free Playwright specs (`e2e/pool-pay-validation.spec.ts`).
+
 <img width="1047" height="649" alt="image" src="https://github.com/user-attachments/assets/fa30c2c8-3f8c-4ebb-b0f1-373d6dab27eb" />
 
 

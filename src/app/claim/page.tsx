@@ -4,9 +4,9 @@ import Link from "next/link";
 
 export default function ClaimPage() {
   return (
-    <div className="max-w-lg mx-auto space-y-6">
+    <div className="max-w-lg mx-auto space-y-6 px-1 sm:px-0">
       <div>
-        <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Claimable Balance</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold" style={{ color: "var(--text)" }}>Claimable Balance</h1>
         <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Recover funds from failed recipient transfers.</p>
       </div>
       <ClaimableBalance />

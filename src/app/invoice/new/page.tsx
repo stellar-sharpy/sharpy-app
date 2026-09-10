@@ -105,12 +105,12 @@ export default function NewInvoice() {
             />
           </div>
           {recipients.map((r, i) => (
-            <div key={i} className="flex flex-col sm:flex-row gap-2">
+            <div key={i} className="flex flex-col sm:flex-row gap-2 min-w-0">
               <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
-                placeholder="G... stellar address" className="input flex-1 font-mono text-xs" />
-              <div className="flex gap-2">
+                placeholder="G... stellar address" autoComplete="off" spellCheck={false} className="input flex-1 min-w-0 font-mono text-xs" aria-label={`Recipient ${i + 1} stellar address`} />
+              <div className="flex gap-2 min-w-0">
                 <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
-                  placeholder={selectedToken.symbol} className="input flex-1 sm:w-28" />
+                  placeholder={selectedToken.symbol} inputMode="decimal" className="input flex-1 min-w-0 sm:w-28" aria-label={`Recipient ${i + 1} amount in ${selectedToken.symbol}`} />
                 {recipients.length > 1 && (
                   <button type="button" onClick={() => removeRecipient(i)}
                     className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2">×</button>

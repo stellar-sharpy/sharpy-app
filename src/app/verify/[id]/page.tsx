@@ -42,18 +42,18 @@ export default async function VerifyPage({ params }: { params: { id: string } })
         <p className="text-xs text-[#4B5563] mt-1">No login required - data read directly from Stellar</p>
       </div>
 
-      <div className="card p-4 space-y-3">
+      <div className="card p-4 space-y-3 overflow-hidden">
         <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-[#4B5563] mb-1">Invoice URL</p>
-            <p className="mono text-xs truncate">{invoiceUrl}</p>
+            <p className="mono text-xs break-all">{invoiceUrl}</p>
           </div>
           <CopyButton value={invoiceUrl} label="invoice URL" />
         </div>
         <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-[#4B5563] mb-1">Contract Address</p>
-            <p className="mono text-xs truncate">{CONTRACT_ID}</p>
+            <p className="mono text-xs break-all">{CONTRACT_ID}</p>
           </div>
           <CopyButton value={CONTRACT_ID} label="contract address" />
         </div>

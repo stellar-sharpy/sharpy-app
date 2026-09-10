@@ -193,14 +193,16 @@ export default function NewInvoice() {
               <span className="text-sm text-[#9CA3AF] group-hover:text-[#F1F2F6] transition-colors">Recurring Invoice</span>
             </label>
             {recurring && (
-              <div className="grid grid-cols-2 gap-3 pl-12">
-                <div>
-                  <label className="text-xs text-[#4B5563] mb-1 block">Interval (days)</label>
-                  <input type="number" min={1} value={intervalDays} onChange={(e) => setIntervalDays(Number(e.target.value))} className="input" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-0 sm:pl-12">
+                <div className="space-y-1">
+                  <label className="text-xs text-[#4B5563] mb-1 block" htmlFor="rec-interval">Interval (days)</label>
+                  <input id="rec-interval" type="number" min={1} step={1} value={intervalDays} onChange={(e) => setIntervalDays(Number(e.target.value))} className="input" aria-invalid={!!fieldErrors["interval"]} aria-describedby={fieldErrors["interval"] ? "err-interval" : undefined} />
+                  {fieldErrors["interval"] && <p id="err-interval" className="text-xs text-red-400" role="alert">{fieldErrors["interval"]}</p>}
                 </div>
-                <div>
-                  <label className="text-xs text-[#4B5563] mb-1 block">Max recurrences (0 = infinite)</label>
-                  <input type="number" min={0} value={maxRec} onChange={(e) => setMaxRec(Number(e.target.value))} className="input" />
+                <div className="space-y-1">
+                  <label className="text-xs text-[#4B5563] mb-1 block" htmlFor="rec-max">Max recurrences (0 = infinite)</label>
+                  <input id="rec-max" type="number" min={0} step={1} value={maxRec} onChange={(e) => setMaxRec(Number(e.target.value))} className="input" aria-invalid={!!fieldErrors["maxRec"]} aria-describedby={fieldErrors["maxRec"] ? "err-maxrec" : undefined} />
+                  {fieldErrors["maxRec"] && <p id="err-maxrec" className="text-xs text-red-400" role="alert">{fieldErrors["maxRec"]}</p>}
                 </div>
               </div>
             )}

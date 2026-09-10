@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useWallet } from "../../components/WalletProvider";
 import { sharpyClient, NETWORK } from "../../lib/client";
 import { formatAmount, parseAmount, explorerUrl } from "../../lib/utils";
+import { validatePoolRows } from "../../lib/pool-pay";
 import { CopyButton } from "../../components/CopyButton";
 
 interface Row { id: string; invoiceId: string; amount: string; }
@@ -26,13 +27,7 @@ export default function PoolPayPage() {
     try {
       const filled = rows.filter((r) => r.invoiceId.trim() !== "" || r.amount.trim() !== "");
       const skipped = rows.length - filled.length;
-      const payments = filled.map((r) => {
-        const iid = Number(r.invoiceId);
-        if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
-        if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
-        return { invoiceId: iid, amount: parseAmount(r.amount) };
-      });
-      if (payments.length === 0) throw new Error("Add at least one payment");
+      const payments = validatePoolRows(rows);
       if (skipped > 0) setRows(filled);
       setPaying(true);
       const { txHash: h } = await sharpyClient.poolPay(publicKey, payments);
@@ -61,14 +56,14 @@ export default function PoolPayPage() {
       ) : (
         <div className="card p-6 space-y-4">
           {rows.map((r, i) => (
-            <div key={r.id} className="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <div key={r.id} className="flex flex-col sm:flex-row gap-2 sm:items-end" data-testid={`pool-row-${i}`}>
               <div className="flex-1 min-w-0">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Invoice #{i + 1} ID</label>
-                <input value={r.invoiceId} disabled={paying || !!txHash} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" inputMode="numeric" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} ID`} />
+                <input value={r.invoiceId} disabled={paying || !!txHash} onChange={(e) => update(r.id, "invoiceId", e.target.value)} placeholder="e.g. 42" inputMode="numeric" data-testid={`pool-invoice-${i}`} className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} ID`} />
               </div>
               <div className="flex-1 min-w-0">
                 <label className="text-xs" style={{ color: "var(--muted)" }}>Amount (USDC)</label>
-                <input value={r.amount} disabled={paying || !!txHash} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" inputMode="decimal" className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} amount in USDC`} />
+                <input value={r.amount} disabled={paying || !!txHash} onChange={(e) => update(r.id, "amount", e.target.value)} placeholder="10.00" inputMode="decimal" data-testid={`pool-amount-${i}`} className="input mt-1 text-sm disabled:opacity-50" aria-label={`Invoice ${i + 1} amount in USDC`} />
               </div>
               {txHash ? (
                 <span className="mb-2 text-emerald-400 text-sm" role="img" aria-label={`Invoice ${r.invoiceId} paid`}>✓</span>
@@ -77,8 +72,8 @@ export default function PoolPayPage() {
               )}
             </div>
           ))}
-          <button onClick={add} disabled={!!txHash} className="text-xs text-[#6C63FF] hover:underline disabled:opacity-50" aria-label="Add another invoice row">+ Add invoice</button>
-          <div className="rounded-xl p-3 space-y-1" style={{ background: "var(--surface-2)" }} aria-label="Batch summary">
+          <button onClick={add} disabled={!!txHash} data-testid="pool-add-row" className="text-xs text-[#6C63FF] hover:underline disabled:opacity-50" aria-label="Add another invoice row">+ Add invoice</button>
+          <div className="rounded-xl p-3 space-y-1" style={{ background: "var(--surface-2)" }} aria-label="Batch summary" data-testid="pool-batch-summary">
             <div className="flex justify-between text-xs" style={{ color: "var(--muted)" }}>
               <span>Invoices in batch</span>
               <span className="mono">{rows.length}</span>
@@ -117,7 +112,7 @@ export default function PoolPayPage() {
               </div>
             </div>
           ) : (
-            <button onClick={handlePay} disabled={paying} className="btn-primary w-full py-3 disabled:opacity-50">{paying ? "Paying..." : `Pay ${rows.length} invoice${rows.length>1?"s":""} in one tx`}</button>
+            <button onClick={handlePay} disabled={paying} data-testid="pool-pay-button" className="btn-primary w-full py-3 disabled:opacity-50">{paying ? "Paying..." : `Pay ${rows.length} invoice${rows.length>1?"s":""} in one tx`}</button>
           )}
         </div>
       )}

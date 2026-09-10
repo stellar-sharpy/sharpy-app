@@ -181,7 +181,7 @@ export default function NewInvoice() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl">{error}</div>
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl" role="alert" aria-live="assertive">{error}</div>
         )}
 
         <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">

@@ -47,17 +47,17 @@ export default function ClaimableBalance() {
     </div>
   );
 
-  if (loading) return <div className="card p-6 animate-pulse h-32" />;
+  if (loading) return <div className="card p-6 animate-pulse h-32" role="status" aria-label="Loading claimable balances" />;
 
   if (balances.length === 0) return (
-    <div className="card p-8 text-center space-y-2">
+    <div className="card p-8 text-center space-y-2" role="status">
       <p className="text-sm font-medium" style={{ color: "var(--text)" }}>No claimable balance</p>
       <p className="text-xs" style={{ color: "var(--muted)" }}>Failed recipient transfers are credited here for recovery via claim.</p>
     </div>
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" aria-live="polite">
       <p className="text-xs" style={{ color: "var(--muted)" }}>Claimable balances are funds credited after failed recipient transfers — withdraw via claim().</p>
       {balances.map((b) => (
         <div key={b.token} className="card p-4 flex items-center justify-between">
@@ -65,12 +65,12 @@ export default function ClaimableBalance() {
             <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>{formatAmount(b.balance)} {b.symbol}</p>
             <p className="mono text-xs" style={{ color: "var(--muted)" }}>{b.token.slice(0,12)}…</p>
           </div>
-          <button onClick={() => handleClaim(b.token)} disabled={claiming !== null} className="btn-primary text-xs px-4 py-2 disabled:opacity-50">
+          <button onClick={() => handleClaim(b.token)} disabled={claiming !== null} aria-label={`Claim ${formatAmount(b.balance)} ${b.symbol}`} className="btn-primary text-xs px-4 py-2 disabled:opacity-50">
             {claiming === b.token ? "Claiming..." : "Claim"}
           </button>
         </div>
       ))}
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
     </div>
   );
 }

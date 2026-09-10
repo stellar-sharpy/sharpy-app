@@ -32,6 +32,9 @@ export default function ShareButton({ invoiceId }: Props) {
           <div
             className="card p-6 max-w-md w-full space-y-4"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Share invoice ${invoiceId}`}
           >
             <div className="flex items-center justify-between">
               <h3 className="font-display font-bold text-lg" style={{ color: "var(--text)" }}>
@@ -40,6 +43,7 @@ export default function ShareButton({ invoiceId }: Props) {
               <button
                 onClick={() => setShowModal(false)}
                 className="text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+                aria-label="Close share dialog"
               >
                 ✕
               </button>

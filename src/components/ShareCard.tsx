@@ -55,7 +55,8 @@ export default function ShareCard({ invoiceId, amount, recipientCount, deadline,
       </div>
 
       <p className="text-xs text-center" style={{ color: "var(--muted)" }}>
-        Link unfurls with rich preview on Twitter, Slack, Discord via Open Graph tags
+        Link unfurls with rich preview on Twitter, Slack, Discord via Open Graph tags.
+        Tip: use Export as Image on the invoice page for a deterministic PNG snapshot.
       </p>
     </div>
   );

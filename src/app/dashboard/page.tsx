@@ -438,11 +438,13 @@ export default function Dashboard() {
       ) : (
         <>
           <ErrorBoundary>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-label={`${tab} invoices, page ${safePage + 1}`}>
               {visible.map((inv) => (
-                <InvoiceCard key={inv.id} inv={inv} />
+                <li key={inv.id}>
+                  <InvoiceCard inv={inv} />
+                </li>
               ))}
-            </div>
+            </ul>
           </ErrorBoundary>
           {pageCount > 1 && (
             <nav className="flex items-center justify-center gap-2 mt-6" aria-label="Dashboard pagination">

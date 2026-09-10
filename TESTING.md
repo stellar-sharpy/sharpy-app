@@ -1,8 +1,9 @@
-# Testing Guide — Freighter Flow
+# Testing Guide — Multi-Wallet Flow
 
-**Last Updated**: 2026-08-11  
-**Status**: ✅ Ready to test  
+**Last Updated**: 2026-09-10
+**Status**: ✅ Ready to test
 **URL**: https://sharpy-sigma.vercel.app
+**Contract**: `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` (testnet)
 
 ---
 

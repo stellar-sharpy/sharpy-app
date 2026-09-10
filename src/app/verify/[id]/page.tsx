@@ -104,9 +104,9 @@ export default async function VerifyPage({ params }: { params: { id: string } })
           <p className="text-xs text-[#4B5563] mb-3">Recipients</p>
           <div className="space-y-2">
             {invoice.recipients.map((addr, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
-                <span className="mono">{truncateAddress(addr)}</span>
-                <span className="text-sm" style={{ color: "var(--text)" }}>{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
+              <div key={i} className="flex justify-between items-center gap-2 py-2 border-b border-[#1E2028] last:border-0">
+                <span className="mono break-all min-w-0">{truncateAddress(addr)}</span>
+                <span className="text-sm shrink-0" style={{ color: "var(--text)" }}>{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
               </div>
             ))}
           </div>

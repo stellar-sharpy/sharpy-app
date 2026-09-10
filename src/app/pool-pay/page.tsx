@@ -117,7 +117,11 @@ export default function PoolPayPage() {
         </div>
       )}
 
-      <div className="text-xs" style={{ color: "var(--muted)" }}>
+      <div className="text-xs space-y-1" style={{ color: "var(--muted)" }}>
+        <p>
+          Batch math and validation are covered by wallet-free specs — see{" "}
+          <span className="mono">e2e/pool-pay-validation.spec.ts</span> and TESTING.md Test 5.
+        </p>
         <Link href="/dashboard" className="text-[#6C63FF] hover:underline">← Back to dashboard</Link>
       </div>
     </div>

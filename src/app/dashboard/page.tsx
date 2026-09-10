@@ -257,6 +257,12 @@ export default function Dashboard() {
   // Reset to first page whenever filters or tab change.
   useEffect(() => { setPage(0); }, [filters, tab]);
 
+  // Clamp the page when the filtered list shrinks (e.g. tab switch or new
+  // filter narrows results below the current page).
+  useEffect(() => {
+    setPage((p) => Math.min(p, Math.max(0, Math.ceil(filtered.length / PAGE_SIZE) - 1)));
+  }, [filtered.length]);
+
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
@@ -324,6 +330,10 @@ export default function Dashboard() {
       <div className="mb-3">
         <InvoiceSearchFilter filters={filters} onChange={setFilters} resultCount={filtered.length} totalCount={activeInvoices.length} />
       </div>
+      <p className="text-xs mb-4" style={{ color: "var(--muted)" }} role="status" aria-live="polite">
+        Showing {visible.length} of {filtered.length} {tab === "Created" ? "created" : "paid"} invoice{filtered.length !== 1 ? "s" : ""}
+        {pageCount > 1 ? ` — page ${safePage + 1} of ${pageCount}` : ""}
+      </p>
       {filtered.length > 0 && (
         <div className="flex justify-end mb-4">
           <TransactionHistoryExport invoices={filtered} tabName={tab} />
@@ -434,24 +444,26 @@ export default function Dashboard() {
       ) : (
         <>
           <ErrorBoundary>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-label={`${tab} invoices, page ${safePage + 1}`}>
               {visible.map((inv) => (
-                <InvoiceCard key={inv.id} inv={inv} />
+                <li key={inv.id}>
+                  <InvoiceCard inv={inv} />
+                </li>
               ))}
-            </div>
+            </ul>
           </ErrorBoundary>
           {pageCount > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6" role="navigation" aria-label="Dashboard pagination">
+            <nav className="flex items-center justify-center gap-2 mt-6" aria-label="Dashboard pagination">
               <button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={safePage === 0}
                 className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
                 style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
-                aria-label="Previous page"
+                aria-label={`Previous page, currently on page ${safePage + 1} of ${pageCount}`}
               >
                 ← Prev
               </button>
-              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite">
+              <span className="text-xs mono" style={{ color: "var(--muted)" }} aria-live="polite" aria-label={`Page ${safePage + 1} of ${pageCount}`}>
                 Page {safePage + 1} of {pageCount}
               </span>
               <button
@@ -459,11 +471,11 @@ export default function Dashboard() {
                 disabled={safePage >= pageCount - 1}
                 className="text-xs px-3 py-2 rounded-lg border disabled:opacity-40"
                 style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--surface-2)" }}
-                aria-label="Next page"
+                aria-label={`Next page, currently on page ${safePage + 1} of ${pageCount}`}
               >
                 Next →
               </button>
-            </div>
+            </nav>
           )}
         </>
       )}

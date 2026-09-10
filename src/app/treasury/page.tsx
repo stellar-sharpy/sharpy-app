@@ -83,7 +83,7 @@ export default function TreasuryPage() {
       </div>
 
       <div className="card p-4 space-y-2">
-        <p className="text-xs font-medium" style={{ color: "var(--text)" }}>How the treasury is funded</p>
+        <h2 className="text-xs font-medium" style={{ color: "var(--text)" }}>How the treasury is funded</h2>
         <p className="text-sm" style={{ color: "var(--muted)" }}>
           Payers can attach an optional tip to any payment via <span className="mono">pay_with_tip</span>;
           tips settle straight to this address alongside the invoice payment.

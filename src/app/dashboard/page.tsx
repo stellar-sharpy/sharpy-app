@@ -273,15 +273,15 @@ export default function Dashboard() {
   return (
     <div className="animate-fade-up">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div className="min-w-0">
           <h1 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Dashboard</h1>
-          <p className="text-sm mt-1 mono" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)} · {createdInvoices.length} created{paidLoaded ? ` · ${paidInvoices.length} paid` : ""}</p>
+          <p className="text-sm mt-1 mono break-all" style={{ color: "var(--muted)" }}>{truncateAddress(publicKey)} · {createdInvoices.length} created{paidLoaded ? ` · ${paidInvoices.length} paid` : ""}</p>
         </div>
-        <Link href="/invoice/new" className="btn-primary text-sm" aria-label="Create new invoice">+ New Invoice</Link>
+        <Link href="/invoice/new" className="btn-primary text-sm text-center shrink-0" aria-label="Create new invoice">+ New Invoice</Link>
       </div>
 
-      <div className="flex justify-end mb-2 gap-2">
+      <div className="flex flex-wrap justify-start sm:justify-end mb-2 gap-2">
         <Link href="/claim" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Claim → recover balances</Link>
         <Link href="/treasury" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Treasury → protocol funds</Link>
         <Link href="/pool-pay" className="text-xs px-3 py-1.5 rounded-lg border hover:bg-[var(--surface-2)]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>Pool Pay → pay many in one tx</Link>

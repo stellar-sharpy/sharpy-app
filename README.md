@@ -161,9 +161,12 @@ graph TD
 | `/pool-pay` | Client | Pay multiple invoices in one call — batch summary, itemized confirmation, new-batch reset |
 | `/claim` | Client | Withdraw claimable fallback balances |
 | `/treasury` | Client | Protocol treasury address with loading/error/empty states and network-aware explorer links |
-| `/widget/[id]` | Static | Embeddable payment widget |
+| `/widget/[id]` | Static | Embeddable payment widget (`?label=&amount=&theme=&size=`) |
 | `/api/x402/[id]` | API | x402 HTTP endpoint (GET: requirements, POST: settle) |
 | `/api/og/[id]` | API | Open Graph image for invoice share cards |
+| `/_not-found` | Static | Custom 404 fallback |
+
+17 routes total (`npm run build` lists all 17).
 
 ---
 

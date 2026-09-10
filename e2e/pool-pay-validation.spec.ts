@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { validatePoolRows } from "../src/app/pool-pay/page";
+import { validatePoolRows } from "../src/lib/pool-pay";
 import { formatAmount, parseAmount } from "../src/lib/utils";
 
 /**

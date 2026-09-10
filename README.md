@@ -120,6 +120,7 @@ graph TD
 - Fully responsive — mobile-first layouts, audited at 375px with no horizontal overflow
 - Skeleton loading states on all async pages
 - Error boundary with graceful fallback and retry
+- ARIA live regions on async status, labelled dialogs and form errors, AA contrast badges
 - Empty state illustrations for dashboard and invoice list
 - Network indicator (testnet/mainnet)
 - Token icon display per recipient

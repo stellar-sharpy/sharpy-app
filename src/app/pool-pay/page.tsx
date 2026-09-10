@@ -8,6 +8,25 @@ import { CopyButton } from "../../components/CopyButton";
 
 interface Row { id: string; invoiceId: string; amount: string; }
 
+export interface PoolPayment { invoiceId: number; amount: bigint; }
+
+/**
+ * Pure row validation for pool-pay batches — extracted so E2E/unit specs can
+ * cover batch math and error cases without a connected wallet signer.
+ * Throws a human-readable Error for the first invalid row.
+ */
+export function validatePoolRows(rows: Pick<Row, "invoiceId" | "amount">[]): PoolPayment[] {
+  const filled = rows.filter((r) => r.invoiceId.trim() !== "" || r.amount.trim() !== "");
+  const payments = filled.map((r) => {
+    const iid = Number(r.invoiceId);
+    if (!iid || isNaN(iid) || !Number.isInteger(iid) || iid < 1) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
+    if (!r.amount || isNaN(Number(r.amount)) || Number(r.amount) <= 0) throw new Error(`Invalid amount for #${r.invoiceId}`);
+    return { invoiceId: iid, amount: parseAmount(r.amount) };
+  });
+  if (payments.length === 0) throw new Error("Add at least one payment");
+  return payments;
+}
+
 export default function PoolPayPage() {
   const { publicKey, signerReady, connect } = useWallet();
   const [rows, setRows] = useState<Row[]>([{ id: "1", invoiceId: "", amount: "" }]);
@@ -26,13 +45,7 @@ export default function PoolPayPage() {
     try {
       const filled = rows.filter((r) => r.invoiceId.trim() !== "" || r.amount.trim() !== "");
       const skipped = rows.length - filled.length;
-      const payments = filled.map((r) => {
-        const iid = Number(r.invoiceId);
-        if (!iid || isNaN(iid)) throw new Error(`Invalid invoice ID: ${r.invoiceId}`);
-        if (!r.amount || isNaN(Number(r.amount))) throw new Error(`Invalid amount for #${r.invoiceId}`);
-        return { invoiceId: iid, amount: parseAmount(r.amount) };
-      });
-      if (payments.length === 0) throw new Error("Add at least one payment");
+      const payments = validatePoolRows(rows);
       if (skipped > 0) setRows(filled);
       setPaying(true);
       const { txHash: h } = await sharpyClient.poolPay(publicKey, payments);

@@ -43,15 +43,15 @@ export default function ShareCard({ invoiceId, amount, recipientCount, deadline,
         </div>
         <div className="p-3 flex items-center justify-between">
           <p className="text-xs mono truncate flex-1 mr-2" style={{ color: "var(--muted)" }}>{url}</p>
-          <button onClick={copy} className="text-xs px-3 py-1.5 rounded-lg bg-[#6C63FF] text-white font-medium shrink-0">
+          <button onClick={copy} aria-label={copied ? "Invoice link copied" : "Copy invoice link"} aria-live="polite" className="text-xs px-3 py-1.5 rounded-lg bg-[#6C63FF] text-white font-medium shrink-0">
             {copied ? "Copied ✓" : "Copy link"}
           </button>
         </div>
       </div>
 
       <div className="flex gap-2">
-        <button onClick={shareTwitter} className="flex-1 text-xs py-2 rounded-lg border font-medium" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>Share on X</button>
-        <button onClick={copy} className="flex-1 text-xs py-2 rounded-lg bg-[#6C63FF] text-white font-medium">Copy URL</button>
+        <button onClick={shareTwitter} aria-label="Share invoice on X" className="flex-1 text-xs py-2 rounded-lg border font-medium" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>Share on X</button>
+        <button onClick={copy} aria-label="Copy invoice URL" className="flex-1 text-xs py-2 rounded-lg bg-[#6C63FF] text-white font-medium">Copy URL</button>
       </div>
 
       <p className="text-xs text-center" style={{ color: "var(--muted)" }}>

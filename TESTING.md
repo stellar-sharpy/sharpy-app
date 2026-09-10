@@ -59,6 +59,22 @@
 4. Click "Pay Invoice"
 5. **Expected**: Freighter popup → Approve → Payment successful
 
+### Test 4: Pool Pay Batch
+1. Navigate to "Pool Pay" (`/pool-pay`)
+2. Add two rows: existing invoice IDs with USDC amounts
+3. Check the batch summary total matches the sum
+4. Click "Pay N invoices in one tx" → approve in wallet
+5. **Expected**: confirmation lists each invoice with amounts, tx hash with Explorer link
+6. Click "New batch" → form resets to a single empty row
+
+### Test 5: Wallet-Free E2E Specs
+```bash
+npm run test:e2e                  # wallet-free specs (gates, validation, 375px)
+E2E_WALLET=connected npm run test:e2e  # + wallet-gated interaction specs
+```
+**Expected**: `e2e/pool-pay.spec.ts` and `e2e/pool-pay-validation.spec.ts` pass
+without a wallet; `e2e/pool-pay.wallet.spec.ts` skips unless `E2E_WALLET=connected`.
+
 ---
 
 ## 📊 Expected Balances

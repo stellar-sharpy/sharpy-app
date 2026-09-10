@@ -150,11 +150,12 @@ export default function NewInvoice() {
         <div className="card p-6 space-y-4">
           <h2 className="font-display font-semibold text-[#F1F2F6] text-sm">Payment Terms</h2>
           <div className="flex items-center gap-3">
-            <label className="text-sm text-[#9CA3AF] w-24 shrink-0">Deadline</label>
-            <input type="number" min={1} value={deadlineDays} onChange={(e) => setDeadlineDays(Number(e.target.value))}
-              className="input w-24" />
+            <label className="text-sm text-[#9CA3AF] w-24 shrink-0" htmlFor="deadline-days">Deadline</label>
+            <input id="deadline-days" type="number" min={1} step={1} value={deadlineDays} onChange={(e) => setDeadlineDays(Number(e.target.value))}
+              className="input w-24" aria-invalid={!!fieldErrors["deadline"]} aria-describedby={fieldErrors["deadline"] ? "err-deadline" : undefined} />
             <span className="text-sm text-[#4B5563]">days from now</span>
           </div>
+          {fieldErrors["deadline"] && <p id="err-deadline" className="text-xs text-red-400" role="alert">{fieldErrors["deadline"]}</p>}
         </div>
 
         {/* Options */}

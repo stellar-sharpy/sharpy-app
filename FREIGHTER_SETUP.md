@@ -101,3 +101,17 @@ This guarantees the signer is always bound to the wallet you actually chose.
 
 **Wrong network**
 - Check Freighter is on "Testnet" (settings → Network → Testnet)
+
+---
+
+## Contract & Network
+
+| Setting | Value |
+|---------|-------|
+| Network | testnet |
+| Contract | `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` |
+| RPC | `https://soroban-testnet.stellar.org` |
+| USDC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
+
+If your wallet is on the wrong network (e.g. mainnet), switch it to Testnet
+before connecting — otherwise signatures will fail with `txBadAuth`.

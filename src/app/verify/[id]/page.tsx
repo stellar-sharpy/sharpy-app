@@ -20,8 +20,12 @@ export default async function VerifyPage({ params }: { params: { id: string } })
 
   if (error || !invoice) {
     return (
-      <div className="max-w-lg mx-auto text-center py-32">
+      <div className="max-w-lg mx-auto text-center py-32 space-y-4 px-4">
         <p className="text-red-400" role="alert">{error || "Invoice not found."}</p>
+        <p className="text-xs text-[#4B5563]">Double-check the invoice ID in the URL, then try again.</p>
+        <a href="/dashboard" className="text-xs text-[#6C63FF] hover:underline" aria-label="Back to dashboard">
+          ← Back to dashboard
+        </a>
       </div>
     );
   }
@@ -43,12 +47,13 @@ export default async function VerifyPage({ params }: { params: { id: string } })
       </div>
 
       <div className="card p-4 space-y-3 overflow-hidden">
+        <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Share this verification</p>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs text-[#4B5563] mb-1">Invoice URL</p>
             <p className="mono text-xs break-all">{invoiceUrl}</p>
           </div>
-          <CopyButton value={invoiceUrl} label="invoice URL" />
+          <CopyButton value={invoiceUrl} label={`shareable URL for invoice ${invoiceId}`} />
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -56,6 +61,26 @@ export default async function VerifyPage({ params }: { params: { id: string } })
             <p className="mono text-xs break-all">{CONTRACT_ID}</p>
           </div>
           <CopyButton value={CONTRACT_ID} label="contract address" />
+        </div>
+        <div className="flex gap-2">
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Verify Sharpy invoice #${invoiceId} on-chain`)}&url=${encodeURIComponent(invoiceUrl)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 text-center text-xs py-2 rounded-lg border font-medium"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            aria-label={`Share invoice ${invoiceId} verification on X`}
+          >
+            Share on X
+          </a>
+          <a
+            href={`mailto:?subject=${encodeURIComponent(`Verify invoice #${invoiceId} — Sharpy`)}&body=${encodeURIComponent(`Verify this invoice on-chain: ${invoiceUrl}`)}`}
+            className="flex-1 text-center text-xs py-2 rounded-lg border font-medium"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            aria-label={`Share invoice ${invoiceId} verification by email`}
+          >
+            Share by Email
+          </a>
         </div>
       </div>
 
@@ -79,9 +104,9 @@ export default async function VerifyPage({ params }: { params: { id: string } })
           <p className="text-xs text-[#4B5563] mb-3">Recipients</p>
           <div className="space-y-2">
             {invoice.recipients.map((addr, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b border-[#1E2028] last:border-0">
-                <span className="mono">{truncateAddress(addr)}</span>
-                <span className="text-sm" style={{ color: "var(--text)" }}>{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
+              <div key={i} className="flex justify-between items-center gap-2 py-2 border-b border-[#1E2028] last:border-0">
+                <span className="mono break-all min-w-0">{truncateAddress(addr)}</span>
+                <span className="text-sm shrink-0" style={{ color: "var(--text)" }}>{formatAmount(invoice.amounts[i] ?? 0n)} {tokenSymbol}</span>
               </div>
             ))}
           </div>
@@ -94,20 +119,42 @@ export default async function VerifyPage({ params }: { params: { id: string } })
         )}
       </div>
 
+      <div className="card p-4 space-y-2">
+        <p className="text-xs font-medium" style={{ color: "var(--text)" }}>On-chain references</p>
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          <a
+            href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-[#6C63FF] hover:underline"
+            aria-label="View Sharpy contract on Stellar Explorer"
+          >
+            Contract on Explorer
+          </a>
+          <a
+            href={`/pay/${invoiceId}`}
+            className="text-xs text-[#6C63FF] hover:underline"
+            aria-label={`Open payment page for invoice ${invoiceId}`}
+          >
+            Open payment page →
+          </a>
+        </div>
+      </div>
+
       {fingerprint && (
-        <div className="card p-4 space-y-2">
-          <div className="flex items-center justify-between">
+        <div className="card p-4 space-y-2 overflow-hidden" aria-label={`Content fingerprint for invoice ${invoiceId}`}>
+          <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-medium" style={{ color: "var(--text)" }}>Content Fingerprint</p>
-            <span className="text-xs bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/20 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-[#6C63FF]/10 text-[#6C63FF] border border-[#6C63FF]/20 px-2 py-0.5 rounded-full shrink-0">
               Protocol 25/26
             </span>
           </div>
           <p className="text-xs text-[#4B5563]">
             SHA-256 hash of immutable invoice fields. Any change to terms produces a different hash.
           </p>
-          <div className="flex items-center gap-2">
-            <code className="mono text-xs flex-1 truncate">{fingerprint}</code>
-            <CopyButton value={fingerprint} label="fingerprint" />
+          <div className="flex items-center gap-2 min-w-0">
+            <code className="mono text-xs flex-1 min-w-0 break-all" title={fingerprint}>{fingerprint}</code>
+            <CopyButton value={fingerprint} label={`content fingerprint for invoice ${invoiceId}`} />
           </div>
         </div>
       )}

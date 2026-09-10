@@ -257,6 +257,12 @@ export default function Dashboard() {
   // Reset to first page whenever filters or tab change.
   useEffect(() => { setPage(0); }, [filters, tab]);
 
+  // Clamp the page when the filtered list shrinks (e.g. tab switch or new
+  // filter narrows results below the current page).
+  useEffect(() => {
+    setPage((p) => Math.min(p, Math.max(0, Math.ceil(filtered.length / PAGE_SIZE) - 1)));
+  }, [filtered.length]);
+
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);

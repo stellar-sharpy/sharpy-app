@@ -43,6 +43,12 @@
 
   * { box-sizing: border-box; }
 
+  /* Mobile audit (375px): never allow horizontal page scroll from
+     long hashes, wide cards, or decorative orbs. */
+  html, body { overflow-x: clip; max-width: 100vw; }
+  img, svg, canvas, video { max-width: 100%; }
+  .mono { overflow-wrap: anywhere; word-break: break-word; }
+
   body {
     background-color: var(--bg);
     color: var(--text);

@@ -34,11 +34,19 @@ other wallet mean something is wrong (see Troubleshooting).
      ```
    - Switch network to "Testnet" in Freighter settings
 
-3. **Connect to Sharpy dApp**
-   - Visit https://sharpy-sigma.vercel.app
-   - Click "Connect Wallet"
-   - Select "Freighter" from the modal
-   - Approve connection
+ 3. **Connect to Sharpy dApp**
+    - Visit https://sharpy-sigma.vercel.app
+    - Click "Connect Wallet"
+    - Select "Freighter" from the modal
+    - Approve connection
+
+### Session Expiry After Refresh
+
+The signer is intentionally **not** restored on page refresh — only the address
+is kept for display. After F5, transaction pages show
+"Wallet session expired. Please reconnect to continue."
+Click "Reconnect Wallet", pick the **same** wallet in the modal, and approve.
+This guarantees the signer is always bound to the wallet you actually chose.
 
 ---
 

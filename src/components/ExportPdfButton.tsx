@@ -22,10 +22,13 @@ export default function ExportPdfButton({ invoiceId }: Props) {
     if (!element) throw new Error("Invoice content not found");
 
     const canvas = await html2canvas(element, {
+      // Fixed export theme: identical PNG in light and dark mode.
       backgroundColor: "#0A0B0D",
       scale: 2,
       useCORS: true,
       logging: false,
+      // Fixed viewport width keeps wrapping/amounts stable on any screen.
+      windowWidth: Math.max(element.scrollWidth, 480),
     });
     return canvas.toDataURL("image/png");
   };

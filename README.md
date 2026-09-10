@@ -108,7 +108,8 @@ graph TD
 
 ### Verification & Transparency
 - Public `/verify/[id]` — on-chain verification with no login required (SSR)
-- SHA-256 invoice fingerprint display (Protocol 25/26 CAP-75/82)
+- SHA-256 invoice fingerprint display (Protocol 25/26 CAP-75/82) with labelled copy
+- Shareable verification links (copy, X, email) plus explorer and payment-page references
 - Audit log tab showing full on-chain history
 - Export invoice as deterministic image (webfont-ready, fixed theme) with native share-sheet support
 - Share button with Twitter/Email integration

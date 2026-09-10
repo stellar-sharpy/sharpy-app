@@ -115,6 +115,28 @@ export default async function VerifyPage({ params }: { params: { id: string } })
         )}
       </div>
 
+      <div className="card p-4 space-y-2">
+        <p className="text-xs font-medium" style={{ color: "var(--text)" }}>On-chain references</p>
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          <a
+            href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-[#6C63FF] hover:underline"
+            aria-label="View Sharpy contract on Stellar Explorer"
+          >
+            Contract on Explorer
+          </a>
+          <a
+            href={`/pay/${invoiceId}`}
+            className="text-xs text-[#6C63FF] hover:underline"
+            aria-label={`Open payment page for invoice ${invoiceId}`}
+          >
+            Open payment page →
+          </a>
+        </div>
+      </div>
+
       {fingerprint && (
         <div className="card p-4 space-y-2 overflow-hidden" aria-label={`Content fingerprint for invoice ${invoiceId}`}>
           <div className="flex items-center justify-between gap-2">

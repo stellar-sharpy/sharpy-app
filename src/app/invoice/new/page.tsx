@@ -25,6 +25,7 @@ export default function NewInvoice() {
   const [maxRec, setMaxRec] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const addRecipient = () => setRecipients([...recipients, { address: "", amount: "" }]);
   const updateRecipient = (i: number, field: keyof Recipient, val: string) =>
@@ -35,13 +36,29 @@ export default function NewInvoice() {
     e.preventDefault();
     if (!publicKey) return;
     setError("");
-    for (const r of recipients) {
-      if (!isValidAddress(r.address)) { setError(`Invalid address: ${r.address}`); return; }
-      if (!r.amount || isNaN(Number(r.amount))) { setError("All amounts must be valid numbers."); return; }
+    const nextFieldErrors: Record<string, string> = {};
+    recipients.forEach((r, i) => {
+      const address = r.address.trim();
+      if (!address) nextFieldErrors[`addr-${i}`] = `Recipient ${i + 1}: address is required.`;
+      else if (!isValidAddress(address)) nextFieldErrors[`addr-${i}`] = `Recipient ${i + 1}: “${address.slice(0, 8)}…” is not a valid Stellar address.`;
+      const amount = r.amount.trim();
+      if (!amount) nextFieldErrors[`amt-${i}`] = `Recipient ${i + 1}: amount is required.`;
+      else if (isNaN(Number(amount)) || Number(amount) <= 0) nextFieldErrors[`amt-${i}`] = `Recipient ${i + 1}: amount must be a number greater than 0.`;
+    });
+    if (!Number.isInteger(deadlineDays) || deadlineDays < 1) nextFieldErrors["deadline"] = "Deadline must be a whole number of at least 1 day.";
+    if (escrow && (!Number.isInteger(escrowDelay) || escrowDelay < 1)) nextFieldErrors["escrow"] = "Escrow release delay must be a whole number of at least 1 hour.";
+    if (recurring && (!Number.isInteger(intervalDays) || intervalDays < 1)) nextFieldErrors["interval"] = "Recurrence interval must be a whole number of at least 1 day.";
+    if (recurring && (!Number.isInteger(maxRec) || maxRec < 0)) nextFieldErrors["maxRec"] = "Max recurrences must be 0 (infinite) or a positive whole number.";
+    setFieldErrors(nextFieldErrors);
+    const problems = Object.values(nextFieldErrors);
+    if (problems.length > 0) {
+      setError(problems.length === 1 ? problems[0] : `${problems.length} fields need attention — see messages below.`);
+      return;
     }
+    const trimmed = recipients.map((r) => ({ address: r.address.trim(), amount: r.amount.trim() }));
     setLoading(true);
     try {
-      const recipientList = recipients.map((r) => ({ address: r.address, amount: parseAmount(r.amount) }));
+      const recipientList = trimmed.map((r) => ({ address: r.address, amount: parseAmount(r.amount) }));
       const deadline = deadlineFromDays(deadlineDays);
       let invoiceId: number;
       if (recurring) {

@@ -158,7 +158,7 @@ graph TD
 | `/pay/[id]` | Client | Public shareable payment page — wallet, x402, and CCTP cross-chain |
 | `/pool-pay` | Client | Pay multiple invoices in one call — batch summary, itemized confirmation, new-batch reset |
 | `/claim` | Client | Withdraw claimable fallback balances |
-| `/treasury` | Client | Protocol treasury address, funding explainer, explorer link |
+| `/treasury` | Client | Protocol treasury address with loading/error/empty states and network-aware explorer links |
 | `/widget/[id]` | Static | Embeddable payment widget |
 | `/api/x402/[id]` | API | x402 HTTP endpoint (GET: requirements, POST: settle) |
 | `/api/og/[id]` | API | Open Graph image for invoice share cards |

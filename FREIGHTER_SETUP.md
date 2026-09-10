@@ -1,6 +1,22 @@
-# Freighter Wallet Setup for Testing
+# Wallet Setup for Testing
 
 **Recommended for development**: Freighter provides browser-based signing with no phone required.
+The app connects through a multi-wallet modal (StellarWalletsKit), so any supported wallet works.
+
+---
+
+## Supported Wallets
+
+| Wallet | Type | Testnet | Notes |
+|--------|------|---------|-------|
+| Freighter | Browser extension | ✅ | Recommended for development — instant signing |
+| xBull | Browser extension | ✅ | Good Freighter alternative |
+| Lobstr | Mobile | ✅ | Best for production users; phone required to sign |
+| Albedo | Web | ✅ | No install — browser-based signing |
+
+Connect flow: click "Connect Wallet" → pick a wallet in the modal → approve.
+The app binds the signer to the wallet module you selected — popups from any
+other wallet mean something is wrong (see Troubleshooting).
 
 ---
 

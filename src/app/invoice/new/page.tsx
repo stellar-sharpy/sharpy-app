@@ -25,6 +25,7 @@ export default function NewInvoice() {
   const [maxRec, setMaxRec] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const addRecipient = () => setRecipients([...recipients, { address: "", amount: "" }]);
   const updateRecipient = (i: number, field: keyof Recipient, val: string) =>
@@ -35,13 +36,29 @@ export default function NewInvoice() {
     e.preventDefault();
     if (!publicKey) return;
     setError("");
-    for (const r of recipients) {
-      if (!isValidAddress(r.address)) { setError(`Invalid address: ${r.address}`); return; }
-      if (!r.amount || isNaN(Number(r.amount))) { setError("All amounts must be valid numbers."); return; }
+    const nextFieldErrors: Record<string, string> = {};
+    recipients.forEach((r, i) => {
+      const address = r.address.trim();
+      if (!address) nextFieldErrors[`addr-${i}`] = `Recipient ${i + 1}: address is required.`;
+      else if (!isValidAddress(address)) nextFieldErrors[`addr-${i}`] = `Recipient ${i + 1}: “${address.slice(0, 8)}…” is not a valid Stellar address.`;
+      const amount = r.amount.trim();
+      if (!amount) nextFieldErrors[`amt-${i}`] = `Recipient ${i + 1}: amount is required.`;
+      else if (isNaN(Number(amount)) || Number(amount) <= 0) nextFieldErrors[`amt-${i}`] = `Recipient ${i + 1}: amount must be a number greater than 0.`;
+    });
+    if (!Number.isInteger(deadlineDays) || deadlineDays < 1) nextFieldErrors["deadline"] = "Deadline must be a whole number of at least 1 day.";
+    if (escrow && (!Number.isInteger(escrowDelay) || escrowDelay < 1)) nextFieldErrors["escrow"] = "Escrow release delay must be a whole number of at least 1 hour.";
+    if (recurring && (!Number.isInteger(intervalDays) || intervalDays < 1)) nextFieldErrors["interval"] = "Recurrence interval must be a whole number of at least 1 day.";
+    if (recurring && (!Number.isInteger(maxRec) || maxRec < 0)) nextFieldErrors["maxRec"] = "Max recurrences must be 0 (infinite) or a positive whole number.";
+    setFieldErrors(nextFieldErrors);
+    const problems = Object.values(nextFieldErrors);
+    if (problems.length > 0) {
+      setError(problems.length === 1 ? problems[0] : `${problems.length} fields need attention — see messages below.`);
+      return;
     }
+    const trimmed = recipients.map((r) => ({ address: r.address.trim(), amount: r.amount.trim() }));
     setLoading(true);
     try {
-      const recipientList = recipients.map((r) => ({ address: r.address, amount: parseAmount(r.amount) }));
+      const recipientList = trimmed.map((r) => ({ address: r.address, amount: parseAmount(r.amount) }));
       const deadline = deadlineFromDays(deadlineDays);
       let invoiceId: number;
       if (recurring) {
@@ -106,15 +123,21 @@ export default function NewInvoice() {
           </div>
           {recipients.map((r, i) => (
             <div key={i} className="flex flex-col sm:flex-row gap-2 min-w-0">
-              <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
-                placeholder="G... stellar address" autoComplete="off" spellCheck={false} className="input flex-1 min-w-0 font-mono text-xs" aria-label={`Recipient ${i + 1} stellar address`} />
-              <div className="flex gap-2 min-w-0">
-                <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
-                  placeholder={selectedToken.symbol} inputMode="decimal" className="input flex-1 min-w-0 sm:w-28" aria-label={`Recipient ${i + 1} amount in ${selectedToken.symbol}`} />
-                {recipients.length > 1 && (
-                  <button type="button" onClick={() => removeRecipient(i)}
-                    className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2">×</button>
-                )}
+              <div className="flex-1 min-w-0 space-y-1">
+                <input value={r.address} onChange={(e) => updateRecipient(i, "address", e.target.value)}
+                  placeholder="G... stellar address" autoComplete="off" spellCheck={false} className="input w-full min-w-0 font-mono text-xs" aria-label={`Recipient ${i + 1} stellar address`} aria-invalid={!!fieldErrors[`addr-${i}`]} aria-describedby={fieldErrors[`addr-${i}`] ? `err-addr-${i}` : undefined} />
+                {fieldErrors[`addr-${i}`] && <p id={`err-addr-${i}`} className="text-xs text-red-400" role="alert">{fieldErrors[`addr-${i}`]}</p>}
+              </div>
+              <div className="min-w-0 space-y-1">
+                <div className="flex gap-2">
+                  <input value={r.amount} onChange={(e) => updateRecipient(i, "amount", e.target.value)}
+                    placeholder={selectedToken.symbol} inputMode="decimal" className="input flex-1 min-w-0 sm:w-28" aria-label={`Recipient ${i + 1} amount in ${selectedToken.symbol}`} aria-invalid={!!fieldErrors[`amt-${i}`]} aria-describedby={fieldErrors[`amt-${i}`] ? `err-amt-${i}` : undefined} />
+                  {recipients.length > 1 && (
+                    <button type="button" onClick={() => removeRecipient(i)}
+                      className="text-[#4B5563] hover:text-[#EF4444] transition-colors text-lg leading-none px-2" aria-label={`Remove recipient ${i + 1}`}>×</button>
+                  )}
+                </div>
+                {fieldErrors[`amt-${i}`] && <p id={`err-amt-${i}`} className="text-xs text-red-400" role="alert">{fieldErrors[`amt-${i}`]}</p>}
               </div>
             </div>
           ))}
@@ -127,11 +150,12 @@ export default function NewInvoice() {
         <div className="card p-6 space-y-4">
           <h2 className="font-display font-semibold text-[#F1F2F6] text-sm">Payment Terms</h2>
           <div className="flex items-center gap-3">
-            <label className="text-sm text-[#9CA3AF] w-24 shrink-0">Deadline</label>
-            <input type="number" min={1} value={deadlineDays} onChange={(e) => setDeadlineDays(Number(e.target.value))}
-              className="input w-24" />
+            <label className="text-sm text-[#9CA3AF] w-24 shrink-0" htmlFor="deadline-days">Deadline</label>
+            <input id="deadline-days" type="number" min={1} step={1} value={deadlineDays} onChange={(e) => setDeadlineDays(Number(e.target.value))}
+              className="input w-24" aria-invalid={!!fieldErrors["deadline"]} aria-describedby={fieldErrors["deadline"] ? "err-deadline" : undefined} />
             <span className="text-sm text-[#4B5563]">days from now</span>
           </div>
+          {fieldErrors["deadline"] && <p id="err-deadline" className="text-xs text-red-400" role="alert">{fieldErrors["deadline"]}</p>}
         </div>
 
         {/* Options */}
@@ -148,10 +172,13 @@ export default function NewInvoice() {
               <span className="text-sm text-[#9CA3AF] group-hover:text-[#F1F2F6] transition-colors">Enable Escrow</span>
             </label>
             {escrow && (
-              <div className="flex items-center gap-3 pl-12">
-                <input type="number" min={1} value={escrowDelay} onChange={(e) => setEscrowDelay(Number(e.target.value))}
-                  className="input w-24" />
-                <span className="text-sm text-[#4B5563]">hour release delay</span>
+              <div className="pl-12 space-y-1">
+                <div className="flex items-center gap-3">
+                  <input id="escrow-delay" type="number" min={1} step={1} value={escrowDelay} onChange={(e) => setEscrowDelay(Number(e.target.value))}
+                    className="input w-24" aria-label="Escrow release delay in hours" aria-invalid={!!fieldErrors["escrow"]} aria-describedby={fieldErrors["escrow"] ? "err-escrow" : undefined} />
+                  <span className="text-sm text-[#4B5563]">hour release delay</span>
+                </div>
+                {fieldErrors["escrow"] && <p id="err-escrow" className="text-xs text-red-400" role="alert">{fieldErrors["escrow"]}</p>}
               </div>
             )}
           </div>
@@ -166,14 +193,16 @@ export default function NewInvoice() {
               <span className="text-sm text-[#9CA3AF] group-hover:text-[#F1F2F6] transition-colors">Recurring Invoice</span>
             </label>
             {recurring && (
-              <div className="grid grid-cols-2 gap-3 pl-12">
-                <div>
-                  <label className="text-xs text-[#4B5563] mb-1 block">Interval (days)</label>
-                  <input type="number" min={1} value={intervalDays} onChange={(e) => setIntervalDays(Number(e.target.value))} className="input" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-0 sm:pl-12">
+                <div className="space-y-1">
+                  <label className="text-xs text-[#4B5563] mb-1 block" htmlFor="rec-interval">Interval (days)</label>
+                  <input id="rec-interval" type="number" min={1} step={1} value={intervalDays} onChange={(e) => setIntervalDays(Number(e.target.value))} className="input" aria-invalid={!!fieldErrors["interval"]} aria-describedby={fieldErrors["interval"] ? "err-interval" : undefined} />
+                  {fieldErrors["interval"] && <p id="err-interval" className="text-xs text-red-400" role="alert">{fieldErrors["interval"]}</p>}
                 </div>
-                <div>
-                  <label className="text-xs text-[#4B5563] mb-1 block">Max recurrences (0 = infinite)</label>
-                  <input type="number" min={0} value={maxRec} onChange={(e) => setMaxRec(Number(e.target.value))} className="input" />
+                <div className="space-y-1">
+                  <label className="text-xs text-[#4B5563] mb-1 block" htmlFor="rec-max">Max recurrences (0 = infinite)</label>
+                  <input id="rec-max" type="number" min={0} step={1} value={maxRec} onChange={(e) => setMaxRec(Number(e.target.value))} className="input" aria-invalid={!!fieldErrors["maxRec"]} aria-describedby={fieldErrors["maxRec"] ? "err-maxrec" : undefined} />
+                  {fieldErrors["maxRec"] && <p id="err-maxrec" className="text-xs text-red-400" role="alert">{fieldErrors["maxRec"]}</p>}
                 </div>
               </div>
             )}

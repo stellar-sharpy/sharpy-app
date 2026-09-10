@@ -1,6 +1,22 @@
-# Freighter Wallet Setup for Testing
+# Wallet Setup for Testing
 
 **Recommended for development**: Freighter provides browser-based signing with no phone required.
+The app connects through a multi-wallet modal (StellarWalletsKit), so any supported wallet works.
+
+---
+
+## Supported Wallets
+
+| Wallet | Type | Testnet | Notes |
+|--------|------|---------|-------|
+| Freighter | Browser extension | ✅ | Recommended for development — instant signing |
+| xBull | Browser extension | ✅ | Good Freighter alternative |
+| Lobstr | Mobile | ✅ | Best for production users; phone required to sign |
+| Albedo | Web | ✅ | No install — browser-based signing |
+
+Connect flow: click "Connect Wallet" → pick a wallet in the modal → approve.
+The app binds the signer to the wallet module you selected — popups from any
+other wallet mean something is wrong (see Troubleshooting).
 
 ---
 
@@ -18,11 +34,19 @@
      ```
    - Switch network to "Testnet" in Freighter settings
 
-3. **Connect to Sharpy dApp**
-   - Visit https://sharpy-sigma.vercel.app
-   - Click "Connect Wallet"
-   - Select "Freighter" from the modal
-   - Approve connection
+ 3. **Connect to Sharpy dApp**
+    - Visit https://sharpy-sigma.vercel.app
+    - Click "Connect Wallet"
+    - Select "Freighter" from the modal
+    - Approve connection
+
+### Session Expiry After Refresh
+
+The signer is intentionally **not** restored on page refresh — only the address
+is kept for display. After F5, transaction pages show
+"Wallet session expired. Please reconnect to continue."
+Click "Reconnect Wallet", pick the **same** wallet in the modal, and approve.
+This guarantees the signer is always bound to the wallet you actually chose.
 
 ---
 
@@ -77,3 +101,17 @@
 
 **Wrong network**
 - Check Freighter is on "Testnet" (settings → Network → Testnet)
+
+---
+
+## Contract & Network
+
+| Setting | Value |
+|---------|-------|
+| Network | testnet |
+| Contract | `CAEWQX36RLGP2WY6ACOREDJEIGELYV3HWWUPGV3CJMC27OWGQWZHTH6T` |
+| RPC | `https://soroban-testnet.stellar.org` |
+| USDC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
+
+If your wallet is on the wrong network (e.g. mainnet), switch it to Testnet
+before connecting — otherwise signatures will fail with `txBadAuth`.

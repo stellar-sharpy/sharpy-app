@@ -20,8 +20,12 @@ export default async function VerifyPage({ params }: { params: { id: string } })
 
   if (error || !invoice) {
     return (
-      <div className="max-w-lg mx-auto text-center py-32">
+      <div className="max-w-lg mx-auto text-center py-32 space-y-4 px-4">
         <p className="text-red-400" role="alert">{error || "Invoice not found."}</p>
+        <p className="text-xs text-[#4B5563]">Double-check the invoice ID in the URL, then try again.</p>
+        <a href="/dashboard" className="text-xs text-[#6C63FF] hover:underline" aria-label="Back to dashboard">
+          ← Back to dashboard
+        </a>
       </div>
     );
   }
